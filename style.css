@@ -1,0 +1,72 @@
+body {
+  margin: 0;
+  background: black;
+  font-family: Arial;
+  overflow-x: hidden;
+  overflow-y: auto; /* only scroll added */
+}
+
+.hero {
+  width: 100%;
+  height: auto; /* removed fixed height */
+  min-height: 150vh; /* allow scroll */
+  background: url('mainmenu.png') no-repeat center center;
+  background-size: cover; /* original look preserved */
+  position: relative;
+}
+
+.btn {
+  position: absolute;
+  left: 8%;
+  padding: 12px 25px;
+  background: #00aaff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.download { top: 60%; }
+.portal { top: 70%; }
+
+#menuBtn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#sidebar {
+  position: fixed;
+  left: -220px;
+  top: 0;
+  width: 220px;
+  height: 100%;
+  background: #111;
+  transition: 0.3s;
+  z-index: 999;
+}
+
+#sidebar button {
+  width: 100%;
+  padding: 15px;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .btn {
+    left: 5%;
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .download { top: 58%; }
+  .portal { top: 68%; }
+}
