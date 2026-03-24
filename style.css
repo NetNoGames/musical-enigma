@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  background: black;
+  font-family: Arial;
+  overflow-x: hidden;
+}
+
+.hero {
+  width: 100%;
+  min-height: 200vh; /* force scroll like big sites */
+  background: url('mainmenu.png') no-repeat top center;
+  background-size: cover;
+}
+
+/* buttons */
+.btn {
+  position: fixed;
+  left: 20px;
+  padding: 10px 20px;
+  background: #00aaff;
+  color: white;
+  border-radius: 5px;
+}
+
+.download { bottom: 80px; }
+.portal { bottom: 20px; }
+
+/* menu button FIX */
+#menuBtn {
+  position: fixed;
+  top: 5px;  /* moved higher */
+  right: 10px;
+  font-size: 28px;
+  color: white;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+/* sidebar */
+#sidebar {
+  position: fixed;
+  left: -220px;
+  top: 0;
+  width: 220px;
+  height: 100%;
+  background: #111;
+  transition: 0.3s;
+}
+
+#sidebar button {
+  width: 100%;
+  padding: 15px;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+}
