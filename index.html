@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetNo Games</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="menuBtn" onclick="toggleMenu()">☰</div>
+
+<div id="sidebar">
+  <button onclick="openPanel('overviewinfo.png')">Overview</button>
+  <button onclick="openPanel('developerportal.png')">Portal</button>
+  <button onclick="openPanel('supportpanel.png')">Support</button>
+  <button onclick="openPanel('communitypanels.png')">Community</button>
+  <button onclick="openPanel('games.png')">Games</button>
+</div>
+
+<div class="hero"></div>
+
+<div class="btn download" id="downloadBtn" onclick="downloadLauncher()">Download Game</div>
+<div class="btn portal" id="portalBtn" onclick="openPanel('developerportal.png')">Developer Portal</div>
+
+<div id="panel">
+  <img id="panelImg">
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
