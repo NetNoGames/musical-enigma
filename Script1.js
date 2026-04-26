@@ -1,66 +1,35 @@
-﻿// ===== Elements =====
-let sidebar = document.getElementById("sidebar");
-let panel = document.getElementById("panel");
+// ===== Community Panel Script (Separate) =====
+
+// elements
 let panelImg = document.getElementById("panelImg");
-let downloadBtn = document.getElementById("downloadBtn");
-let portalBtn = document.getElementById("portalBtn");
-
-
-// Community buttons
 let communityButtons = document.getElementById("communityButtons");
+
+// observe image change (jab panel change hota hai)
+const observer = new MutationObserver(() => {
+  if (!panelImg || !communityButtons) return;
+
+  // check kaunsa panel open hai
+  if (panelImg.src.includes("communitypanels.png")) {
+    communityButtons.style.display = "block";
+  } else {
+    communityButtons.style.display = "none";
+  }
+});
+
+// start observing
+if (panelImg) {
+  observer.observe(panelImg, { attributes: true, attributeFilter: ["src"] });
+}
+
+// buttons
 let discordBtn = document.getElementById("discordBtn");
 let redditBtn = document.getElementById("redditBtn");
 
-
-// ===== Menu Toggle =====
-function toggleMenu() {
-  sidebar.style.left = sidebar.style.left === "0px" ? "-220px" : "0px";
-}
-
-
-// ===== Panel Open =====
-function openPanel(img) {
-  panel.style.display = "block";
-  panelImg.src = img;
-
-
-  // hide main buttons
-  downloadBtn.style.display = "none";
-  portalBtn.style.display = "none";
-
-
-  // hide community buttons by default
-  if (communityButtons) {
-    communityButtons.style.display = "none";
-  }
-
-
-  // show community buttons only for community panel
-  if (img === "communitypanels.png") {
-    if (communityButtons) {
-      communityButtons.style.display = "block";
-    }
-  }
-
-
-  // close sidebar
-  sidebar.style.left = "-220px";
-}
-
-
-// ===== Download =====
-function downloadLauncher() {
-  alert("Download Start");
-}
-
-
-// ===== Community Links =====
 if (discordBtn) {
   discordBtn.onclick = () => {
     window.open("https://discord.gg/PTbxu9nPZq", "_blank");
   };
 }
-
 
 if (redditBtn) {
   redditBtn.onclick = () => {
