@@ -56,11 +56,4 @@ if (redditBtn) {
   redditBtn.onclick = () => {
     window.open("https://www.reddit.com/r/NetNoGamesCommunity/s/TuFLVwt7Ii", "_blank");
   };
-
-  <div id="communityButtons" style="display:none; text-align:center; margin-top:20px;">
-  <button id="discordBtn" class="commBtn">Discord Server</button><br><br>
-  <button id="redditBtn" class="commBtn">Subreddit</button>
-</div>
-
-  <button onclick="openPanel('communitypanels.png')">Community</button>
 }
