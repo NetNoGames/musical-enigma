@@ -5,16 +5,43 @@ body {
   overflow-x: hidden;
 }
 
-/* --- Main Menu (Hero Section) Fix --- */
+/* --- Main Menu (Hero Section) Smart Fix --- */
 .hero {
+  position: relative;
   width: 100%;
   height: 100vh;
-  background: url('mainmenu.png') no-repeat center top; /* Image ko top se align rakhega */
-  background-size: contain; /* PC par image kategi nahi, poori dikhegi */
-  background-color: black;
+  background: black;
+  overflow: hidden;
 }
 
-/* Main Home Page Buttons */
+/* PC par background ko fill karne ke liye blurred layer */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
+  background: url('mainmenu.png') no-repeat center center;
+  background-size: cover;
+  filter: blur(20px) brightness(0.4); /* Image ko blur aur thoda dark karega */
+  z-index: 1;
+}
+
+/* Center me clear image jo top se fit rahegi aur kategi nahi */
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('mainmenu.png') no-repeat center top;
+  background-size: contain;
+  z-index: 2;
+}
+
+/* Main Home Page Buttons Layer Priority */
 .btn {
   position: absolute;
   left: 8%;
@@ -82,7 +109,7 @@ body {
   color: white;
 }
 
-/* --- Panel Viewport Fix --- */
+/* --- Panel Viewport Dynamic Fix --- */
 #panel {
   display: none;
   position: fixed;
@@ -95,32 +122,46 @@ body {
   overflow-y: auto;
 }
 
-/* Container jo content ko center me rakhega */
 .panel-content-wrapper {
   position: relative;
   width: 100%;
-  max-width: 100%;
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Image top se shuru hogi */
+  align-items: center;
+  background-color: black;
+  overflow: hidden;
+}
+
+/* Panel images me bhi back ground blurred frame feature */
+.panel-content-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -5%; left: -5%; width: 110%; height: 110%;
+  background: inherit; /* JavaScript jo image source set karega, ye use background banayega */
+  background-position: center;
+  background-size: cover;
+  filter: blur(25px) brightness(0.3);
+  z-index: 1;
 }
 
 #panel img {
+  position: relative;
   width: 100%;
   max-width: 100%;
   height: auto;
   max-height: 100vh;
-  object-fit: contain; /* PC par side me black bars aayenge par image ka blue top kabhi nahi katega */
+  object-fit: contain;
   display: block;
   margin: 0 auto;
+  z-index: 2;
 }
 
-/* --- Community Overlay Center Fix --- */
+/* --- Community Overlay Fix --- */
 .community-overlay {
   display: none;
   position: absolute;
-  top: 65%; /* Buttons ko thoda neeche rakha taaki upar ka text na chhupe */
+  top: 65%;
   left: 50%;
   transform: translate(-50%, -50%);
   flex-direction: column;
@@ -149,31 +190,26 @@ body {
   transform: scale(1.05);
 }
 
-/* --- Responsive Media Queries (Mobile vs PC Logic) --- */
+/* --- Responsive Queries --- */
 @media (max-width: 768px) {
-  .hero {
-    background-size: cover; /* Mobile me jaisa chal raha tha waisa hi strict cover rahega */
+  /* Mobile me background blur layer ki zaroorat nahi hai kyunki screen vertical hoti hai */
+  .hero::before { display: none; }
+  .hero::after {
+    background-size: cover;
   }
   
   .btn {
     left: 5%;
     font-size: 14px;
+    z-index: 20;
   }
   
   .download { top: 60%; }
   .portal { top: 72%; }
 
+  .panel-content-wrapper::before { display: none; }
   #panel img {
     height: 100vh;
-    object-fit: cover; /* Mobile me panel full view me load hoga */
-  }
-  
-  .community-overlay {
-    top: 65%;
-  }
-
-  .action-btn {
-    font-size: 15px;
-    padding: 12px 20px;
+    object-fit: cover;
   }
 }
