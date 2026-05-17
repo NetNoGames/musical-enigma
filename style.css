@@ -9,12 +9,10 @@ body {
 .hero {
   width: 100%;
   height: 100vh;
-  background: url('mainmenu.png') no-repeat center 10%; /* Image top se set rahegi taaki NG logo aur blue text safe rahe */
-  background-size: 135% 100%; /* FIX: PC par 135% width zoom hoga jisse horizontal stretch bilkul normal lagega aur text khichega nahi */
-  z-index: 1;
+  background: url('mainmenu.png') no-repeat center 10%; /* PC aur mobile par texts safe zone me rahenge */
+  background-size: 135% 100%; /* FIX: PC par 135% zoom jisse original single image zyada stretch ya chpti nahi dikhegi */
 }
 
-/* Primary Website Navigation Control Buttons */
 .btn {
   position: absolute;
   left: 8%;
@@ -82,7 +80,7 @@ body {
   color: white;
 }
 
-/* --- Responsive Panel Fix --- */
+/* --- Panel Viewport Layer --- */
 #panel {
   display: none;
   position: fixed;
@@ -95,7 +93,8 @@ body {
   overflow-y: auto;
 }
 
-.panel-container {
+.panel-content-wrapper {
+  position: relative;
   width: 100%;
   min-height: 100vh;
   display: flex;
@@ -110,11 +109,44 @@ body {
   display: block;
 }
 
-/* --- Dedicated Media Queries for Mobile Screens --- */
+/* --- Community Overlay Fixed Central Grid --- */
+.community-overlay {
+  display: none; /* Default JS control pattern hidden */
+  position: absolute;
+  top: 65%; /* Buttons ko perfectly alignment position di */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  gap: 20px;
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+  z-index: 1001;
+}
+
+.action-btn {
+  display: block;
+  padding: 14px 25px;
+  background: #00aaff;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 5px;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #0088cc;
+  transform: scale(1.05);
+}
+
+/* --- Dedicated Media Queries for Pure Mobile Views --- */
 @media (max-width: 768px) {
   .hero {
     background-position: center center;
-    background-size: cover; /* Mobile par default standard cover automatic trigger hoga bina kisi zoom ke */
+    background-size: cover; /* Mobile screen vertical parameters maintain karega */
   }
   
   .btn {
@@ -128,6 +160,6 @@ body {
   #panel img {
     width: 100%;
     height: 100vh;
-    object-fit: cover;
+    object-fit: cover; /* Mobile panels look perfect format conversion */
   }
 }
