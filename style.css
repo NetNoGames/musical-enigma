@@ -214,10 +214,12 @@ body{
   font-size:15px;
   font-weight:bold;
   margin-bottom:20px;
+  transition:0.2s ease;
 }
 
 .google-sso-btn:hover{
   background:#232330;
+  transform:scale(1.02);
 }
 
 .divider{
@@ -245,11 +247,13 @@ body{
   border:1px solid #333;
   border-radius:5px;
   color:white;
+  font-size:14px;
 }
 
 .terminal-input-row input:focus{
   outline:none;
   border-color:#00aaff;
+  box-shadow:0 0 10px rgba(0,170,255,0.3);
 }
 
 .terminal-submit-btn{
@@ -262,10 +266,12 @@ body{
   font-weight:bold;
   cursor:pointer;
   margin-top:10px;
+  transition:0.2s ease;
 }
 
 .terminal-submit-btn:hover{
   background:#0088cc;
+  transform:scale(1.02);
 }
 
 .terminal-alert-msg{
@@ -273,6 +279,25 @@ body{
   margin-top:15px;
   text-align:center;
   font-size:13px;
+}
+
+/* SETUP BOX ANIMATION */
+
+#setupBox{
+  animation:fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn{
+
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
 /* MOBILE */
