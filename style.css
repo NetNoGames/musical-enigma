@@ -1,357 +1,310 @@
-body {
-  margin: 0;
-  background: black;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
+body{
+  margin:0;
+  background:black;
+  font-family:Arial,sans-serif;
+  overflow-x:hidden;
 }
 
+/* HERO */
 
-/* --- Hero Section PC Smart Zoom --- */
-.hero {
-  width: 100%;
-  height: 100vh;
-  background: url('mainmenu.png') no-repeat center 10%; /* Image top se locked rahegi */
-  background-size: 135% 100%; /* FIX: Image PC par bina stretch lage properly zoom-fit dikhegi */
+.hero{
+  width:100%;
+  height:100vh;
+  background:url('mainmenu.png') no-repeat center 10%;
+  background-size:135% 100%;
 }
 
+/* BUTTONS */
 
-.btn {
-  position: absolute;
-  left: 8%;
-  padding: 12px 25px;
-  background: #00aaff;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
-  border: none;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
+.btn{
+  position:absolute;
+  left:8%;
+  padding:12px 25px;
+  background:#00aaff;
+  color:white;
+  cursor:pointer;
+  border-radius:5px;
+  font-weight:bold;
+  text-decoration:none;
+  border:none;
+  z-index:10;
+  box-shadow:0 4px 15px rgba(0,170,255,0.4);
+  transition:0.2s ease;
 }
 
-
-.btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
+.btn:hover{
+  background:#0088cc;
+  transform:scale(1.05);
 }
 
-
-.download { top: 60%; }
-.portal { top: 70%; }
-
-
-#menuBtn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 12px;
-  border-radius: 5px;
+.download{
+  top:60%;
 }
 
-
-#sidebar {
-  position: fixed;
-  left: -220px;
-  top: 0;
-  width: 220px;
-  height: 100%;
-  background: #111;
-  transition: 0.3s ease;
-  z-index: 999;
-  box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+.portal{
+  top:70%;
 }
 
+/* MENU */
 
-#sidebar button {
-  width: 100%;
-  padding: 18px 20px;
-  background: none;
-  border: none;
-  color: #ccc;
-  text-align: left;
-  font-size: 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #222;
-  transition: 0.2s;
+#menuBtn{
+  position:fixed;
+  top:15px;
+  right:15px;
+  font-size:28px;
+  color:white;
+  cursor:pointer;
+  z-index:1000;
+  background:rgba(0,0,0,0.5);
+  padding:5px 12px;
+  border-radius:5px;
 }
 
+/* SIDEBAR */
 
-#sidebar button:hover {
-  background: #00aaff;
-  color: white;
+#sidebar{
+  position:fixed;
+  left:-220px;
+  top:0;
+  width:220px;
+  height:100%;
+  background:#111;
+  transition:0.3s ease;
+  z-index:999;
+  box-shadow:5px 0 15px rgba(0,0,0,0.5);
 }
 
-
-/* --- Responsive Panel Settings --- */
-#panel {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 998;
-  overflow-y: auto;
+#sidebar button{
+  width:100%;
+  padding:18px 20px;
+  background:none;
+  border:none;
+  color:#ccc;
+  text-align:left;
+  font-size:16px;
+  cursor:pointer;
+  border-bottom:1px solid #222;
+  transition:0.2s;
 }
 
-
-.panel-content-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+#sidebar button:hover{
+  background:#00aaff;
+  color:white;
 }
 
+/* PANEL */
 
-#panel img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  display: block;
+#panel{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100vh;
+  background:rgba(0,0,0,0.95);
+  z-index:998;
+  overflow-y:auto;
 }
 
-
-/* --- FIX: Community Central Blue Buttons UI Overlay --- */
-.community-overlay {
-  display: none; /* Default Hidden through layout rules */
-  position: absolute;
-  top: 65%; /* PC aur Mobile dono par perfectly centered layout positioning */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  flex-direction: column;
-  gap: 20px;
-  width: 90%;
-  max-width: 280px;
-  text-align: center;
-  z-index: 1001;
+.panel-content-wrapper{
+  position:relative;
+  width:100%;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
 }
 
-
-.action-btn {
-  display: block;
-  padding: 14px 25px;
-  background: #00aaff;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 16px;
-  border-radius: 5px;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
+#panel img{
+  width:100%;
+  max-width:100%;
+  height:auto;
+  display:block;
 }
 
+/* COMMUNITY */
 
-.action-btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
+.community-overlay{
+  display:none;
+  position:absolute;
+  top:65%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  flex-direction:column;
+  gap:20px;
+  width:90%;
+  max-width:280px;
+  text-align:center;
+  z-index:1001;
 }
 
+.action-btn{
+  display:block;
+  padding:14px 25px;
+  background:#00aaff;
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:16px;
+  border-radius:5px;
+  box-shadow:0 4px 15px rgba(0,170,255,0.4);
+  transition:0.2s ease;
+}
 
-/* --- Mobile Queries (Mobile me perfectly default look trigger karega) --- */
-@media (max-width: 768px) {
-  .hero {
-    background-position: center center;
-    background-size: cover; /* Mobile par automatic dynamic custom zoom hat jayega */
+.action-btn:hover{
+  background:#0088cc;
+  transform:scale(1.05);
+}
+
+/* LOGIN SYSTEM */
+
+.login-frame-mask{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100vh;
+  background:rgba(0,0,0,0.92);
+  backdrop-filter:blur(5px);
+  justify-content:center;
+  align-items:center;
+  z-index:3000;
+}
+
+.login-terminal-box{
+  width:90%;
+  max-width:360px;
+  background:#08080c;
+  border:2px solid #00aaff;
+  border-radius:10px;
+  padding:30px 25px;
+  box-sizing:border-box;
+  position:relative;
+  box-shadow:0 0 35px rgba(0,170,255,0.3);
+}
+
+.close-terminal-btn{
+  position:absolute;
+  top:10px;
+  right:15px;
+  font-size:28px;
+  color:#666;
+  cursor:pointer;
+}
+
+.close-terminal-btn:hover{
+  color:red;
+}
+
+.login-title{
+  color:#00aaff;
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.google-sso-btn{
+  width:100%;
+  padding:12px;
+  background:#1a1a22;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+
+.google-sso-btn:hover{
+  background:#232330;
+}
+
+.divider{
+  text-align:center;
+  color:#666;
+  margin-bottom:20px;
+}
+
+.terminal-input-row{
+  margin-bottom:15px;
+}
+
+.terminal-input-row label{
+  display:block;
+  color:#888;
+  margin-bottom:6px;
+  font-size:13px;
+}
+
+.terminal-input-row input{
+  width:100%;
+  padding:12px;
+  box-sizing:border-box;
+  background:#111;
+  border:1px solid #333;
+  border-radius:5px;
+  color:white;
+}
+
+.terminal-input-row input:focus{
+  outline:none;
+  border-color:#00aaff;
+}
+
+.terminal-submit-btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:5px;
+  background:#00aaff;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+.terminal-submit-btn:hover{
+  background:#0088cc;
+}
+
+.terminal-alert-msg{
+  color:red;
+  margin-top:15px;
+  text-align:center;
+  font-size:13px;
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+  .hero{
+    background-position:center center;
+    background-size:cover;
   }
-  
-  .btn {
-    left: 5%;
-    font-size: 14px;
+
+  .btn{
+    left:5%;
+    font-size:14px;
   }
-  
-  .download { top: 60%; }
-  .portal { top: 72%; }
 
-
-  #panel img {
-    width: 100%;
-    height: 100vh;
-    object-fit: cover;
+  .download{
+    top:60%;
   }
-}
 
+  .portal{
+    top:72%;
+  }
 
-/* ==========================================================================
-   NEW LOGIN SYSTEM CODE INTEGRATION
-   ========================================================================== */
+  #panel img{
+    width:100%;
+    height:100vh;
+    object-fit:cover;
+  }
 
-.login-frame-mask {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.93);
-  backdrop-filter: blur(6px);
-  z-index: 2000;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-terminal-box {
-  background: #08080c;
-  border: 2px solid #00aaff;
-  padding: 35px 25px;
-  width: 88%;
-  max-width: 350px;
-  border-radius: 10px;
-  position: relative;
-  box-shadow: 0 0 35px rgba(0, 170, 255, 0.3);
-  color: white;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.close-terminal-btn {
-  position: absolute;
-  top: 12px;
-  right: 18px;
-  font-size: 26px;
-  color: #444;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.close-terminal-btn:hover {
-  color: #ff3333;
-}
-
-.login-terminal-box h3 {
-  margin: 0 0 25px 0;
-  font-size: 19px;
-  color: #00aaff;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.google-sso-btn {
-  width: 100%;
-  padding: 11px;
-  background: #1c1c24;
-  color: white;
-  border: 1px solid #333;
-  border-radius: 5px;
-  font-weight: bold;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: 0.2s;
-}
-
-.google-sso-btn:hover {
-  background: #252533;
-  border-color: #00aaff;
-}
-
-.form-divider-row {
-  margin: 20px 0;
-  position: relative;
-  text-align: center;
-}
-
-.form-divider-row::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: #222;
-  z-index: 1;
-}
-
-.form-divider-row span {
-  background: #08080c;
-  padding: 0 10px;
-  color: #555;
-  font-size: 12px;
-  position: relative;
-  z-index: 2;
-  font-weight: bold;
-}
-
-.terminal-input-row {
-  text-align: left;
-  margin-bottom: 18px;
-}
-
-.terminal-input-row label {
-  display: block;
-  font-size: 11px;
-  color: #777;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-}
-
-.terminal-input-row input {
-  width: 100%;
-  padding: 11px;
-  background: #121216;
-  border: 1px solid #25252b;
-  color: white;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 15px;
-}
-
-.terminal-input-row input:focus {
-  border-color: #00aaff;
-  outline: none;
-}
-
-.terminal-submit-btn {
-  width: 100%;
-  padding: 12px;
-  background: #00aaff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.2s ease;
-  text-transform: uppercase;
-}
-
-.terminal-submit-btn:hover {
-  background: #0088cc;
-  box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
-}
-
-.terminal-alert-msg {
-  display: none;
-  color: #ff3333;
-  font-size: 13px;
-  margin-top: 15px;
-  text-align: center;
-}
-
-.view-switch-footer {
-  margin-top: 20px;
-  font-size: 13px;
-  color: #666;
-}
-
-.view-switch-footer span {
-  color: #00aaff;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.view-switch-footer span:hover {
-  text-decoration: underline;
+  .login-terminal-box{
+    width:92%;
+    padding:25px 20px;
+  }
 }
