@@ -5,15 +5,13 @@ body {
   overflow-x: hidden;
 }
 
-/* --- Hero Section Background Styling --- */
 .hero {
   width: 100%;
   height: 100vh;
-  background: url('mainmenu.png') no-repeat center 15%; /* FIX: PC par top elements ko fix rakhega aur kategi nahi */
-  background-size: cover; /* Aspect ratio hamesha natural rahega, stretch nahi dikhega */
+  background: url('mainmenu.png') no-repeat center center;
+  background-size: cover;
 }
 
-/* Main Interactive Control Grid Buttons */
 .btn {
   position: absolute;
   left: 8%;
@@ -81,7 +79,7 @@ body {
   color: white;
 }
 
-/* --- Modular Display Control Panels --- */
+/* --- FIX: Panel aur Image PC Layout Settings --- */
 #panel {
   display: none;
   position: fixed;
@@ -98,23 +96,26 @@ body {
   position: relative;
   width: 100%;
   height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #panel img {
   width: 100%;
-  height: 100vh;
-  object-fit: cover; /* Isse panels bhi bina stretch hue cinematic screen cover karenge */
-  object-position: center 15%;
+  height: 100%;
+  object-fit: contain; /* FIX: Isse image PC par kategi nahi, poori dikhegi */
+  background-color: black;
   display: block;
 }
 
-/* --- Community Overlay Link Layout --- */
+/* --- FIX: Community Buttons Positioning --- */
 .community-overlay {
-  display: none;
+  display: none; /* Default Hidden */
   position: absolute;
-  top: 65%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); /* FIX: Hamesha screen ke absolute center me rahega */
   flex-direction: column;
   gap: 20px;
   width: 90%;
@@ -141,23 +142,17 @@ body {
   transform: scale(1.05);
 }
 
-/* --- Responsive Media Parameters For Dedicated Mobile Frame --- */
+/* Mobile responsive settings */
 @media (max-width: 768px) {
-  .hero {
-    background: url('mainmenu.png') no-repeat center center;
-    background-size: cover; /* Mobile screen standard parameters preserve rakhega */
-  }
-  
   .btn {
     left: 5%;
     font-size: 14px;
   }
-  
-  .download { top: 60%; }
-  .portal { top: 72%; }
-
+  .action-btn {
+    font-size: 15px;
+    padding: 12px 20px;
+  }
   #panel img {
-    object-fit: cover;
-    object-position: center center;
+    object-fit: cover; /* Mobile me responsive vertical view ke liye standard height */
   }
 }
