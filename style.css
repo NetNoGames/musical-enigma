@@ -5,43 +5,15 @@ body {
   overflow-x: hidden;
 }
 
-/* --- Main Menu (Hero Section) Smart Fix --- */
+/* --- Hero Section Background Styling --- */
 .hero {
-  position: relative;
   width: 100%;
   height: 100vh;
-  background: black;
-  overflow: hidden;
-}
-
-/* PC par background ko fill karne ke liye blurred layer */
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -5%;
-  left: -5%;
-  width: 110%;
-  height: 110%;
-  background: url('mainmenu.png') no-repeat center center;
-  background-size: cover;
-  filter: blur(20px) brightness(0.4); /* Image ko blur aur thoda dark karega */
-  z-index: 1;
-}
-
-/* Center me clear image jo top se fit rahegi aur kategi nahi */
-.hero::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   background: url('mainmenu.png') no-repeat center top;
-  background-size: contain;
-  z-index: 2;
+  background-size: 100% 100%; /* PC par exact full screen border to border text layout map karega */
 }
 
-/* Main Home Page Buttons Layer Priority */
+/* Main Interactive Control Grid Buttons */
 .btn {
   position: absolute;
   left: 8%;
@@ -74,7 +46,7 @@ body {
   color: white;
   cursor: pointer;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   padding: 5px 12px;
   border-radius: 5px;
 }
@@ -109,7 +81,7 @@ body {
   color: white;
 }
 
-/* --- Panel Viewport Dynamic Fix --- */
+/* --- Modular Display Control Panels --- */
 #panel {
   display: none;
   position: fixed;
@@ -125,39 +97,17 @@ body {
 .panel-content-wrapper {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: black;
-  overflow: hidden;
-}
-
-/* Panel images me bhi back ground blurred frame feature */
-.panel-content-wrapper::before {
-  content: "";
-  position: absolute;
-  top: -5%; left: -5%; width: 110%; height: 110%;
-  background: inherit; /* JavaScript jo image source set karega, ye use background banayega */
-  background-position: center;
-  background-size: cover;
-  filter: blur(25px) brightness(0.3);
-  z-index: 1;
+  height: 100vh;
 }
 
 #panel img {
-  position: relative;
   width: 100%;
-  max-width: 100%;
-  height: auto;
-  max-height: 100vh;
-  object-fit: contain;
+  height: 100vh;
+  object-fit: fill; /* Isse backup panel grids bhi full widescreen area coordinate karengi */
   display: block;
-  margin: 0 auto;
-  z-index: 2;
 }
 
-/* --- Community Overlay Fix --- */
+/* --- Community Overlay Link Layout --- */
 .community-overlay {
   display: none;
   position: absolute;
@@ -190,26 +140,21 @@ body {
   transform: scale(1.05);
 }
 
-/* --- Responsive Queries --- */
+/* --- Responsive Media Parameters For Dedicated Mobile Frame --- */
 @media (max-width: 768px) {
-  /* Mobile me background blur layer ki zaroorat nahi hai kyunki screen vertical hoti hai */
-  .hero::before { display: none; }
-  .hero::after {
-    background-size: cover;
+  .hero {
+    background-size: cover; /* Mobile screen logic: center targeted vertical layout rendering */
   }
   
   .btn {
     left: 5%;
     font-size: 14px;
-    z-index: 20;
   }
   
   .download { top: 60%; }
   .portal { top: 72%; }
 
-  .panel-content-wrapper::before { display: none; }
   #panel img {
-    height: 100vh;
-    object-fit: cover;
+    object-fit: cover; /* Mobile interface responsive parameters preservation */
   }
 }
