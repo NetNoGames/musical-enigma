@@ -1,12 +1,12 @@
+// Sidebar and Panel Elements Setup
 let sidebar = document.getElementById("sidebar");
 let panel = document.getElementById("panel");
 let panelImg = document.getElementById("panelImg");
 let downloadBtn = document.getElementById("downloadBtn");
 let portalBtn = document.getElementById("portalBtn");
-let communityLinks = document.getElementById("communityLinks");
 
+// Toggle navigation drawer logic
 function toggleMenu() {
-  // Clear toggle verification fix
   if (sidebar.style.left === "0px") {
     sidebar.style.left = "-220px";
   } else {
@@ -14,34 +14,37 @@ function toggleMenu() {
   }
 }
 
-// Updated openPanel function to pass handles for Community conditions
-function openPanel(img, isCommunity) {
+// Open custom overlay panel
+function openPanel(imgSrc) {
   panel.style.display = "block";
-  panelImg.src = img;
-
-  // Main page elements hide karenge
+  panelImg.src = imgSrc;
+  
+  // Hide homepage default primary action buttons
   downloadBtn.style.display = "none";
   portalBtn.style.display = "none";
-  sidebar.style.left = "-220px";
+  sidebar.style.left = "-220px"; // Auto close navigation on selection
+}
 
-  // Check unique overlay conditions
-  if (isCommunity) {
-    communityLinks.style.display = "flex";
-  } else {
-    communityLinks.style.display = "none";
+// Close viewport dynamic module on key triggers
+window.addEventListener('keydown', function(e) {
+  if (e.key === "Escape") {
+    closePanelGrid();
   }
+});
+
+// Click anywhere outside image to close panel frame
+function closePanelOnOverlay(event) {
+  if (event.target.id === "panel" || event.target.className === "panel-container") {
+    closePanelGrid();
+  }
+}
+
+function closePanelGrid() {
+  panel.style.display = "none";
+  downloadBtn.style.display = "block";
+  portalBtn.style.display = "block";
 }
 
 function downloadLauncher() {
-  alert("Download Start");
+  alert("NetNo Games Launcher Download Initiated!");
 }
-
-// Close panel functionality agar user background pe click kare to (Optional Feature)
-window.addEventListener('keydown', function(e) {
-  if (e.key === "Escape") {
-    panel.style.display = "none";
-    communityLinks.style.display = "none";
-    downloadBtn.style.display = "block";
-    portalBtn.style.display = "block";
-  }
-});
