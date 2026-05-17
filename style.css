@@ -9,8 +9,8 @@ body {
 .hero {
   width: 100%;
   height: 100vh;
-  background: url('mainmenu.png') no-repeat center top;
-  background-size: 100% 100%; /* PC par exact full screen border to border text layout map karega */
+  background: url('mainmenu.png') no-repeat center 15%; /* FIX: PC par top elements ko fix rakhega aur kategi nahi */
+  background-size: cover; /* Aspect ratio hamesha natural rahega, stretch nahi dikhega */
 }
 
 /* Main Interactive Control Grid Buttons */
@@ -103,7 +103,8 @@ body {
 #panel img {
   width: 100%;
   height: 100vh;
-  object-fit: fill; /* Isse backup panel grids bhi full widescreen area coordinate karengi */
+  object-fit: cover; /* Isse panels bhi bina stretch hue cinematic screen cover karenge */
+  object-position: center 15%;
   display: block;
 }
 
@@ -143,7 +144,8 @@ body {
 /* --- Responsive Media Parameters For Dedicated Mobile Frame --- */
 @media (max-width: 768px) {
   .hero {
-    background-size: cover; /* Mobile screen logic: center targeted vertical layout rendering */
+    background: url('mainmenu.png') no-repeat center center;
+    background-size: cover; /* Mobile screen standard parameters preserve rakhega */
   }
   
   .btn {
@@ -155,6 +157,7 @@ body {
   .portal { top: 72%; }
 
   #panel img {
-    object-fit: cover; /* Mobile interface responsive parameters preservation */
+    object-fit: cover;
+    object-position: center center;
   }
 }
