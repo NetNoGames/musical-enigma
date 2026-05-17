@@ -1,7 +1,7 @@
 body {
   margin: 0;
   background: black;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   overflow-x: hidden;
 }
 
@@ -20,6 +20,17 @@ body {
   color: white;
   cursor: pointer;
   border-radius: 5px;
+  font-weight: bold;
+  text-decoration: none;
+  border: none;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+  transition: 0.2s ease;
+}
+
+.btn:hover {
+  background: #0088cc;
+  transform: scale(1.05);
 }
 
 .download { top: 60%; }
@@ -33,6 +44,9 @@ body {
   color: white;
   cursor: pointer;
   z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 12px;
+  border-radius: 5px;
 }
 
 #sidebar {
@@ -42,38 +56,95 @@ body {
   width: 220px;
   height: 100%;
   background: #111;
-  transition: 0.3s;
+  transition: 0.3s ease;
   z-index: 999;
+  box-shadow: 5px 0 15px rgba(0,0,0,0.5);
 }
 
 #sidebar button {
   width: 100%;
-  padding: 15px;
+  padding: 18px 20px;
   background: none;
   border: none;
-  color: white;
+  color: #ccc;
   text-align: left;
+  font-size: 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #222;
+  transition: 0.2s;
 }
 
+#sidebar button:hover {
+  background: #00aaff;
+  color: white;
+}
+
+/* Panel responsive aur size strictness logic */
 #panel {
   display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
+  height: 100vh;
   background: black;
   z-index: 998;
+  overflow-y: auto; /* Scroll method native kiya mainmenu jaisa */
+}
+
+.panel-content-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
 }
 
 #panel img {
   width: 100%;
+  height: 100vh;
+  object-fit: cover; /* Isse saari images strictly mainmenu.png jaisa fit hongi */
+  display: block;
+}
+
+/* Community Central Blue Buttons UI Overlay */
+.community-overlay {
+  display: none; /* Default Hidden */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 280px;
+  text-align: center;
+  z-index: 1001;
+}
+
+.action-btn {
+  display: block;
+  padding: 14px 25px;
+  background: #00aaff;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 5px;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #0088cc;
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
   .btn {
     left: 5%;
     font-size: 14px;
+  }
+  .action-btn {
+    font-size: 15px;
+    padding: 12px 20px;
   }
 }
