@@ -1,4 +1,64 @@
-<!-- LOGIN SYSTEM -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetNo Games</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div id="menuBtn" onclick="toggleMenu()">☰</div>
+
+<div id="sidebar">
+  <button onclick="openPanel('overviewinfo.png', false)">Overview</button>
+
+  <button onclick="openLoginPanel()">Portal</button>
+
+  <button onclick="openPanel('supportpanel.png', false)">Support</button>
+
+  <button onclick="openPanel('communitypanels.png', true)">Community</button>
+
+  <button onclick="openPanel('games.png', false)">Games</button>
+</div>
+
+<div class="hero"></div>
+
+<div class="btn download" id="downloadBtn" onclick="downloadLauncher()">
+Download Game
+</div>
+
+<div class="btn portal" id="portalBtn" onclick="openLoginPanel()">
+Developer Portal
+</div>
+
+<div id="panel" onclick="closePanelOnOverlay(event)">
+  <div class="panel-content-wrapper">
+
+    <img id="panelImg" alt="Panel Content">
+
+    <div id="communityLinks" class="community-overlay">
+
+      <a href="https://discord.gg/PTbxu9nPZq"
+      target="_blank"
+      class="action-btn">
+      Discord Server
+      </a>
+
+      <a href="https://www.reddit.com/r/NetNoGamesCommunity/s/VMGdDDwaQU"
+      target="_blank"
+      class="action-btn">
+      Subreddit
+      </a>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- LOGIN PANEL -->
 
 <div id="loginOverlay" class="login-frame-mask">
 
@@ -16,18 +76,19 @@
     <!-- GOOGLE LOGIN -->
 
     <button class="google-sso-btn"
-    onclick="googleLogin()">
+    onclick="handleGoogleAuth()">
 
     Continue With Google
 
     </button>
 
-    <div class="divider">OR</div>
+    <div class="divider">
+      <span>OR</span>
+    </div>
 
-    <!-- LOGIN FORM -->
+    <!-- EMAIL LOGIN -->
 
-    <form id="loginForm"
-    onsubmit="emailLogin(event)">
+    <form id="authForm">
 
       <div class="terminal-input-row">
 
@@ -35,7 +96,7 @@
 
         <input
         type="email"
-        id="loginEmail"
+        id="authEmail"
         required>
 
       </div>
@@ -46,7 +107,7 @@
 
         <input
         type="password"
-        id="loginPassword"
+        id="authPassword"
         required>
 
       </div>
@@ -54,42 +115,32 @@
       <button type="submit"
       class="terminal-submit-btn">
 
-      Login
+      Login / Register
 
       </button>
 
     </form>
 
-    <!-- REGISTER AFTER GOOGLE -->
+    <!-- USERNAME -->
 
-    <div id="setupBox"
+    <div id="usernameSection"
     style="display:none;">
 
       <div class="terminal-input-row">
 
-        <label>Username</label>
+        <label>Choose Username</label>
 
         <input
         type="text"
-        id="setupUsername">
-
-      </div>
-
-      <div class="terminal-input-row">
-
-        <label>Password</label>
-
-        <input
-        type="password"
-        id="setupPassword">
+        id="usernameInput">
 
       </div>
 
       <button
       class="terminal-submit-btn"
-      onclick="finishGoogleSetup()">
+      onclick="saveUsername()">
 
-      Complete Account
+      Continue
 
       </button>
 
@@ -102,3 +153,10 @@
   </div>
 
 </div>
+
+<script type="module" src="portallogin.js"></script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
