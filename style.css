@@ -1,165 +1,57 @@
-body {
-  margin: 0;
-  background: black;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
-}
+let sidebar = document.getElementById("sidebar");
+let panel = document.getElementById("panel");
+let panelImg = document.getElementById("panelImg");
+let downloadBtn = document.getElementById("downloadBtn");
+let portalBtn = document.getElementById("portalBtn");
+let communityLinks = document.getElementById("communityLinks");
 
-/* --- Hero Section Fix --- */
-.hero {
-  width: 100%;
-  height: 100vh;
-  background: url('mainmenu.png') no-repeat center 10%; /* PC aur mobile par texts safe zone me rahenge */
-  background-size: 135% 100%; /* FIX: PC par 135% zoom jisse original single image zyada stretch ya chpti nahi dikhegi */
-}
-
-.btn {
-  position: absolute;
-  left: 8%;
-  padding: 12px 25px;
-  background: #00aaff;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
-  border: none;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
-
-.btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
-}
-
-.download { top: 60%; }
-.portal { top: 70%; }
-
-#menuBtn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 12px;
-  border-radius: 5px;
-}
-
-#sidebar {
-  position: fixed;
-  left: -220px;
-  top: 0;
-  width: 220px;
-  height: 100%;
-  background: #111;
-  transition: 0.3s ease;
-  z-index: 999;
-  box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-}
-
-#sidebar button {
-  width: 100%;
-  padding: 18px 20px;
-  background: none;
-  border: none;
-  color: #ccc;
-  text-align: left;
-  font-size: 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #222;
-  transition: 0.2s;
-}
-
-#sidebar button:hover {
-  background: #00aaff;
-  color: white;
-}
-
-/* --- Panel Viewport Layer --- */
-#panel {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 998;
-  overflow-y: auto;
-}
-
-.panel-content-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-#panel img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* --- Community Overlay Fixed Central Grid --- */
-.community-overlay {
-  display: none; /* Default JS control pattern hidden */
-  position: absolute;
-  top: 65%; /* Buttons ko perfectly alignment position di */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  flex-direction: column;
-  gap: 20px;
-  width: 90%;
-  max-width: 280px;
-  text-align: center;
-  z-index: 1001;
-}
-
-.action-btn {
-  display: block;
-  padding: 14px 25px;
-  background: #00aaff;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 16px;
-  border-radius: 5px;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
-
-.action-btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
-}
-
-/* --- Dedicated Media Queries for Pure Mobile Views --- */
-@media (max-width: 768px) {
-  .hero {
-    background-position: center center;
-    background-size: cover; /* Mobile screen vertical parameters maintain karega */
+function toggleMenu() {
+  if (sidebar.style.left === "0px") {
+    sidebar.style.left = "-220px";
+  } else {
+    sidebar.style.left = "0px";
   }
-  
-  .btn {
-    left: 5%;
-    font-size: 14px;
-  }
-  
-  .download { top: 60%; }
-  .portal { top: 72%; }
+}
 
-  #panel img {
-    width: 100%;
-    height: 100vh;
-    object-fit: cover; /* Mobile panels look perfect format conversion */
+// Fixed panel management to explicitly enable unique overlay handling
+function openPanel(img, isCommunity) {
+  panel.style.display = "block";
+  panelImg.src = img;
+
+  // Front layers disable framework
+  downloadBtn.style.display = "none";
+  portalBtn.style.display = "none";
+  sidebar.style.left = "-220px";
+
+  // Check unique community parameters
+  if (isCommunity) {
+    communityLinks.style.display = "flex";
+  } else {
+    communityLinks.style.display = "none";
   }
+}
+
+function closePanelGrid() {
+  panel.style.display = "none";
+  communityLinks.style.display = "none";
+  downloadBtn.style.display = "block";
+  portalBtn.style.display = "block";
+}
+
+// Click background tracking overlay reset
+function closePanelOnOverlay(event) {
+  if (event.target.id === "panel" || event.target.className === "panel-content-wrapper") {
+    closePanelGrid();
+  }
+}
+
+// ESC Key Trigger Support
+window.addEventListener('keydown', function(e) {
+  if (e.key === "Escape") {
+    closePanelGrid();
+  }
+});
+
+function downloadLauncher() {
+  alert("Download Start");
 }
