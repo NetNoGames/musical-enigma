@@ -2,14 +2,25 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
 import {
+
   getAuth,
+
   GoogleAuthProvider,
+
   signInWithPopup,
-  createUserWithEmailAndPassword,
+
   signInWithEmailAndPassword,
+
+  createUserWithEmailAndPassword,
+
   updateProfile
+
 }
+
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+
+// FIREBASE CONFIG
 
 const firebaseConfig = {
 
@@ -26,101 +37,150 @@ const firebaseConfig = {
   appId: "1:571332011408:web:b40acafe4f258e4183bf15"
 };
 
+
+// INIT
+
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
 const provider = new GoogleAuthProvider();
 
-window.openLoginPanel = function () {
+let googleUser = null;
+
+
+// OPEN PANEL
+
+window.openLoginPanel = function(){
 
   document.getElementById("loginOverlay").style.display = "flex";
+
+  document.getElementById("downloadBtn").style.display = "none";
+
+  document.getElementById("portalBtn").style.display = "none";
 
   document.getElementById("sidebar").style.left = "-220px";
 };
 
-window.closeLoginPanel = function () {
+
+// CLOSE PANEL
+
+window.closeLoginPanel = function(){
 
   document.getElementById("loginOverlay").style.display = "none";
+
+  document.getElementById("downloadBtn").style.display = "block";
+
+  document.getElementById("portalBtn").style.display = "block";
 };
 
-window.handleGoogleAuth = function () {
 
-  signInWithPopup(auth, provider)
+// GOOGLE LOGIN
 
-  .then(() => {
+window.googleLogin = async function(){
 
-    document.getElementById("usernameSection").style.display = "block";
+  try{
 
-    document.getElementById("authForm").style.display = "none";
+    const result =
+    await signInWithPopup(auth, provider);
 
-  })
+    googleUser = result.user;
 
-  .catch((error) => {
+    // SHOW SETUP BOX
+
+    document.getElementById("loginForm").style.display = "none";
+
+    document.getElementById("setupBox").style.display = "block";
+
+  }
+
+  catch(error){
 
     document.getElementById("loginError").innerText =
     error.message;
-  });
+  }
 };
 
-document.getElementById("authForm")
 
-.addEventListener("submit", function(e){
+// FINISH GOOGLE ACCOUNT
+
+window.finishGoogleSetup = async function(){
+
+  const username =
+  document.getElementById("setupUsername").value;
+
+  try{
+
+    await updateProfile(googleUser, {
+
+      displayName: username
+
+    });
+
+    loginSuccess();
+
+  }
+
+  catch(error){
+
+    document.getElementById("loginError").innerText =
+    error.message;
+  }
+};
+
+
+// EMAIL LOGIN
+
+window.emailLogin = async function(e){
 
   e.preventDefault();
 
   const email =
-  document.getElementById("authEmail").value;
+  document.getElementById("loginEmail").value;
 
   const password =
-  document.getElementById("authPassword").value;
+  document.getElementById("loginPassword").value;
 
-  signInWithEmailAndPassword(auth, email, password)
+  try{
 
-  .then(() => {
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-    closeLoginPanel();
+    loginSuccess();
 
-    openPanel('developerportal.png', false);
+  }
 
-  })
+  catch{
 
-  .catch(() => {
+    try{
 
-    createUserWithEmailAndPassword(auth, email, password)
+      await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-    .then(() => {
+      loginSuccess();
 
-      document.getElementById("usernameSection").style.display = "block";
+    }
 
-      document.getElementById("authForm").style.display = "none";
-
-    })
-
-    .catch((error) => {
+    catch(error){
 
       document.getElementById("loginError").innerText =
       error.message;
-    });
-  });
-});
-
-window.saveUsername = function () {
-
-  const username =
-  document.getElementById("usernameInput").value;
-
-  updateProfile(auth.currentUser, {
-
-    displayName: username
-
-  })
-
-  .then(() => {
-
-    closeLoginPanel();
-
-    openPanel('developerportal.png', false);
-
-  });
+    }
+  }
 };
+
+
+// SUCCESS
+
+function loginSuccess(){
+
+  document.getElementById("loginOverlay").style.display = "none";
+
+  openPanel('developerportal.png', false);
+}
