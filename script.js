@@ -1,3 +1,5 @@
+// script.js - Core Navigation Control Engine & Global Module Bridges
+
 let sidebar = document.getElementById("sidebar");
 let panel = document.getElementById("panel");
 let panelImg = document.getElementById("panelImg");
@@ -5,20 +7,23 @@ let downloadBtn = document.getElementById("downloadBtn");
 let portalBtn = document.getElementById("portalBtn");
 let communityLinks = document.getElementById("communityLinks");
 
-function toggleMenu() {
+
+// 1. Sidebar Open/Close Feature (Global Scope)
+window.toggleMenu = function() {
   if (sidebar.style.left === "0px") {
     sidebar.style.left = "-220px";
   } else {
     sidebar.style.left = "0px";
   }
-}
+};
 
-// Open panel handler that checks specifically for Community overlays
-function openPanel(img, isCommunity) {
+
+// 2. Standard Screenshot/Community Panels Manager (Global Scope)
+window.openPanel = function(img, isCommunity) {
   panel.style.display = "block";
   panelImg.src = img;
 
-  // Front layers hide logic
+  // Front UI layers hide logic
   downloadBtn.style.display = "none";
   portalBtn.style.display = "none";
   sidebar.style.left = "-220px";
@@ -29,29 +34,40 @@ function openPanel(img, isCommunity) {
   } else {
     communityLinks.style.display = "none";
   }
-}
+};
 
-function closePanelGrid() {
+
+// 3. Grid Panel Reset System (Global Scope)
+window.closePanelGrid = function() {
   panel.style.display = "none";
   communityLinks.style.display = "none";
   downloadBtn.style.display = "block";
   portalBtn.style.display = "block";
-}
+};
 
-// Click background tracking overlay reset pattern
-function closePanelOnOverlay(event) {
+
+// 4. Background Click Detection Reset Handler (Global Scope)
+window.closePanelOnOverlay = function(event) {
   if (event.target.id === "panel" || event.target.className === "panel-content-wrapper") {
-    closePanelGrid();
+    window.closePanelGrid();
   }
-}
+};
 
-// ESC Key Trigger Support
+
+// 5. ESC Key Universal Exit Support (Closes active modules + login boxes)
 window.addEventListener('keydown', function(e) {
   if (e.key === "Escape") {
-    closePanelGrid();
+    window.closePanelGrid();
+    
+    // Agar login overlay open hai to use bhi close karega
+    if (typeof window.closeLoginPanel === "function") {
+      window.closeLoginPanel();
+    }
   }
 });
 
-function downloadLauncher() {
+
+// 6. Launcher Download Action Simulation
+window.downloadLauncher = function() {
   alert("Download Start");
-}
+};
