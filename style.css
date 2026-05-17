@@ -5,13 +5,16 @@ body {
   overflow-x: hidden;
 }
 
+/* --- Main Menu (Hero Section) Fix --- */
 .hero {
   width: 100%;
   height: 100vh;
-  background: url('mainmenu.png') no-repeat center center;
-  background-size: cover;
+  background: url('mainmenu.png') no-repeat center top; /* Image ko top se align rakhega */
+  background-size: contain; /* PC par image kategi nahi, poori dikhegi */
+  background-color: black;
 }
 
+/* Main Home Page Buttons */
 .btn {
   position: absolute;
   left: 8%;
@@ -44,7 +47,7 @@ body {
   color: white;
   cursor: pointer;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   padding: 5px 12px;
   border-radius: 5px;
 }
@@ -79,7 +82,7 @@ body {
   color: white;
 }
 
-/* --- FIX: Panel aur Image PC Layout Settings --- */
+/* --- Panel Viewport Fix --- */
 #panel {
   display: none;
   position: fixed;
@@ -92,30 +95,34 @@ body {
   overflow-y: auto;
 }
 
+/* Container jo content ko center me rakhega */
 .panel-content-wrapper {
   position: relative;
   width: 100%;
-  height: 100vh;
+  max-width: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Image top se shuru hogi */
 }
 
 #panel img {
   width: 100%;
-  height: 100%;
-  object-fit: contain; /* FIX: Isse image PC par kategi nahi, poori dikhegi */
-  background-color: black;
+  max-width: 100%;
+  height: auto;
+  max-height: 100vh;
+  object-fit: contain; /* PC par side me black bars aayenge par image ka blue top kabhi nahi katega */
   display: block;
+  margin: 0 auto;
 }
 
-/* --- FIX: Community Buttons Positioning --- */
+/* --- Community Overlay Center Fix --- */
 .community-overlay {
-  display: none; /* Default Hidden */
+  display: none;
   position: absolute;
-  top: 50%;
+  top: 65%; /* Buttons ko thoda neeche rakha taaki upar ka text na chhupe */
   left: 50%;
-  transform: translate(-50%, -50%); /* FIX: Hamesha screen ke absolute center me rahega */
+  transform: translate(-50%, -50%);
   flex-direction: column;
   gap: 20px;
   width: 90%;
@@ -142,17 +149,31 @@ body {
   transform: scale(1.05);
 }
 
-/* Mobile responsive settings */
+/* --- Responsive Media Queries (Mobile vs PC Logic) --- */
 @media (max-width: 768px) {
+  .hero {
+    background-size: cover; /* Mobile me jaisa chal raha tha waisa hi strict cover rahega */
+  }
+  
   .btn {
     left: 5%;
     font-size: 14px;
   }
+  
+  .download { top: 60%; }
+  .portal { top: 72%; }
+
+  #panel img {
+    height: 100vh;
+    object-fit: cover; /* Mobile me panel full view me load hoga */
+  }
+  
+  .community-overlay {
+    top: 65%;
+  }
+
   .action-btn {
     font-size: 15px;
     padding: 12px 20px;
-  }
-  #panel img {
-    object-fit: cover; /* Mobile me responsive vertical view ke liye standard height */
   }
 }
