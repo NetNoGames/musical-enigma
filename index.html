@@ -1,215 +1,39 @@
-body {
-  margin: 0;
-  background: black;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetNo Games</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-/* --- Main Menu (Hero Section) Smart Fix --- */
-.hero {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: black;
-  overflow: hidden;
-}
+<div id="menuBtn" onclick="toggleMenu()">☰</div>
 
-/* PC par background ko fill karne ke liye blurred layer */
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -5%;
-  left: -5%;
-  width: 110%;
-  height: 110%;
-  background: url('mainmenu.png') no-repeat center center;
-  background-size: cover;
-  filter: blur(20px) brightness(0.4); /* Image ko blur aur thoda dark karega */
-  z-index: 1;
-}
+<div id="sidebar">
+  <button onclick="openPanel('overviewinfo.png', false)">Overview</button>
+  <button onclick="openPanel('developerportal.png', false)">Portal</button>
+  <button onclick="openPanel('supportpanel.png', false)">Support</button>
+  <button onclick="openPanel('communitypanels.png', true)">Community</button>
+  <button onclick="openPanel('games.png', false)">Games</button>
+</div>
 
-/* Center me clear image jo top se fit rahegi aur kategi nahi */
-.hero::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('mainmenu.png') no-repeat center top;
-  background-size: contain;
-  z-index: 2;
-}
+<div class="hero"></div>
 
-/* Main Home Page Buttons Layer Priority */
-.btn {
-  position: absolute;
-  left: 8%;
-  padding: 12px 25px;
-  background: #00aaff;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
-  border: none;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
+<div class="btn download" id="downloadBtn" onclick="downloadLauncher()">Download Game</div>
+<div class="btn portal" id="portalBtn" onclick="openPanel('developerportal.png', false)">Developer Portal</div>
 
-.btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
-}
+<div id="panel">
+  <div class="panel-content-wrapper">
+    <img id="panelImg" alt="NetNo Games Panel">
+    
+    <div id="communityLinks" class="community-overlay">
+      <a href="https://discord.gg/PTbxu9nPZq" target="_blank" class="action-btn">Discord Server</a>
+      <a href="https://www.reddit.com/r/NetNoGamesCommunity/s/VMGdDDwaQU" target="_blank" class="action-btn">Subreddit</a>
+    </div>
+  </div>
+</div>
 
-.download { top: 60%; }
-.portal { top: 70%; }
-
-#menuBtn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 5px 12px;
-  border-radius: 5px;
-}
-
-#sidebar {
-  position: fixed;
-  left: -220px;
-  top: 0;
-  width: 220px;
-  height: 100%;
-  background: #111;
-  transition: 0.3s ease;
-  z-index: 999;
-  box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-}
-
-#sidebar button {
-  width: 100%;
-  padding: 18px 20px;
-  background: none;
-  border: none;
-  color: #ccc;
-  text-align: left;
-  font-size: 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #222;
-  transition: 0.2s;
-}
-
-#sidebar button:hover {
-  background: #00aaff;
-  color: white;
-}
-
-/* --- Panel Viewport Dynamic Fix --- */
-#panel {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: black;
-  z-index: 998;
-  overflow-y: auto;
-}
-
-.panel-content-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: black;
-  overflow: hidden;
-}
-
-/* Panel images me bhi back ground blurred frame feature */
-.panel-content-wrapper::before {
-  content: "";
-  position: absolute;
-  top: -5%; left: -5%; width: 110%; height: 110%;
-  background: inherit; /* JavaScript jo image source set karega, ye use background banayega */
-  background-position: center;
-  background-size: cover;
-  filter: blur(25px) brightness(0.3);
-  z-index: 1;
-}
-
-#panel img {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  max-height: 100vh;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-  z-index: 2;
-}
-
-/* --- Community Overlay Fix --- */
-.community-overlay {
-  display: none;
-  position: absolute;
-  top: 65%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  flex-direction: column;
-  gap: 20px;
-  width: 90%;
-  max-width: 280px;
-  text-align: center;
-  z-index: 1001;
-}
-
-.action-btn {
-  display: block;
-  padding: 14px 25px;
-  background: #00aaff;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 16px;
-  border-radius: 5px;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
-
-.action-btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
-}
-
-/* --- Responsive Queries --- */
-@media (max-width: 768px) {
-  /* Mobile me background blur layer ki zaroorat nahi hai kyunki screen vertical hoti hai */
-  .hero::before { display: none; }
-  .hero::after {
-    background-size: cover;
-  }
-  
-  .btn {
-    left: 5%;
-    font-size: 14px;
-    z-index: 20;
-  }
-  
-  .download { top: 60%; }
-  .portal { top: 72%; }
-
-  .panel-content-wrapper::before { display: none; }
-  #panel img {
-    height: 100vh;
-    object-fit: cover;
-  }
-}
+<script src="script.js"></script>
+</body>
+</html>
