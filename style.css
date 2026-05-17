@@ -5,13 +5,12 @@ body {
   overflow-x: hidden;
 }
 
-/* --- Hero Section (PC Default Layout) --- */
+/* --- Hero Section Background Styling --- */
 .hero {
   width: 100%;
   height: 100vh;
-  /* PC par ye landscape image load hogi, jo bilkul fit aayegi aur stretch nahi hogi */
-  background: url('pcmainmenu.jpg') no-repeat center center; 
-  background-size: cover; 
+  background: url('mainmenu.png') no-repeat center 15%; /* FIX: PC par top elements ko fix rakhega aur kategi nahi */
+  background-size: cover; /* Aspect ratio hamesha natural rahega, stretch nahi dikhega */
 }
 
 /* Main Interactive Control Grid Buttons */
@@ -104,17 +103,49 @@ body {
 #panel img {
   width: 100%;
   height: 100vh;
-  object-fit: cover;
-  object-position: center center;
+  object-fit: cover; /* Isse panels bhi bina stretch hue cinematic screen cover karenge */
+  object-position: center 15%;
   display: block;
 }
 
-/* --- Responsive Parameters For Mobile Frame (Screens below 768px) --- */
+/* --- Community Overlay Link Layout --- */
+.community-overlay {
+  display: none;
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  gap: 20px;
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+  z-index: 1001;
+}
+
+.action-btn {
+  display: block;
+  padding: 14px 25px;
+  background: #00aaff;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 5px;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #0088cc;
+  transform: scale(1.05);
+}
+
+/* --- Responsive Media Parameters For Dedicated Mobile Frame --- */
 @media (max-width: 768px) {
   .hero {
-    /* Mobile par automatic ye vertical image switch ho jayegi */
     background: url('mainmenu.png') no-repeat center center;
-    background-size: cover; 
+    background-size: cover; /* Mobile screen standard parameters preserve rakhega */
   }
   
   .btn {
@@ -127,5 +158,6 @@ body {
 
   #panel img {
     object-fit: cover;
+    object-position: center center;
   }
 }
