@@ -1,159 +1,188 @@
-// portal-auth.js - Modern Web Firebase Auth Engine (Google + Password Standard)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-// Sourced directly from your verified credentials
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  updateProfile,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
-  authDomain: "netno-games-d8580.firebaseapp.com",
-  projectId: "netno-games-d8580",
-  storageBucket: "netno-games-d8580.firebasestorage.app",
-  messagingSenderId: "571332011408",
-  appId: "1:571332011408:web:b40acafe4f258e4183bf15"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_DOMAIN.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
 const googleProvider = new GoogleAuthProvider();
 
-// UI Elements Visibility Mapping
-window.openLoginPanel = function() {
+window.openLoginPanel = function () {
+
   document.getElementById("loginOverlay").style.display = "flex";
-  document.getElementById("downloadBtn").style.display = "none";
-  document.getElementById("portalBtn").style.display = "none";
+
   document.getElementById("sidebar").style.left = "-220px";
 };
 
-window.closeLoginPanel = function() {
+window.closeLoginPanel = function () {
+
   document.getElementById("loginOverlay").style.display = "none";
-  if (!auth.currentUser) {
-    document.getElementById("downloadBtn").style.display = "block";
-    document.getElementById("portalBtn").style.display = "block";
-  }
 };
 
-// Form toggles (Sign In vs Create Account views)
-window.toggleAuthView = function(view) {
-  const emailForm = document.getElementById("emailFormView");
-  const userSetup = document.getElementById("usernameSetupView");
-  const formTitle = document.getElementById("authBoxTitle");
-  const submitBtn = document.getElementById("emailSubmitBtn");
-  const toggleText = document.getElementById("toggleAuthText");
+window.toggleAuthView = function (view) {
 
-  document.getElementById("loginError").style.display = "none";
+  const form = document.getElementById("emailFormView");
 
-  if (view === 'register') {
-    formTitle.innerText = "Create Account";
-    submitBtn.innerText = "Register & Continue";
-    toggleText.innerHTML = "Already have an account? <span onclick='toggleAuthView(\"login\")'>Login</span>";
-    emailForm.dataset.mode = "register";
-  } else if (view === 'username_setup') {
-    emailForm.style.display = "none";
-    document.getElementById("googleAuthBtn").style.display = "none";
-    document.getElementById("authSeparator").style.display = "none";
-    userSetup.style.display = "block";
-    formTitle.innerText = "Set Username";
+  const title = document.getElementById("authBoxTitle");
+
+  const button = document.getElementById("emailSubmitBtn");
+
+  const toggle = document.getElementById("toggleAuthText");
+
+  if (view === "register") {
+
+    form.dataset.mode = "register";
+
+    title.innerText = "Create Account";
+
+    button.innerText = "Register";
+
+    toggle.innerHTML =
+      `Already have account?
+       <span onclick="toggleAuthView('login')">
+       Login
+       </span>`;
+
   } else {
-    formTitle.innerText = "Developer Terminal";
-    submitBtn.innerText = "Verify Access";
-    toggleText.innerHTML = "New Developer? <span onclick='toggleAuthView(\"register\")'>Create Account</span>";
-    emailForm.style.display = "block";
-    document.getElementById("googleAuthBtn").style.display = "block";
-    document.getElementById("authSeparator").style.display = "block";
-    userSetup.style.display = "none";
-    emailForm.dataset.mode = "login";
+
+    form.dataset.mode = "login";
+
+    title.innerText = "Developer Terminal";
+
+    button.innerText = "Verify Access";
+
+    toggle.innerHTML =
+      `New Developer?
+       <span onclick="toggleAuthView('register')">
+       Create Account
+       </span>`;
   }
 };
 
-// Handle Email/Password Actions (Login or Registration)
-window.handleEmailAuth = function(event) {
-  event.preventDefault();
-  const email = document.getElementById("authEmail").value;
-  const password = document.getElementById("authPassword").value;
-  const alertText = document.getElementById("loginError");
-  const mode = document.getElementById("emailFormView").dataset.mode || "login";
+window.handleEmailAuth = function (event) {
 
-  alertText.style.display = "none";
+  event.preventDefault();
+
+  const email =
+    document.getElementById("authEmail").value;
+
+  const password =
+    document.getElementById("authPassword").value;
+
+  const mode =
+    document.getElementById("emailFormView").dataset.mode;
+
+  const error =
+    document.getElementById("loginError");
+
+  error.style.display = "none";
 
   if (mode === "register") {
+
     createUserWithEmailAndPassword(auth, email, password)
+
       .then(() => {
-        // Automatically redirects to username setup via auth state observer
+
+        toggleAuthView("login");
+
+        alert("Account Created");
+
       })
-      .catch(err => {
-        alertText.style.display = "block";
-        alertText.innerText = "Registration Error: " + err.message;
+
+      .catch((err) => {
+
+        error.style.display = "block";
+
+        error.innerText = err.message;
       });
+
   } else {
+
     signInWithEmailAndPassword(auth, email, password)
+
       .then(() => {
-        // Success handler processed by onAuthStateChanged
+
+        closeLoginPanel();
+
+        alert("Login Success");
+
       })
-      .catch(err => {
-        alertText.style.display = "block";
-        alertText.innerText = "Access Denied: Invalid credentials.";
+
+      .catch(() => {
+
+        error.style.display = "block";
+
+        error.innerText = "Invalid Credentials";
       });
   }
 };
 
-// Google Single Sign-On Option Trigger
-window.handleGoogleAuth = function() {
-  const alertText = document.getElementById("loginError");
-  alertText.style.display = "none";
+window.handleGoogleAuth = function () {
 
   signInWithPopup(auth, googleProvider)
-    .then((result) => {
-      // If a brand new Google user handles login, require profile tracking updates
-      if (!result.user.displayName) {
-        toggleAuthView('username_setup');
-      }
+
+    .then(() => {
+
+      closeLoginPanel();
+
+      alert("Google Login Success");
     })
-    .catch(err => {
-      alertText.style.display = "block";
-      alertText.innerText = "Google Authentication Failed.";
+
+    .catch(() => {
+
+      document.getElementById("loginError").style.display = "block";
+
+      document.getElementById("loginError").innerText =
+        "Google Login Failed";
     });
 };
 
-// Profile Username Submission Handler
-window.handleUsernameSubmission = function(event) {
-  event.preventDefault();
-  const username = document.getElementById("profileUsername").value;
-  const alertText = document.getElementById("loginError");
+window.handleUsernameSubmission = function (event) {
 
-  if (auth.currentUser) {
-    updateProfile(auth.currentUser, { displayName: username })
-      .then(() => {
-        alertText.style.display = "none";
-        completePostAuthRedirection();
-      })
-      .catch(err => {
-        alertText.style.display = "block";
-        alertText.innerText = "Error updating database entry.";
-      });
-  }
+  event.preventDefault();
+
+  const username =
+    document.getElementById("profileUsername").value;
+
+  updateProfile(auth.currentUser, {
+
+    displayName: username
+
+  }).then(() => {
+
+    alert("Username Saved");
+
+    closeLoginPanel();
+  });
 };
 
-function completePostAuthRedirection() {
-  window.closeLoginPanel();
-  // Safe validation fallback connection directly to your main script pipeline
-  if (typeof openPanel === "function") {
-    openPanel('developerportal.png', false);
-  }
-}
-
-// Persistent Auth Observer Channel
 onAuthStateChanged(auth, (user) => {
+
   if (user) {
-    if (!user.displayName) {
-      toggleAuthView('username_setup');
-    } else {
-      // User is verified and profile username is initialized
-      if (document.getElementById("loginOverlay").style.display === "flex") {
-        completePostAuthRedirection();
-      }
-    }
+
+    console.log("Logged In:", user.email);
+
   } else {
-    // Session state clean placeholder reset logs
-    console.log("No authenticated terminal credentials matched.");
+
+    console.log("No User");
   }
 });
