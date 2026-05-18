@@ -31,13 +31,9 @@ let isRegistrationProcess = false;
 // Global Auth State Observer Matrix 
 onAuthStateChanged(auth, (user) => { 
   if (user && !isRegistrationProcess) { 
+    // Agar user complete hai tabhi UI data apply hoga
     if (user.displayName && user.displayName.trim() !== "" && !user.displayName.includes("@")) { 
       applyUserUIData(user); 
-    } else { 
-      const checkedMarker = localStorage.getItem("netno_setup_done_" + user.email); 
-      if (checkedMarker) { 
-        applyUserUIData(user); 
-      } 
     } 
   } else if (!user) { 
     resetGlobalSessionUI(); 
@@ -80,7 +76,7 @@ window.handleDirectLogin = async function(e) {
     await signInWithEmailAndPassword(auth, email, password); 
     executeLoginSuccess(); 
   } catch (err) { 
-    console.error("Direct Login Pipeline Failure Exception: ", err.code); 
+    console.error("Direct Login Failure: ", err.code); 
     if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential" || err.code === "auth/wrong-password") { 
       errorDiv.innerText = "Incorrect account details or invalid password specified."; 
     } else { 
@@ -89,7 +85,7 @@ window.handleDirectLogin = async function(e) {
   } 
 }; 
 
-// 2. PATHWAY B: CONTINUE WITH GOOGLE GATEWAY 
+// 2. PATHWAY B: CONTINUE WITH GOOGLE GATEWAY (STRICT REGISTRATION STEPS FIXED)
 window.handleGoogleAuth = async function() { 
   const errorDiv = document.getElementById("loginError"); 
   errorDiv.innerText = ""; 
@@ -97,11 +93,16 @@ window.handleGoogleAuth = async function() {
     const result = await signInWithPopup(auth, provider); 
     const user = result.user; 
     registrationEmail = user.email; 
-    const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email); 
-    if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) { 
+    
+    // Local check verify karne ke liye ki kya ye bilkul fresh login hai ya pehle se customized hai
+    const setupDone = localStorage.getItem("netno_setup_done_" + user.email);
+    
+    if (user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "" && setupDone) { 
+      // Agar account already bana hua hai toh direct dashboard par le jao
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } else { 
+      // FIXED: Agar user naya hai ya complete nahi hai, toh mandatory step-1 par bhejo!
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
       document.getElementById("credentialsStep").style.display = "block"; 
@@ -131,11 +132,13 @@ window.submitCredentialsStep = function() {
   } 
   registrationPassword = chosenPassword; 
   errorDiv.innerText = ""; 
+  
+  // Agle avatar registration step par transfer karein
   document.getElementById("credentialsStep").style.display = "none"; 
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// 4. REGISTRATION STEP 2: FINALIZE REGISTRATION 
+// 4. REGISTRATION STEP 2: PROFILE PICTURE SELECTION & COMPLEX LINKAGE
 window.finalizeAccountRegistration = async function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const fileInput = document.getElementById("avatarFileInput"); 
@@ -153,19 +156,24 @@ window.finalizeAccountRegistration = async function() {
       }); 
     } 
     if (user) { 
+      // Profile update standard attribute parameters
       await updateProfile(user, { displayName: username, photoURL: "https://www.w3schools.com/howto/img_avatar2.png" }); 
+      
       try { 
         localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
         localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
       } catch (storageErr) { 
         console.warn("Storage allocations context mapped."); 
       } 
+      
+      // LINK SYSTEM FIX: Email aur password ko link karna mandatory hai direct login form ke liye!
       try { 
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
         await linkWithCredential(user, passwordCredential); 
       } catch (linkErr) { 
-        console.warn("Credential linkage already configured/provisioned: ", linkErr.message); 
+        console.warn("Credential linkage handling info: ", linkErr.message); 
       } 
+      
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } 
@@ -199,7 +207,7 @@ function applyUserUIData(user) {
   if (sidebarImg) sidebarImg.src = finalAvatar; 
   if (sidebarName) sidebarName.innerText = user.displayName || "Developer"; 
 
-  // FIXED: Circle avatar image condition logic matrix 
+  // Icon visibility filter rules configuration
   if (headerProfileDiv) { 
     if (panelDiv && panelDiv.style.display === "block" && panelImg && panelImg.src.includes('developerportal.png')) { 
       headerProfileDiv.style.display = "block"; 
@@ -208,7 +216,7 @@ function applyUserUIData(user) {
     } 
   } 
 
-  // FIXED: Blue button displays perfectly and remains responsive 
+  // Blue Portal Developer button keeps rendering fine
   const portalBtn = document.getElementById("portalBtn"); 
   if (portalBtn) portalBtn.style.display = "block"; 
 } 
