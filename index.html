@@ -1,212 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NetNo Games</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  /* X / Twitter Inspired Modern Clean Layout Styling */
-  .settings-overlay, .sub-panel-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 4000;
-    justify-content: center; align-items: center;
-  }
-  .settings-box {
-    width: 90%; max-width: 450px; background: #000000; border: 1px solid #2f3336;
-    border-radius: 16px; display: flex; flex-direction: column; height: 75vh; overflow: hidden;
-  }
-  .settings-header { 
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 20px; border-bottom: 1px solid #2f3336; color: #fff; font-weight: bold; font-size: 18px;
-  }
-  .settings-body-vertical {
-    display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 10px 0;
-  }
-  .x-menu-btn {
-    background: none; border: none; color: #e7e9ea; padding: 16px 20px; text-align: left;
-    cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; border-bottom: 1px solid #16181c;
-  }
-  .x-menu-btn:hover { background: rgba(255, 255, 255, 0.08); }
-  .x-menu-btn-danger { color: #f4212e; }
-  .x-menu-btn-danger:hover { background: rgba(244, 33, 46, 0.1); }
-  
-  /* Sub Panels Specific Layouts */
-  .sub-panel-box {
-    width: 90%; max-width: 420px; background: #000000; border: 1px solid #2f3336;
-    border-radius: 16px; padding: 25px; color: white; box-sizing: border-box;
-  }
-  .sub-panel-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: #fff; }
-  .char-counter { font-size: 12px; color: #71767b; text-align: right; margin-top: 4px; display: block; }
-</style>
-</head>
-<body>
-
-<div id="userProfileHeader" onclick="toggleUserMenu()" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer;">
-  <img id="headerProfilePic" src="" alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00aaff; object-fit: cover;">
+<div id="accountTypeStep" style="display: none; text-align: center;">
+  <p style="color: #888; margin-bottom: 15px;">Select Registration Node Mode:</p>
+  <button type="button" class="terminal-submit-btn" style="margin-bottom: 10px;" onclick="selectAccountType('individual')">Individual Account</button>
+  <button type="button" class="terminal-submit-btn" style="background: #232330;" onclick="selectAccountType('organization')">Organization Account</button>
 </div>
 
-<div id="menuBtn" onclick="toggleMenu()">☰</div>
-
-<div id="sidebar">
-  <button onclick="openPanel('overviewinfo.png', false)">Overview</button>
-  <button onclick="openLoginPanel()">Portal</button>
-  <button onclick="openPanel('supportpanel.png', false)">Support</button>
-  <button onclick="openPanel('communitypanels.png', true)">Community</button>
-  <button onclick="openPanel('games.png', false)">Games</button>
-</div>
-
-<div id="userSidebar" style="position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #0b0c10; border-right: 2px solid #00aaff; transition: 0.3s ease; z-index: 1999; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column;">
-  <div class="user-sidebar-profile" style="text-align: center; margin-bottom: 20px;">
-    <img id="userSidebarPic" src="" alt="Profile" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid #00aaff; object-fit: cover; margin-bottom: 10px;">
-    <h3 id="userSidebarName" style="color: white; margin: 0;">Developer</h3>
+<div id="orgCredentialsStep" style="display: none;">
+  <div class="terminal-input-row">
+    <label>Company Name (Main Profile Identifier)</label>
+    <input type="text" id="orgCompanyName" placeholder="Enter registration company name...">
   </div>
-  
-  <button onclick="alert('Create Game ID Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833;">Create Game ID</button>
-  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833;">Your Games</button>
-  
-  <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833; margin-bottom: auto;">Settings</button>
-  
-  <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">Logout</button>
-</div>
-
-<div class="hero"></div>
-
-<div class="btn download" id="downloadBtn" onclick="downloadLauncher()">Download Game</div>
-<div class="btn portal" id="portalBtn" onclick="openLoginPanel()">Developer Portal</div>
-
-<div id="panel" onclick="closePanelOnOverlay(event)">
-  <div class="panel-content-wrapper">
-    <img id="panelImg" alt="Panel Content">
-    <div id="communityLinks" class="community-overlay">
-      <a href="https://discord.gg/PTbxu9nPZq" target="_blank" class="action-btn">Discord Server</a>
-      <a href="https://www.reddit.com/r/NetNoGamesCommunity/s/VMGdDDwaQU" target="_blank" class="action-btn">Subreddit</a>
-    </div>
+  <div class="terminal-input-row">
+    <label>Company Owner Name</label>
+    <input type="text" id="orgOwnerName" placeholder="Enter owner full name...">
   </div>
-</div>
-
-<div id="loginOverlay" class="login-frame-mask">
-  <div class="login-terminal-box">
-    <div class="close-terminal-btn" onclick="closeLoginPanel()">×</div>
-    <h2 class="login-title">Developer Portal</h2>
-    <div id="authGateways">
-      <button class="google-sso-btn" onclick="handleGoogleAuth()">Continue With Google</button>
-      <div class="divider"><span>OR</span></div>
-      <form id="authForm" onsubmit="handleDirectLogin(event)">
-        <div class="terminal-input-row">
-          <label>Email Address</label>
-          <input type="email" id="authEmail" required>
-        </div>
-        <div class="terminal-input-row">
-          <label>Password</label>
-          <input type="password" id="authPassword" required>
-        </div>
-        <button type="submit" class="terminal-submit-btn">Login</button>
-      </form>
-    </div>
-    <div id="credentialsStep" style="display: none;">
-      <div class="terminal-input-row">
-        <label>Choose Username (Max 15 Characters)</label>
-        <input type="text" id="usernameInput" maxlength="15" placeholder="Enter custom username...">
-      </div>
-      <div class="terminal-input-row">
-        <label>Set Account Password</label>
-        <input type="password" id="setupPasswordInput" placeholder="Set a password...">
-      </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Avatar</button>
-    </div>
-    <div id="avatarStep" style="display: none;">
-      <div class="terminal-input-row">
-        <label style="display: block; margin-bottom: 12px;">Select Profile Picture</label>
-        <input type="file" id="avatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
-      </div>
-      <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration</button>
-    </div>
-    <div id="loginError" class="terminal-alert-msg"></div>
+  <div class="terminal-input-row">
+    <label>Phone Number</label>
+    <input type="text" id="orgPhone" placeholder="Enter communication link contact...">
   </div>
-</div>
-
-<div id="settingsOverlay" class="settings-overlay" onclick="if(event.target.id==='settingsOverlay')closeSettingsModal();">
-  <div class="settings-box">
-    <div class="settings-header">
-      <span>Settings</span>
-      <span style="cursor:pointer; font-size:22px; color: #71767b;" onclick="closeSettingsModal()">×</span>
-    </div>
-    <div class="settings-body-vertical">
-      <button class="x-menu-btn" onclick="openSubPanel('username')">Account Username</button>
-      <button class="x-menu-btn" onclick="openSubPanel('avatar')">Profile Picture</button>
-      <button class="x-menu-btn" onclick="openSubPanel('bio')">Bio</button>
-      <button class="x-menu-btn" onclick="openSubPanel('socials')">Your Socials</button>
-      <button class="x-menu-btn x-menu-btn-danger" onclick="openSubPanel('delete')">Delete Account</button>
-    </div>
+  <div class="terminal-input-row">
+    <label>Email Address</label>
+    <input type="email" id="orgEmail" placeholder="Enter business email...">
   </div>
-</div>
-
-<div id="usernameSubPanel" class="sub-panel-overlay">
-  <div class="sub-panel-box">
-    <h3>Change Username</h3>
-    <div class="terminal-input-row">
-      <label>New Username (Max 15 Characters)</label>
-      <input type="text" id="settingProfileName" maxlength="15" oninput="document.getElementById('userCount').innerText = this.value.length + '/15'">
-      <span class="char-counter" id="userCount">0/15</span>
-    </div>
-    <button class="terminal-submit-btn" onclick="applySettingsNameChange()">Continue</button>
+  <div class="terminal-input-row">
+    <label>Website Link (Optional)</label>
+    <input type="text" id="orgWebsite" placeholder="www.yourcompany.com">
   </div>
-</div>
-
-<div id="avatarSubPanel" class="sub-panel-overlay">
-  <div class="sub-panel-box">
-    <h3>Update Profile Picture</h3>
-    <div class="terminal-input-row">
-      <label>Select Graphics Asset</label>
-      <input type="file" id="settingProfilePicInput" accept="image/*" class="file-input">
-    </div>
-    <button class="terminal-submit-btn" onclick="applySettingsAvatarChange()">Continue</button>
+  <div class="terminal-input-row">
+    <label>Set Security Key Password (For Login & Deletion)</label>
+    <input type="password" id="orgPasswordInput" placeholder="Set password...">
   </div>
+  <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Avatar</button>
 </div>
-
-<div id="bioSubPanel" class="sub-panel-overlay">
-  <div class="sub-panel-box">
-    <h3>Update Bio</h3>
-    <div class="terminal-input-row">
-      <label>Bio Log Entry (Max 1000 Characters)</label>
-      <textarea id="settingProfileDesc" maxlength="1000" rows="5" oninput="document.getElementById('bioCount').innerText = this.value.length + '/1000'" style="width:100%; background:#111; border:1px solid #333; border-radius:5px; color:white; padding:10px; box-sizing:border-box; font-family:Arial, sans-serif; resize:none;"></textarea>
-      <span class="char-counter" id="bioCount">0/1000</span>
-    </div>
-    <button class="terminal-submit-btn" onclick="applySettingsDescChange()">Continue</button>
-  </div>
-</div>
-
-<div id="socialsSubPanel" class="sub-panel-overlay">
-  <div class="sub-panel-box" style="max-width: 460px;">
-    <h3>Social Transmission Streams</h3>
-    <div class="terminal-input-row"><label>1. YouTube Channel Link</label><input type="text" id="socialyt"></div>
-    <div class="terminal-input-row"><label>2. Subreddit Link</label><input type="text" id="socialreddit"></div>
-    <div class="terminal-input-row"><label>3. Discord Server Link</label><input type="text" id="socialdiscord"></div>
-    <div class="terminal-input-row"><label>4. Twitter X Link</label><input type="text" id="socialtwitter"></div>
-    <div class="terminal-input-row"><label>5. Your Website Link</label><input type="text" id="socialweb"></div>
-    <button class="terminal-submit-btn" onclick="applySettingsSocialsChange()">Continue</button>
-  </div>
-</div>
-
-<div id="deleteSubPanel" class="sub-panel-overlay">
-  <div class="sub-panel-box">
-    <h3 style="color:#f4212e;">Danger Zone: Destruction Core</h3>
-    <p style="color:#71767b; font-size:13px; line-height:1.5;">Enter security key token password to completely delete this profile.</p>
-    <div class="terminal-input-row">
-      <label>Validation Password</label>
-      <input type="password" id="deleteAccountPassword">
-    </div>
-    <button class="terminal-submit-btn" style="background:#f4212e;" onclick="applySettingsAccountTermination()">Authorize Destruction</button>
-    <div style="text-align: center; margin-top: 15px;">
-      <span onclick="triggerResetKeyForDeletion()" style="color: #00aaff; font-size: 13px; cursor: pointer; text-decoration: underline; font-weight: bold;">
-        Forgot Password? Reset via Email
-      </span>
-    </div>
-  </div>
-</div>
-
-<script type="module" src="portallogin.js"></script>
-<script src="script.js"></script>
-</body>
-</html>
