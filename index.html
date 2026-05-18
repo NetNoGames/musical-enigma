@@ -6,30 +6,25 @@
 <title>NetNo Games</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Embedded Settings Overlay Context For Crash Protection */
+  /* Clean & Original Settings Overlay Theme Mapped Back */
   .settings-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-    background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(6px); z-index: 4000;
+    display: none; position: fixed; top:0; left:0; width:100%; height:100vh;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 4000;
     justify-content: center; align-items: center;
   }
   .settings-box {
-    width: 92%; max-width: 480px; background: #08080c; border: 2px solid #00aaff;
-    border-radius: 10px; display: flex; flex-direction: column; height: 75vh; overflow: hidden;
-    box-shadow: 0 0 35px rgba(0, 170, 255, 0.25);
+    width: 90%; max-width: 500px; background: #0b0c10; border: 2px solid #00aaff;
+    border-radius: 8px; display: flex; flex-direction: column; height: 70vh; overflow: hidden;
   }
-  .settings-header { 
-    display: flex; justify-content: space-between; align-items: center; 
-    padding: 15px 20px; border-bottom: 1px solid #1a1a26; background: #0d0d12;
-  }
+  .settings-header { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #1f2833; color: #00aaff; font-weight: bold; }
   .settings-body { display: flex; flex: 1; overflow: hidden; }
-  .settings-sidebar { width: 32%; background: #0d0d12; display: flex; flex-direction: column; border-right: 1px solid #1a1a26; }
-  .settings-nav-btn { background: none; border: none; color: #aaa; padding: 15px 12px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; border-bottom: 1px solid #14141f; transition: 0.2s; }
-  .settings-nav-btn.active { background: rgba(0, 170, 255, 0.1); color: #00aaff; }
-  .settings-nav-btn:hover { color: #00aaff; }
-  .settings-content { width: 68%; padding: 25px 20px; overflow-y: auto; color: white; background: #060609; }
-  .sub-nav { display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #14141f; padding-bottom: 10px; }
-  .sub-nav-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; }
-  .sub-nav-btn.active { color: #00aaff; }
+  .settings-sidebar { width: 30%; background: #1f2833; display: flex; flex-direction: column; border-right: 1px solid #00aaff; }
+  .settings-nav-btn { background: none; border: none; color: #fff; padding: 12px; text-align: left; cursor: pointer; font-size: 13px; }
+  .settings-nav-btn.active, .settings-nav-btn:hover { background: #00aaff; color: black; font-weight: bold; }
+  .settings-content { width: 70%; padding: 20px; overflow-y: auto; color: white; }
+  .sub-nav { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+  .sub-nav-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 12px; }
+  .sub-nav-btn.active { color: #00aaff; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -51,11 +46,13 @@
 <div id="userSidebar" style="position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #0b0c10; border-right: 2px solid #00aaff; transition: 0.3s ease; z-index: 1999; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column;">
   <div class="user-sidebar-profile" style="text-align: center; margin-bottom: 20px;">
     <img id="userSidebarPic" src="" alt="Profile" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid #00aaff; object-fit: cover; margin-bottom: 10px;">
-    <h3 id="userSidebarName" style="color: white; margin: 0; margin-bottom: 12px;">Developer</h3>
-    <button onclick="openSettingsModal()" style="display: inline-block; padding: 6px 14px; background: #111; border: 1px solid #00aaff; border-radius: 4px; color: #00aaff; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;">⚙ Settings</button>
+    <h3 id="userSidebarName" style="color: white; margin: 0;">Developer</h3>
   </div>
+  
   <button onclick="alert('Create Game ID Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833;">Create Game ID</button>
-  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833; margin-bottom: auto;">Your Games</button>
+  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833;">Your Games</button>
+  
+  <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833; margin-bottom: auto;">Settings</button>
   
   <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">Logout</button>
 </div>
@@ -124,62 +121,61 @@
 <div id="settingsOverlay" class="settings-overlay" onclick="if(event.target.id==='settingsOverlay')closeSettingsModal();">
   <div class="settings-box">
     <div class="settings-header">
-      <h3 style="margin:0; color:#00aaff; font-size:16px; letter-spacing:0.5px;">Control Core Matrix</h3>
-      <span style="cursor:pointer; font-size:26px; line-height:20px; color:#666;" onclick="closeSettingsModal()">×</span>
+      <h3 style="margin:0;">Settings</h3>
+      <span style="cursor:pointer; font-size:24px; line-height:20px;" onclick="closeSettingsModal()">×</span>
     </div>
     
     <div class="settings-body">
       <div class="settings-sidebar">
-        <button id="tabBtn-control_core" class="settings-nav-btn active" onclick="switchSettingsTab('control_core')">Control Core</button>
-        <button id="tabBtn-your_account" class="settings-nav-btn" onclick="switchSettingsTab('your_account')">Your Account</button>
-        <button id="tabBtn-delete_account" class="settings-nav-btn" style="color:#ff4444;" onclick="switchSettingsTab('delete_account')">Delete Account</button>
+        <button id="tabBtn-account_hub" class="settings-nav-btn active" onclick="switchSettingsTab('account_hub')">Account</button>
+        <button id="tabBtn-terminate_hub" class="settings-nav-btn" style="color:#ff3333;" onclick="switchSettingsTab('terminate_hub')">Delete Account</button>
       </div>
       
       <div class="settings-content">
-        <div id="tabView-control_core" class="settings-tab-content">
+        <div id="tabView-account_hub" class="settings-tab-content">
           <div class="sub-nav">
-            <button id="subTabBtn-core_name" class="sub-nav-btn active" onclick="switchAccountSubTab('core_name')">Username</button>
-            <button id="subTabBtn-core_avatar" class="sub-nav-btn" onclick="switchAccountSubTab('core_avatar')">Display Pic</button>
+            <button id="subTabBtn-sub_name" class="sub-nav-btn active" onclick="switchAccountSubTab('sub_name')">Username</button>
+            <button id="subTabBtn-sub_avatar" class="sub-nav-btn" onclick="switchAccountSubTab('sub_avatar')">Avatar</button>
+            <button id="subTabBtn-sub_desc" class="sub-nav-btn" onclick="switchAccountSubTab('sub_desc')">Bio Log</button>
           </div>
           
-          <div id="subView-core_name" class="sub-content-panel">
+          <div id="subView-sub_name" class="sub-content-panel">
             <div class="terminal-input-row">
-              <label>Update Core Username</label>
+              <label>Update Username</label>
               <input type="text" id="settingProfileName" maxlength="15">
             </div>
-            <button class="terminal-submit-btn" onclick="applySettingsNameChange()">Commit Name Change</button>
+            <button class="terminal-submit-btn" onclick="applySettingsNameChange()">Save Name</button>
           </div>
           
-          <div id="subView-core_avatar" class="sub-content-panel" style="display:none;">
+          <div id="subView-sub_avatar" class="sub-content-panel" style="display:none;">
             <div class="terminal-input-row">
-              <label>Upload New Identity Avatar Asset</label>
+              <label>Choose New Avatar Image</label>
               <input type="file" id="settingProfilePicInput" accept="image/*" class="file-input">
             </div>
-            <button class="terminal-submit-btn" onclick="applySettingsAvatarChange()">Re-compile Profile Picture</button>
+            <button class="terminal-submit-btn" onclick="applySettingsAvatarChange()">Update Avatar Image</button>
+          </div>
+          
+          <div id="subView-sub_desc" class="sub-content-panel" style="display:none;">
+            <div class="terminal-input-row">
+              <label>Profile Bio Description</label>
+              <input type="text" id="settingProfileDesc" placeholder="Enter custom logs...">
+            </div>
+            <button class="terminal-submit-btn" onclick="applySettingsDescChange()">Save Logs</button>
           </div>
         </div>
         
-        <div id="tabView-your_account" class="settings-tab-content" style="display:none;">
-          <h4 style="margin-top:0; color:#00aaff;">Profile Logs Description</h4>
-          <div class="terminal-input-row">
-            <label>System Description Profile Bio Log</label>
-            <input type="text" id="settingProfileDesc" placeholder="Enter bio logging entries...">
-          </div>
-          <button class="terminal-submit-btn" style="margin-bottom:15px;" onclick="applySettingsDescChange()">Update System Logs</button>
-        </div>
-        
-        <div id="tabView-delete_account" class="settings-tab-content" style="display:none;">
-          <h3 style="color:#ff3333; margin-top:0; font-size:16px;">Danger Zone: Account Deletion</h3>
-          <p style="color:#888; font-size:13px; line-height:1.5; margin-bottom:15px;">This action will permanently erase your developer profile data node structure. Enter password to authorize node destruction.</p>
+        <div id="tabView-terminate_hub" class="settings-tab-content" style="display: none;">
+          <h3 style="color:#ff3333; margin-top:0;">Danger Zone: Account Deletion</h3>
+          <p style="color:#888; font-size:13px; line-height:1.5;">This action will permanently erase your data structure. Enter password to authorize node destruction.</p>
           
           <div class="terminal-input-row">
             <label>Profile Validation Password</label>
-            <input type="password" id="deleteAccountPassword" placeholder="Enter registration security key...">
+            <input type="password" id="deleteAccountPassword" placeholder="Enter password...">
           </div>
-          <button class="terminal-submit-btn" style="background:#ff3333; font-weight:bold; margin-bottom: 16px;" onclick="applySettingsAccountTermination()">Authorize Account Destruction</button>
+          <button class="terminal-submit-btn" style="background:#ff3333; margin-bottom: 15px;" onclick="applySettingsAccountTermination()">Authorize Account Destruction</button>
           
-          <div style="text-align: center; margin-top: 10px;">
-            <span onclick="triggerResetKeyForDeletion()" style="color: #00aaff; font-size: 13px; cursor: pointer; text-decoration: underline; font-weight: bold; letter-spacing: 0.3px;">
+          <div style="text-align: center;">
+            <span onclick="triggerResetKeyForDeletion()" style="color: #00aaff; font-size: 13px; cursor: pointer; text-decoration: underline;">
               Forgot Password? Reset via Email
             </span>
           </div>
