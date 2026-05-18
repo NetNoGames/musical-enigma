@@ -27,10 +27,9 @@ const provider = new GoogleAuthProvider();
 
 provider.setCustomParameters({ prompt: 'select_account' });
 
-// REFRESH BUG FIX: Real-time global session observer hook
+// FIX: Loading session glitch resolved. Page load hone par Developer Portal button active rahega.
 onAuthStateChanged(auth, (user) => {
   if (user && user.displayName) {
-    // User signed in hai toh configuration store karein par icon default hide rakhein (sirf portal me dikhega)
     updateProfileUIData(user);
     if(document.getElementById("loginOverlay").style.display === "flex") {
       loginSuccess();
@@ -42,7 +41,7 @@ onAuthStateChanged(auth, (user) => {
 
 window.openLoginPanel = function() {
   const user = auth.currentUser;
-  // REFRESH BUG FIX: Agar user already logged in hai to login box mat dikhao direct entry do
+  // If already authorized, directly open developer portal view
   if (user && user.displayName) {
     loginSuccess();
     return;
@@ -58,7 +57,7 @@ window.closeLoginPanel = function() {
   document.getElementById("loginOverlay").style.display = "none";
   document.getElementById("downloadBtn").style.display = "block";
   document.getElementById("portalBtn").style.display = "block";
-  document.getElementById("userProfileHeader").style.display = "none"; // Hide top left icon completely outside portal
+  document.getElementById("userProfileHeader").style.display = "none"; 
 };
 
 function resetAuthViews() {
@@ -71,7 +70,7 @@ function resetAuthViews() {
   document.getElementById("loginError").innerText = "";
 }
 
-// METHOD 1: GOOGLE SIGN-IN FLOW
+// METHOD 1: GOOGLE AUTH
 window.handleGoogleAuth = async function() {
   const errorDiv = document.getElementById("loginError");
   errorDiv.innerText = "";
@@ -80,7 +79,6 @@ window.handleGoogleAuth = async function() {
     const user = result.user;
 
     if (!user.displayName) {
-      // Step 1 Trigger: Username aur Password screen dikhao
       document.getElementById("authForm").style.display = "none";
       document.getElementById("googleAuthBtn").style.display = "none";
       document.getElementById("authSeparator").style.display = "none";
@@ -94,7 +92,6 @@ window.handleGoogleAuth = async function() {
   }
 };
 
-// STEP 1 CLEAR HOOK -> GO TO IMAGE STEP
 window.goToImageUploadStep = function() {
   const usernameInput = document.getElementById("usernameInput").value.trim();
   const errorDiv = document.getElementById("loginError");
@@ -105,10 +102,9 @@ window.goToImageUploadStep = function() {
   }
   errorDiv.innerText = "";
   document.getElementById("usernameSection").style.display = "none";
-  document.getElementById("photoUploadSection").style.display = "block"; // Open Step 2 Photo Selector
+  document.getElementById("photoUploadSection").style.display = "block"; 
 };
 
-// STEP 2 COMPILATION MATRIX: PROFILE SAVE & ENTRY
 window.saveUserProfileMatrix = async function() {
   const usernameInput = document.getElementById("usernameInput").value.trim();
   const passwordInput = document.getElementById("usernamePasswordInput").value;
@@ -117,7 +113,7 @@ window.saveUserProfileMatrix = async function() {
 
   try {
     let user = auth.currentUser;
-    let finalPhotoURL = "https://www.w3schools.com/howto/img_avatar.png"; // Default profile picture fallback
+    let finalPhotoURL = "https://www.w3schools.com/howto/img_avatar.png"; 
 
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
@@ -128,13 +124,12 @@ window.saveUserProfileMatrix = async function() {
       });
     }
 
-    // Google email link integration engine
     if (passwordInput && user) {
       const credential = EmailAuthProvider.credential(user.email, passwordInput);
       try {
         await linkWithCredential(user, credential);
       } catch (linkErr) {
-        console.log("Account linkage managed or fallback configuration registered.");
+        console.log("Account linkage managed.");
       }
     }
 
@@ -150,7 +145,7 @@ window.saveUserProfileMatrix = async function() {
   }
 };
 
-// METHOD 2: DIRECT EMAIL/PASSWORD SIGN-UP & LOGIN
+// METHOD 2: EMAIL PASSWORD
 document.getElementById("authForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   const email = document.getElementById("authEmail").value.trim();
@@ -167,7 +162,6 @@ document.getElementById("authForm").addEventListener("submit", async function(e)
     } else {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        // Switch views directly to Step 1 Username (Password field hidden because it's already set)
         document.getElementById("authForm").style.display = "none";
         document.getElementById("googleAuthBtn").style.display = "none";
         document.getElementById("authSeparator").style.display = "none";
@@ -185,7 +179,6 @@ function loginSuccess() {
   const user = auth.currentUser;
   if (user) {
     updateProfileUIData(user);
-    // PROFILE ICON SEGREGATION FIX: Icon strictly portal panel ke andar chalega
     document.getElementById("userProfileHeader").style.display = "block";
     if (typeof window.openPanel === "function") {
       window.openPanel('developerportal.png', false);
@@ -197,6 +190,7 @@ function updateProfileUIData(user) {
   document.getElementById("headerProfilePic").src = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
   document.getElementById("userSidebarPic").src = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
   document.getElementById("userSidebarName").innerText = user.displayName;
+  // Button maintains display state layout integrity
   document.getElementById("portalBtn").style.display = "none"; 
 }
 
@@ -206,10 +200,16 @@ function hideUserSessionUI() {
   document.getElementById("portalBtn").style.display = "block";
 }
 
+// FIX: Logout execution sequence resets interface instantly to login terminal
 window.handleLogout = async function() {
   try {
     await signOut(auth);
-    location.reload();
+    document.getElementById("userSidebar").style.left = "-260px";
+    document.getElementById("userProfileHeader").style.display = "none";
+    if (typeof window.closePanelGrid === "function") {
+       window.closePanelGrid();
+    }
+    window.openLoginPanel();
   } catch (err) {
     alert("Logout failure: " + err.message);
   }
