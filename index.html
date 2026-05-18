@@ -82,11 +82,15 @@
         <label>Set Account Password</label>
         <input type="password" id="usernamePasswordInput">
       </div>
+      <button class="terminal-submit-btn" onclick="goToImageUploadStep()">Next: Choose Photo</button>
+    </div>
+
+    <div id="photoUploadSection" style="display:none;">
       <div class="terminal-input-row">
         <label>Upload Profile Picture</label>
         <input type="file" id="profilePicInput" accept="image/*" class="file-input">
       </div>
-      <button class="terminal-submit-btn" onclick="saveUsername()">Continue</button>
+      <button class="terminal-submit-btn" onclick="saveUserProfileMatrix()">Enter Dashboard</button>
     </div>
 
     <div id="loginError" class="terminal-alert-msg"></div>
