@@ -28,7 +28,9 @@
     <h3 id="userSidebarName" style="color: white; margin: 0;">Developer</h3>
   </div>
   <button onclick="alert('Create Game ID Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833;">Create Game ID</button>
-  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833; margin-bottom: auto;">Your Games</button>
+  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: none; border: none; color: white; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833;">Your Games</button>
+  
+  <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: none; border: none; color: #00aaff; text-align: left; font-size: 16px; cursor: pointer; border-bottom: 1px solid #1f2833; margin-bottom: auto;">⚙️ Settings</button>
   
   <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">Logout</button>
 </div>
@@ -44,6 +46,78 @@
     <div id="communityLinks" class="community-overlay">
       <a href="https://discord.gg/PTbxu9nPZq" target="_blank" class="action-btn">Discord Server</a>
       <a href="https://www.reddit.com/r/NetNoGamesCommunity/s/VMGdDDwaQU" target="_blank" class="action-btn">Subreddit</a>
+    </div>
+  </div>
+</div>
+
+<div id="settingsOverlay" class="settings-frame-mask" style="display: none;">
+  <div class="settings-terminal-box">
+    <div class="settings-sidebar-nav">
+      <div style="color: #00aaff; font-weight: bold; padding: 15px; border-bottom: 1px solid #1a1a26; font-size: 14px; text-transform: uppercase; tracking: 1px;">Control Core</div>
+      <button onclick="switchSettingsTab('account_hub')" id="tabBtn-account_hub" class="settings-nav-btn active">Your Account</button>
+      <button onclick="switchSettingsTab('terminate_hub')" id="tabBtn-terminate_hub" class="settings-nav-btn danger-tab">Delete Account</button>
+      <button onclick="closeSettingsModal()" class="settings-nav-btn close-tab">✕ Close Menu</button>
+    </div>
+    
+    <div class="settings-view-viewport">
+      <div id="tabView-account_hub" class="settings-tab-content">
+        <div class="settings-sub-layout">
+          <div class="settings-sub-sidebar">
+            <button onclick="switchAccountSubTab('sub_name')" id="subTabBtn-sub_name" class="sub-nav-btn active">Account Name</button>
+            <button onclick="switchAccountSubTab('sub_pic')" id="subTabBtn-sub_pic" class="sub-nav-btn">Profile Picture</button>
+            <button onclick="switchAccountSubTab('sub_desc')" id="subTabBtn-sub_desc" class="sub-nav-btn">Description</button>
+            <button onclick="switchAccountSubTab('sub_social')" id="subTabBtn-sub_social" class="sub-nav-btn">Your Socials</button>
+          </div>
+          <div class="settings-sub-viewport">
+            <div id="subView-sub_name" class="sub-content-panel">
+              <h4 style="color:#00aaff; margin-top:0;">Modify Account Title</h4>
+              <div class="terminal-input-row">
+                <label>New Account Handle (Max 15 Characters)</label>
+                <input type="text" id="settingProfileName" maxlength="15">
+              </div>
+              <button class="terminal-submit-btn" onclick="applySettingsNameChange()">Update Account Name</button>
+            </div>
+            
+            <div id="subView-sub_pic" class="sub-content-panel" style="display:none;">
+              <h4 style="color:#00aaff; margin-top:0;">Update Avatar Asset</h4>
+              <div class="terminal-input-row">
+                <label>Select New Profile Image File</label>
+                <input type="file" id="settingProfilePicInput" accept="image/*">
+              </div>
+              <button class="terminal-submit-btn" onclick="applySettingsAvatarChange()">Apply New Asset</button>
+            </div>
+            
+            <div id="subView-sub_desc" class="sub-content-panel" style="display:none;">
+              <h4 style="color:#00aaff; margin-top:0;">Biography Log</h4>
+              <div class="terminal-input-row">
+                <label>Custom Profile Description (Max 1000 Characters)</label>
+                <textarea id="settingProfileDesc" maxlength="1000" rows="6" style="width:100%; background:#111; border:1px solid #333; color:white; border-radius:5px; padding:10px; font-family:inherit; resize:none;"></textarea>
+              </div>
+              <button class="terminal-submit-btn" onclick="applySettingsDescChange()">Save Description Log</button>
+            </div>
+            
+            <div id="subView-sub_social" class="sub-content-panel" style="display:none;">
+              <h4 style="color:#00aaff; margin-top:0;">Social Connection Array</h4>
+              <div class="terminal-input-row"><label>YouTube Channel Link</label><input type="url" id="socialyt"></div>
+              <div class="terminal-input-row"><label>Subreddit Hub Link</label><input type="url" id="socialreddit"></div>
+              <div class="terminal-input-row"><label>Discord Server invite</label><input type="url" id="socialdiscord"></div>
+              <div class="terminal-input-row"><label>Twitter/X Profile Link</label><input type="url" id="socialtwitter"></div>
+              <div class="terminal-input-row"><label>Developer Website Endpoint</label><input type="url" id="socialweb"></div>
+              <button class="terminal-submit-btn" onclick="applySettingsSocialsChange()">Save Social Link Matrix</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="tabView-terminate_hub" class="settings-tab-content" style="display: none;">
+        <h3 style="color:#ff3333; margin-top:0;">Danger Zone: Account Deletion</h3>
+        <p style="color:#888; font-size:13px; line-height:1.5;">This action will permanently erase your developer profile data node structure from NetNo Games platform. Enter password to authorize node destruction.</p>
+        <div class="terminal-input-row">
+          <label>Profile Validation Password</label>
+          <input type="password" id="deleteAccountPassword" placeholder="Enter registration security key...">
+        </div>
+        <button class="terminal-submit-btn" style="background:#ff3333;" onclick="applySettingsAccountTermination()">Authorize Account Destruction</button>
+      </div>
     </div>
   </div>
 </div>
@@ -72,6 +146,12 @@
       </form>
     </div>
 
+    <div id="segmentSelectionStep" style="display: none; text-align: center;">
+      <label style="color: #888; display: block; margin-bottom: 20px;">Choose Developer Profile Strategy</label>
+      <button type="button" class="terminal-submit-btn" onclick="routeSegmentRegistration('Individual')" style="margin-bottom: 12px; background: #00aaff;">👦 Individual Account</button>
+      <button type="button" class="terminal-submit-btn" onclick="routeSegmentRegistration('Organization')" style="background: #111; border: 1px solid #333; color: #aaa;">🏢 Organization Account</button>
+    </div>
+
     <div id="credentialsStep" style="display: none;">
       <div class="terminal-input-row">
         <label>Choose Username (Max 15 Characters)</label>
@@ -82,6 +162,17 @@
         <input type="password" id="setupPasswordInput" placeholder="Set a password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Avatar</button>
+    </div>
+
+    <div id="corporateCredentialsStep" style="display: none;">
+      <div class="terminal-input-row"><label>Company Name (Max 15 Characters)</label><input type="text" id="orgCompName" maxlength="15"></div>
+      <div class="terminal-input-row"><label>Company Owner Name</label><input type="text" id="orgOwnerName"></div>
+      <div class="terminal-input-row"><label>Tax ID / Corporate License Reference</label><input type="text" id="orgTaxId"></div>
+      <div class="terminal-input-row"><label>Verified Contact Phone Reference</label><input type="tel" id="orgPhone"></div>
+      <div class="terminal-input-row"><label>Corporate Endpoint Electronic Mail</label><input type="email" id="orgEmail"></div>
+      <div class="terminal-input-row"><label>Corporate Web Domain Address (Optional)</label><input type="url" id="orgWebsite"></div>
+      <div class="terminal-input-row"><label>Set Account Password</label><input type="password" id="orgSetupPassword"></div>
+      <button type="button" class="terminal-submit-btn" onclick="submitCorporateCredentialsStep()">Continue to Corporate Avatar</button>
     </div>
 
     <div id="avatarStep" style="display: none;">
