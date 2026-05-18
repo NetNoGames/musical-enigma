@@ -6,7 +6,7 @@
 <title>NetNo Games</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Core Overlay Modals Integration Framework */
+  /* X / Twitter Inspired Modern Architecture Modern Engine UI */
   .settings-overlay, .sub-panel-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 4000;
@@ -38,18 +38,28 @@
   }
   .sub-panel-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: #fff; }
   .char-counter { font-size: 12px; color: #71767b; text-align: right; margin-top: 4px; display: block; }
-  
-  /* Split Choice Selection Grid Layout Styling */
-  .account-choice-container {
-    display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 15px;
+
+  /* Separate Portal Authorization Button Layout Matrix */
+  .individual-sso-btn {
+    width: 100%; padding: 12px; background: #00aaff; color: white; border: none;
+    border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold;
+    margin-bottom: 12px; transition: 0.2s ease; text-align: center;
   }
-  .choice-card-btn {
-    width: 100%; padding: 15px; background: #111; border: 1px solid #333;
-    border-radius: 8px; color: white; cursor: pointer; text-align: left; transition: 0.2s ease;
+  .individual-sso-btn:hover { background: #0088cc; transform: scale(1.02); }
+
+  .organization-sso-btn {
+    width: 100%; padding: 12px; background: #191923; color: #00aaff; border: 1px solid #00aaff;
+    border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold;
+    margin-bottom: 20px; transition: 0.2s ease; text-align: center;
   }
-  .choice-card-btn:hover { border-color: #00aaff; background: #161622; transform: scale(1.02); }
-  .choice-card-btn h4 { margin: 0 0 5px 0; color: #00aaff; font-size: 16px; font-weight: bold; }
-  .choice-card-btn p { margin: 0; color: #888; font-size: 13px; line-height: 1.4; }
+  .organization-sso-btn:hover { background: rgba(0, 170, 255, 0.1); transform: scale(1.02); }
+
+  /* Approval State Screen Design Overlay */
+  .approval-status-box {
+    text-align: center; padding: 20px; color: white;
+  }
+  .approval-status-box h3 { color: #ffcc00; font-size: 22px; margin-bottom: 15px; }
+  .approval-status-box p { color: #888; font-size: 14px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -97,13 +107,14 @@
 </div>
 
 <div id="loginOverlay" class="login-frame-mask">
-  <div class="login-terminal-box">
+  <div class="login-terminal-box" style="max-height: 90vh; overflow-y: auto;">
     <div class="close-terminal-btn" onclick="closeLoginPanel()">×</div>
     <h2 class="login-title">Developer Portal</h2>
     
     <div id="authGateways">
-      <button class="google-sso-btn" onclick="handleGoogleAuth()">Continue With Google</button>
-      <div class="divider"><span>OR</span></div>
+      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')">Individual</button>
+      <button class="organization-sso-btn" onclick="triggerRouteAuth('organization')">Organization</button>
+      <div class="divider"><span>OR DIRECT LOGIN</span></div>
       <form id="authForm" onsubmit="handleDirectLogin(event)">
         <div class="terminal-input-row">
           <label>Email Address</label>
@@ -117,66 +128,67 @@
       </form>
     </div>
 
-    <div id="accountTypeStep" style="display: none;">
-      <p style="color: #888; font-size: 14px; text-align: center; margin-bottom: 10px;">Select your operation account profile type:</p>
-      <div class="account-choice-container">
-        <div class="choice-card-btn" onclick="selectAccountType('individual')">
-          <h4>Individual Developer</h4>
-          <p>Setup standard single profile node using customized username structure.</p>
-        </div>
-        <div class="choice-card-btn" onclick="selectAccountType('organization')">
-          <h4>Organization Account</h4>
-          <p>Register production studio entity managing multiple workspace resources.</p>
-        </div>
-      </div>
-    </div>
-
     <div id="credentialsStep" style="display: none;">
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Individual Profile Configuration</h4>
       <div class="terminal-input-row">
         <label>Choose Username (Max 15 Characters)</label>
         <input type="text" id="usernameInput" maxlength="15" placeholder="Enter custom username...">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (For Login & Deletion)</label>
-        <input type="password" id="setupPasswordInput" placeholder="Set password (at least 6 characters)...">
+        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <input type="password" id="setupPasswordInput" placeholder="Set a secure password...">
       </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Profile Picture</button>
+      <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Profile Pic</button>
     </div>
 
     <div id="orgCredentialsStep" style="display: none;">
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Organization Cluster Configuration</h4>
       <div class="terminal-input-row">
         <label>Company Name</label>
-        <input type="text" id="orgCompanyName" placeholder="e.g. NetNo Game Studios">
+        <input type="text" id="orgCompanyName" placeholder="Enter company / studio name">
       </div>
       <div class="terminal-input-row">
         <label>Company Owner Name</label>
-        <input type="text" id="orgOwnerName" placeholder="Owner full name">
+        <input type="text" id="orgOwnerName" placeholder="Enter owner full name">
+      </div>
+      <div class="terminal-input-row">
+        <label>Tax ID</label>
+        <input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID">
       </div>
       <div class="terminal-input-row">
         <label>Phone Number</label>
-        <input type="text" id="orgPhone" placeholder="Enter contact link number">
+        <input type="text" id="orgPhone" placeholder="Enter linkage phone contact">
       </div>
       <div class="terminal-input-row">
-        <label>Email Address</label>
+        <label>Contact Email Address</label>
         <input type="email" id="orgEmail" placeholder="business@company.com">
       </div>
       <div class="terminal-input-row">
         <label>Website URL (Optional)</label>
-        <input type="text" id="orgWebsite" placeholder="www.yourcompany.com">
+        <input type="text" id="orgWebsite" placeholder="https://www.company.com">
       </div>
       <div class="terminal-input-row">
-        <label>Set Password (Same operational task functionality)</label>
-        <input type="password" id="orgPasswordInput" placeholder="Set corporate secure password...">
+        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <input type="password" id="orgPasswordInput" placeholder="Set account secure password...">
       </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Profile Picture</button>
+      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Profile Pic</button>
     </div>
 
     <div id="avatarStep" style="display: none;">
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Asset Profile Mapping</h4>
       <div class="terminal-input-row">
-        <label style="display: block; margin-bottom: 12px;">Select Profile Picture Asset File</label>
+        <label style="display: block; margin-bottom: 12px;">Select Profile Picture Asset</label>
         <input type="file" id="avatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration Flow</button>
+    </div>
+
+    <div id="approvalPendingStep" style="display: none;">
+      <div class="approval-status-box">
+        <h3>⚠️ Pending for Approval</h3>
+        <p>Aapka registration logs database me transmit ho gaya hai. NetNo Games System Core team aapki files aur Tax ID parameters manual review karegi. Verification complete hone ke baad hi portal operational access clear hoga.</p>
+        <button type="button" class="terminal-submit-btn" style="background: #222; border: 1px solid #444; margin-top: 15px;" onclick="closeLoginPanel()">Close Terminal</button>
+      </div>
     </div>
 
     <div id="loginError" class="terminal-alert-msg"></div>
