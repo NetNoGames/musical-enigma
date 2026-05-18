@@ -202,7 +202,7 @@ window.handleLogout = async function() {
   } catch (error) { alert("Logout Execution Failure: " + error.message); } 
 }; 
 
-// SETTINGS MODAL MAPPINGS
+// MODERN X-PANELS CORE OPERATIONS ENGINE
 window.openSettingsModal = function() {
   document.getElementById("userSidebar").style.left = "-260px";
   document.getElementById("settingsOverlay").style.display = "flex";
@@ -210,50 +210,49 @@ window.openSettingsModal = function() {
   const user = auth.currentUser;
   if(user) {
     document.getElementById("settingProfileName").value = user.displayName || "";
-    document.getElementById("settingProfileDesc").value = localStorage.getItem("netno_profile_desc_" + user.email) || "";
+    document.getElementById("userCount").innerText = (user.displayName || "").length + "/15";
+    
+    const savedBio = localStorage.getItem("netno_profile_desc_" + user.email) || "";
+    document.getElementById("settingProfileDesc").value = savedBio;
+    document.getElementById("bioCount").innerText = savedBio.length + "/1000";
+    
+    document.getElementById("socialyt").value = localStorage.getItem("netno_soc_yt_" + user.email) || "";
+    document.getElementById("socialreddit").value = localStorage.getItem("netno_soc_reddit_" + user.email) || "";
+    document.getElementById("socialdiscord").value = localStorage.getItem("netno_soc_discord_" + user.email) || "";
+    document.getElementById("socialtwitter").value = localStorage.getItem("netno_soc_twitter_" + user.email) || "";
+    document.getElementById("socialweb").value = localStorage.getItem("netno_soc_web_" + user.email) || "";
   }
-  switchSettingsTab('account_hub');
-  switchAccountSubTab('sub_name');
 };
 
 window.closeSettingsModal = function() {
   document.getElementById("settingsOverlay").style.display = "none";
 };
 
-window.switchSettingsTab = function(tabId) {
-  document.querySelectorAll('.settings-tab-content').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.settings-nav-btn').forEach(el => el.classList.remove('active'));
-  const targetView = document.getElementById('tabView-' + tabId);
-  const targetBtn = document.getElementById('tabBtn-' + tabId);
-  if(targetView) targetView.style.display = 'block';
-  if(targetBtn) targetBtn.classList.add('active');
+// FLOW ROUTER: Closes Settings & Opens Sub Panel Modals Directly
+window.openSubPanel = function(panelKey) {
+  document.getElementById("settingsOverlay").style.display = "none";
+  document.getElementById(panelKey + "SubPanel").style.display = "flex";
 };
 
-window.switchAccountSubTab = function(subTabId) {
-  document.querySelectorAll('.sub-content-panel').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.sub-nav-btn').forEach(el => el.classList.remove('active'));
-  const targetSubView = document.getElementById('subView-' + subTabId);
-  const targetSubBtn = document.getElementById('subTabBtn-' + subTabId);
-  if(targetSubView) targetSubView.style.display = 'block';
-  if(targetSubBtn) targetSubBtn.classList.add('active');
-};
-
+// ACTION 1: USERNAME UPDATE
 window.applySettingsNameChange = async function() {
   const newName = document.getElementById("settingProfileName").value.trim();
   const user = auth.currentUser;
-  if (!newName) { alert("Name field cannot be empty."); return; }
+  if (!newName) { alert("Username target parameter cannot be blank."); return; }
   try {
     await updateProfile(user, { displayName: newName });
     applyUserUIData(user);
-    closeSettingsModal();
-    alert("Profile name updated successfully.");
-  } catch(e) { alert("Error updating name: " + e.message); }
+    document.getElementById("usernameSubPanel").style.display = "none";
+    document.getElementById("settingsOverlay").style.display = "flex";
+    alert("Username updated successfully.");
+  } catch(e) { alert("Config matrix trace modification failure: " + e.message); }
 };
 
+// ACTION 2: AVATAR ASSET PICTURE UPDATE
 window.applySettingsAvatarChange = async function() {
   const fileInput = document.getElementById("settingProfilePicInput");
   const user = auth.currentUser;
-  if(fileInput.files.length === 0) { alert("Please choose a profile picture file."); return; }
+  if(fileInput.files.length === 0) { alert("Please allocate graphical input resource target file."); return; }
   try {
     const file = fileInput.files[0];
     const base64Str = await new Promise((resolve) => {
@@ -261,57 +260,75 @@ window.applySettingsAvatarChange = async function() {
     });
     localStorage.setItem("netno_user_avatar_" + user.email, base64Str);
     applyUserUIData(user);
-    closeSettingsModal();
-    alert("Profile picture updated.");
-  } catch(e) { alert("Mutation exception: " + e.message); }
+    document.getElementById("avatarSubPanel").style.display = "none";
+    document.getElementById("settingsOverlay").style.display = "flex";
+    alert("Profile graphics asset recompiled.");
+  } catch(e) { alert("Exception error trace handled: " + e.message); }
 };
 
+// ACTION 3: BIO SAVE DATA LOGGING (1000 Limit Managed)
 window.applySettingsDescChange = function() {
   const user = auth.currentUser;
+  if(!user) return;
   const txt = document.getElementById("settingProfileDesc").value;
   localStorage.setItem("netno_profile_desc_" + user.email, txt);
-  closeSettingsModal();
-  alert("Bio log updated.");
+  document.getElementById("bioSubPanel").style.display = "none";
+  document.getElementById("settingsOverlay").style.display = "flex";
+  alert("Bio description database logs written safely.");
 };
 
+// ACTION 4: SOCIAL STREAM INTEGRATION MATRIX LINKS
+window.applySettingsSocialsChange = function() {
+  const user = auth.currentUser;
+  if(!user) return;
+  localStorage.setItem("netno_soc_yt_" + user.email, document.getElementById("socialyt").value.trim());
+  localStorage.setItem("netno_soc_reddit_" + user.email, document.getElementById("socialreddit").value.trim());
+  localStorage.setItem("netno_soc_discord_" + user.email, document.getElementById("socialdiscord").value.trim());
+  localStorage.setItem("netno_soc_twitter_" + user.email, document.getElementById("socialtwitter").value.trim());
+  localStorage.setItem("netno_soc_web_" + user.email, document.getElementById("socialweb").value.trim());
+  
+  document.getElementById("socialsSubPanel").style.display = "none";
+  document.getElementById("settingsOverlay").style.display = "flex";
+  alert("Social coordinate transmission arrays updated.");
+};
+
+// ACTION 5: AUTH TERMINATION EXECUTOR
 window.applySettingsAccountTermination = async function() {
   const pass = document.getElementById("deleteAccountPassword").value;
   const user = auth.currentUser;
-  if(!pass) { alert("Password input required to execute deletion."); return; }
-  if(confirm("Warning: Are you completely sure you want to permanently delete your profile?")) {
+  if(!pass) { alert("Password input authentication key required."); return; }
+  if(confirm("Structural Warning Trace: Are you entirely sure you want to delete this profile node?")) {
     try {
       const credential = EmailAuthProvider.credential(user.email, pass);
       await linkWithCredential(user, credential).catch(()=>{});
       await deleteUser(user);
       localStorage.removeItem("netno_setup_done_" + user.email);
       localStorage.removeItem("netno_user_avatar_" + user.email);
-      alert("Account destroyed successfully.");
-      closeSettingsModal();
+      alert("Profile deletion complete. Session aborted.");
+      document.getElementById("deleteSubPanel").style.display = "none";
       window.location.reload();
-    } catch(err) { alert("Validation mismatch error: " + err.message); }
+    } catch(err) { alert("Authorization rejected: " + err.message); }
   }
 };
 
-// FIXED CORE RESET: CRASH SAFE AUTOMATED MAILING DISPATCH VIA CURRENT INSTANCE
+// SECURE INSTANT DISPATCH FRAMEWORK: DIRECT EMAIL PUSH FIX
 window.triggerResetKeyForDeletion = async function() {
   const user = auth.currentUser;
   if (!user || !user.email) {
-    alert("Error: Active user profile session data structure not found.");
+    alert("Error: Active user profile sequence data matrix not discovered.");
     return;
   }
-  
-  // Real-time dynamic fetch direct from current authenticated config stack
   const targetEmail = user.email;
-  
   try {
+    // Explicit dynamic direct context update mapping targeting config auth reference stack
     await sendPasswordResetEmail(auth, targetEmail);
-    alert("Reset Link Sent! Ek secure link aapke email (" + targetEmail + ") par bhej diya gaya hai. Email open karke naya password set karein aur fir usi naye password se yahan account permanently delete karein.");
+    alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai. Wahan password change karke naye password se node structure permanently destroy karein.");
   } catch (err) {
-    alert("Failed to send reset link: " + err.message);
+    alert("Token delivery exception trace: " + err.message);
   }
 };
 
-// Layout grid configurations
+// Global Layout Management
 let sidebar = document.getElementById("sidebar"); 
 let userSidebar = document.getElementById("userSidebar"); 
 let panel = document.getElementById("panel"); 
@@ -373,5 +390,6 @@ window.addEventListener('keydown', function(e) {
     window.closePanelGrid(); 
     if (typeof window.closeLoginPanel === "function") { window.closeLoginPanel(); } 
     if (typeof window.closeSettingsModal === "function") { window.closeSettingsModal(); }
+    document.querySelectorAll('.sub-panel-overlay').forEach(el => el.style.display = 'none');
   } 
 });
