@@ -24,14 +24,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
 provider.setCustomParameters({ prompt: 'select_account' });
 
-// FIX: Loading session glitch resolved. Page load hone par Developer Portal button active rahega.
+// Global Session Monitor - Fixes refresh/disappearing layouts
 onAuthStateChanged(auth, (user) => {
   if (user && user.displayName) {
     updateProfileUIData(user);
-    if(document.getElementById("loginOverlay").style.display === "flex") {
+    // Control active runtime state hooks safely
+    if (document.getElementById("loginOverlay").style.display === "flex") {
       loginSuccess();
     }
   } else {
@@ -41,7 +41,6 @@ onAuthStateChanged(auth, (user) => {
 
 window.openLoginPanel = function() {
   const user = auth.currentUser;
-  // If already authorized, directly open developer portal view
   if (user && user.displayName) {
     loginSuccess();
     return;
@@ -57,20 +56,18 @@ window.closeLoginPanel = function() {
   document.getElementById("loginOverlay").style.display = "none";
   document.getElementById("downloadBtn").style.display = "block";
   document.getElementById("portalBtn").style.display = "block";
-  document.getElementById("userProfileHeader").style.display = "none"; 
+  document.getElementById("userProfileHeader").style.display = "none";
 };
 
 function resetAuthViews() {
-  document.getElementById("authForm").style.display = "block";
-  document.getElementById("googleAuthBtn").style.display = "block";
-  document.getElementById("authSeparator").style.display = "block";
+  document.getElementById("mainAuthSection").style.display = "block";
   document.getElementById("usernameSection").style.display = "none";
   document.getElementById("photoUploadSection").style.display = "none";
   document.getElementById("setupPasswordRow").style.display = "none";
   document.getElementById("loginError").innerText = "";
 }
 
-// METHOD 1: GOOGLE AUTH
+// GOOGLE AUTHENTICATION CHANNEL START
 window.handleGoogleAuth = async function() {
   const errorDiv = document.getElementById("loginError");
   errorDiv.innerText = "";
@@ -79,9 +76,8 @@ window.handleGoogleAuth = async function() {
     const user = result.user;
 
     if (!user.displayName) {
-      document.getElementById("authForm").style.display = "none";
-      document.getElementById("googleAuthBtn").style.display = "none";
-      document.getElementById("authSeparator").style.display = "none";
+      // Step 1 Trigger: Hide Main - Show Username & Password fields
+      document.getElementById("mainAuthSection").style.display = "none";
       document.getElementById("usernameSection").style.display = "block";
       document.getElementById("setupPasswordRow").style.display = "block"; 
     } else {
@@ -92,6 +88,35 @@ window.handleGoogleAuth = async function() {
   }
 };
 
+// EMAIL & PASSWORD LOGIN / AUTO REGISTER ROUTE
+window.emailLogin = async function(e) {
+  e.preventDefault();
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  const errorDiv = document.getElementById("loginError");
+  errorDiv.innerText = "";
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    loginSuccess();
+  } catch (loginError) {
+    if (loginError.code === "auth/wrong-password" || loginError.code === "auth/invalid-credential") {
+      errorDiv.innerText = "Account already exists! Please input correct password key.";
+    } else {
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        // Step 1 Trigger for email users (Password configuration fields stay hidden because they already made one)
+        document.getElementById("mainAuthSection").style.display = "none";
+        document.getElementById("usernameSection").style.display = "block";
+        document.getElementById("setupPasswordRow").style.display = "none"; 
+      } catch (regError) {
+        errorDiv.innerText = "Access Matrix Error: " + regError.message;
+      }
+    }
+  }
+};
+
+// STEP 1 COMPLETE HOOK -> ROUTE TO FILE UPLOAD IMAGE 
 window.goToImageUploadStep = function() {
   const usernameInput = document.getElementById("usernameInput").value.trim();
   const errorDiv = document.getElementById("loginError");
@@ -105,6 +130,7 @@ window.goToImageUploadStep = function() {
   document.getElementById("photoUploadSection").style.display = "block"; 
 };
 
+// STEP 2 MATRIX EXECUTION: FINALIZE BASE64 AND UPDATE TARGET LOG
 window.saveUserProfileMatrix = async function() {
   const usernameInput = document.getElementById("usernameInput").value.trim();
   const passwordInput = document.getElementById("usernamePasswordInput").value;
@@ -129,7 +155,7 @@ window.saveUserProfileMatrix = async function() {
       try {
         await linkWithCredential(user, credential);
       } catch (linkErr) {
-        console.log("Account linkage managed.");
+        console.log("Account linkage managed via system tokens.");
       }
     }
 
@@ -145,40 +171,12 @@ window.saveUserProfileMatrix = async function() {
   }
 };
 
-// METHOD 2: EMAIL PASSWORD
-document.getElementById("authForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const email = document.getElementById("authEmail").value.trim();
-  const password = document.getElementById("authPassword").value;
-  const errorDiv = document.getElementById("loginError");
-  errorDiv.innerText = "";
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    loginSuccess();
-  } catch (loginError) {
-    if (loginError.code === "auth/wrong-password" || loginError.code === "auth/invalid-credential") {
-      errorDiv.innerText = "Account already exists! Please input correct password key.";
-    } else {
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        document.getElementById("authForm").style.display = "none";
-        document.getElementById("googleAuthBtn").style.display = "none";
-        document.getElementById("authSeparator").style.display = "none";
-        document.getElementById("usernameSection").style.display = "block";
-        document.getElementById("setupPasswordRow").style.display = "none"; 
-      } catch (regError) {
-        errorDiv.innerText = "Access Matrix Error: " + regError.message;
-      }
-    }
-  }
-});
-
 function loginSuccess() {
   document.getElementById("loginOverlay").style.display = "none";
   const user = auth.currentUser;
   if (user) {
     updateProfileUIData(user);
+    // Explicit segregation hook: Only display inside Portal panel grid
     document.getElementById("userProfileHeader").style.display = "block";
     if (typeof window.openPanel === "function") {
       window.openPanel('developerportal.png', false);
@@ -190,7 +188,6 @@ function updateProfileUIData(user) {
   document.getElementById("headerProfilePic").src = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
   document.getElementById("userSidebarPic").src = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
   document.getElementById("userSidebarName").innerText = user.displayName;
-  // Button maintains display state layout integrity
   document.getElementById("portalBtn").style.display = "none"; 
 }
 
@@ -200,17 +197,23 @@ function hideUserSessionUI() {
   document.getElementById("portalBtn").style.display = "block";
 }
 
-// FIX: Logout execution sequence resets interface instantly to login terminal
+// LOGOUT SYSTEM TRIGGER RE-DIRECT INTERFACE HOOK FIXED
 window.handleLogout = async function() {
   try {
     await signOut(auth);
     document.getElementById("userSidebar").style.left = "-260px";
     document.getElementById("userProfileHeader").style.display = "none";
+    
+    // Clear image cache paths instantly
+    document.getElementById("headerProfilePic").src = "";
+    document.getElementById("userSidebarPic").src = "";
+    
     if (typeof window.closePanelGrid === "function") {
        window.closePanelGrid();
     }
+    // Re-trigger portal box frame instantly
     window.openLoginPanel();
   } catch (err) {
-    alert("Logout failure: " + err.message);
+    alert("Logout processing fault: " + err.message);
   }
 };
