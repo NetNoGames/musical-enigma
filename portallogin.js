@@ -30,19 +30,25 @@ let isRegistrationProcess = false;
 
 // Global Auth State Observer Matrix 
 onAuthStateChanged(auth, (user) => { 
-  if (user && !isRegistrationProcess) { 
-    // Agar user complete hai tabhi UI data apply hoga
-    if (user.displayName && user.displayName.trim() !== "" && !user.displayName.includes("@")) { 
+  // STRICT CHECK: Agar user registration process ke bich me hai toh UI ko disturb mt karo
+  if (isRegistrationProcess) return;
+
+  if (user) { 
+    // Agar user logged in hai aur setup complete hai tabhi dashboard UI apply hoga
+    const setupDone = localStorage.getItem("netno_setup_done_" + user.email);
+    if (user.displayName && !user.displayName.includes("@") && setupDone) { 
       applyUserUIData(user); 
     } 
-  } else if (!user) { 
+  } else { 
     resetGlobalSessionUI(); 
   } 
 }); 
 
 window.openLoginPanel = function() { 
   const user = auth.currentUser; 
-  if (user && user.displayName && !isRegistrationProcess && !user.displayName.includes("@")) { 
+  const setupDone = user ? localStorage.getItem("netno_setup_done_" + user.email) : null;
+
+  if (user && user.displayName && !isRegistrationProcess && !user.displayName.includes("@") && setupDone) { 
     executeLoginSuccess(); 
     return; 
   } 
@@ -64,7 +70,7 @@ function restoreInitialAuthView() {
   isRegistrationProcess = false; 
 } 
 
-// 1. PATHWAY A: DIRECT EMAIL/PASSWORD LOGIN ENGINE 
+// 1. PATHWAY A: DIRECT EMAIL/PASSWORD LOGIN FORM
 window.handleDirectLogin = async function(e) { 
   e.preventDefault(); 
   const email = document.getElementById("authEmail").value.trim(); 
@@ -85,39 +91,41 @@ window.handleDirectLogin = async function(e) {
   } 
 }; 
 
-// 2. PATHWAY B: CONTINUE WITH GOOGLE GATEWAY (STRICT REGISTRATION STEPS FIXED)
+// 2. PATHWAY B: CONTINUE WITH GOOGLE (RESTORED MULTI-STEP REGISTRATION)
 window.handleGoogleAuth = async function() { 
   const errorDiv = document.getElementById("loginError"); 
   errorDiv.innerText = ""; 
   try { 
+    // Registration process lock ko pehle hi true kar dete hain taaki steps skip na hon
+    isRegistrationProcess = true; 
+    
     const result = await signInWithPopup(auth, provider); 
     const user = result.user; 
     registrationEmail = user.email; 
     
-    // Local check verify karne ke liye ki kya ye bilkul fresh login hai ya pehle se customized hai
     const setupDone = localStorage.getItem("netno_setup_done_" + user.email);
     
-    if (user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "" && setupDone) { 
-      // Agar account already bana hua hai toh direct dashboard par le jao
+    if (user.displayName && !user.displayName.includes("@") && setupDone) { 
+      // Agar purana user hai jiska data already bana hua hai toh bina screens ke direct login karo
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } else { 
-      // FIXED: Agar user naya hai ya complete nahi hai, toh mandatory step-1 par bhejo!
-      isRegistrationProcess = true; 
+      // RESTORED: Naya user hai toh strict Step-1 (Username/Password) par bhejo!
       document.getElementById("authGateways").style.display = "none"; 
       document.getElementById("credentialsStep").style.display = "block"; 
     } 
   } catch (error) { 
     isRegistrationProcess = false; 
-    errorDiv.innerText = "Authentication Error Encountered: " + error.message; 
+    errorDiv.innerText = "Authentication Error: " + error.message; 
   } 
 }; 
 
-// 3. REGISTRATION STEP 1: USERNAME & PASSWORD SETUP 
+// 3. REGISTRATION STEP 1: CAPTURE USERNAME & PASSWORD
 window.submitCredentialsStep = function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const chosenPassword = document.getElementById("setupPasswordInput").value; 
   const errorDiv = document.getElementById("loginError"); 
+  
   if (!username) { 
     errorDiv.innerText = "Please specify a unique username."; 
     return; 
@@ -130,15 +138,16 @@ window.submitCredentialsStep = function() {
     errorDiv.innerText = "Please set a strong password (at least 6 characters long)."; 
     return; 
   } 
+  
   registrationPassword = chosenPassword; 
   errorDiv.innerText = ""; 
   
-  // Agle avatar registration step par transfer karein
+  // Step-2 Avatar Step par le jao
   document.getElementById("credentialsStep").style.display = "none"; 
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// 4. REGISTRATION STEP 2: PROFILE PICTURE SELECTION & COMPLEX LINKAGE
+// 4. REGISTRATION STEP 2: PROFILE PICTURE SELECTION & DATABASE SAVE
 window.finalizeAccountRegistration = async function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const fileInput = document.getElementById("avatarFileInput"); 
@@ -147,6 +156,7 @@ window.finalizeAccountRegistration = async function() {
   try { 
     let user = auth.currentUser; 
     let finalBase64Url = "https://www.w3schools.com/howto/img_avatar.png"; 
+    
     if (fileInput.files.length > 0) { 
       const file = fileInput.files[0]; 
       finalBase64Url = await new Promise((resolve) => { 
@@ -155,30 +165,36 @@ window.finalizeAccountRegistration = async function() {
         reader.readAsDataURL(file); 
       }); 
     } 
+    
     if (user) { 
-      // Profile update standard attribute parameters
-      await updateProfile(user, { displayName: username, photoURL: "https://www.w3schools.com/howto/img_avatar2.png" }); 
+      // Update Firebase Profile Auth
+      await updateProfile(user, { 
+        displayName: username, 
+        photoURL: "https://www.w3schools.com/howto/img_avatar2.png" 
+      }); 
       
+      // Save data locally for rendering custom picture
       try { 
         localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
         localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
       } catch (storageErr) { 
-        console.warn("Storage allocations context mapped."); 
+        console.warn("Storage item save context mapped."); 
       } 
       
-      // LINK SYSTEM FIX: Email aur password ko link karna mandatory hai direct login form ke liye!
+      // Mandatory Email/Password Credential Linkage for Direct login forms
       try { 
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
         await linkWithCredential(user, passwordCredential); 
       } catch (linkErr) { 
-        console.warn("Credential linkage handling info: ", linkErr.message); 
+        console.warn("Linkage handled / already provisioned: ", linkErr.message); 
       } 
       
+      // Ab registration successfully complete ho chuki hai
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } 
   } catch (err) { 
-    errorDiv.innerText = "Registration Pipeline Error Encountered: " + err.message; 
+    errorDiv.innerText = "Registration Pipeline Error: " + err.message; 
   } 
 }; 
 
@@ -207,7 +223,7 @@ function applyUserUIData(user) {
   if (sidebarImg) sidebarImg.src = finalAvatar; 
   if (sidebarName) sidebarName.innerText = user.displayName || "Developer"; 
 
-  // Icon visibility filter rules configuration
+  // Icon layout validation control matrix
   if (headerProfileDiv) { 
     if (panelDiv && panelDiv.style.display === "block" && panelImg && panelImg.src.includes('developerportal.png')) { 
       headerProfileDiv.style.display = "block"; 
@@ -216,7 +232,7 @@ function applyUserUIData(user) {
     } 
   } 
 
-  // Blue Portal Developer button keeps rendering fine
+  // Blue Portal Button remains fully functional
   const portalBtn = document.getElementById("portalBtn"); 
   if (portalBtn) portalBtn.style.display = "block"; 
 } 
@@ -230,7 +246,7 @@ function resetGlobalSessionUI() {
   if (portalBtn) portalBtn.style.display = "block"; 
 } 
 
-// LOGOUT UTILITY ACCESS ENGINE 
+// LOGOUT ENGINE 
 window.handleLogout = async function() { 
   try { 
     isRegistrationProcess = false; 
@@ -239,15 +255,17 @@ window.handleLogout = async function() {
     const headerProfileDiv = document.getElementById("userProfileHeader"); 
     const headerImg = document.getElementById("headerProfilePic"); 
     const sidebarImg = document.getElementById("userSidebarPic"); 
+    
     if (userSidebarDiv) userSidebarDiv.style.left = "-260px"; 
     if (headerProfileDiv) headerProfileDiv.style.display = "none"; 
     if (headerImg) headerImg.src = ""; 
     if (sidebarImg) sidebarImg.src = ""; 
+    
     if (typeof window.closePanelGrid === "function") { 
       window.closePanelGrid(); 
     } 
     window.openLoginPanel(); 
   } catch (error) { 
-    alert("Logout Execution Failure: " + error.message); 
+    alert("Logout Error: " + error.message); 
   } 
 };
