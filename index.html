@@ -6,7 +6,7 @@
 <title>NetNo Games</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Modern X / Corporate Hybrid Modal Dynamic Viewport System */
+  /* X / Twitter Inspired Modern Architecture Modern Engine UI */
   .settings-overlay, .sub-panel-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 4000;
@@ -39,7 +39,7 @@
   .sub-panel-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: #fff; }
   .char-counter { font-size: 12px; color: #71767b; text-align: right; margin-top: 4px; display: block; }
 
-  /* Re-engineered Button Portals */
+  /* Separate Portal Authorization Button Layout Matrix */
   .individual-sso-btn {
     width: 100%; padding: 12px; background: #00aaff; color: white; border: none;
     border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold;
@@ -48,15 +48,18 @@
   .individual-sso-btn:hover { background: #0088cc; transform: scale(1.02); }
 
   .organization-sso-btn {
-    width: 100%; padding: 12px; background: #111; color: #00aaff; border: 1px solid #00aaff;
+    width: 100%; padding: 12px; background: #191923; color: #00aaff; border: 1px solid #00aaff;
     border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold;
     margin-bottom: 20px; transition: 0.2s ease; text-align: center;
   }
   .organization-sso-btn:hover { background: rgba(0, 170, 255, 0.1); transform: scale(1.02); }
 
-  .approval-status-box { text-align: center; padding: 20px; color: white; }
+  /* Approval State Screen Design Overlay */
+  .approval-status-box {
+    text-align: center; padding: 20px; color: white;
+  }
   .approval-status-box h3 { color: #ffcc00; font-size: 22px; margin-bottom: 15px; }
-  .approval-status-box p { color: #aaa; font-size: 14px; line-height: 1.6; }
+  .approval-status-box p { color: #888; font-size: 14px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -126,42 +129,157 @@
     </div>
 
     <div id="credentialsStep" style="display: none;">
-      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Individual Setup</h4>
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Individual Profile Configuration</h4>
       <div class="terminal-input-row">
         <label>Choose Username (Max 15 Characters)</label>
         <input type="text" id="usernameInput" maxlength="15" placeholder="Enter custom username...">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Used for Login & Deletion)</label>
-        <input type="password" id="setupPasswordInput" placeholder="Set secure account password...">
+        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <input type="password" id="setupPasswordInput" placeholder="Set a secure password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Profile Pic</button>
     </div>
 
     <div id="orgCredentialsStep" style="display: none;">
-      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Organization Parameters</h4>
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Organization Cluster Configuration</h4>
       <div class="terminal-input-row">
-        <label>1. Company Name</label>
-        <input type="text" id="orgCompanyName" placeholder="Enter studio or firm name...">
+        <label>Company Name</label>
+        <input type="text" id="orgCompanyName" placeholder="Enter company / studio name">
       </div>
       <div class="terminal-input-row">
-        <label>2. Company Owner Name</label>
-        <input type="text" id="orgOwnerName" placeholder="Enter registered owner name...">
+        <label>Company Owner Name</label>
+        <input type="text" id="orgOwnerName" placeholder="Enter owner full name">
       </div>
       <div class="terminal-input-row">
-        <label>3. Tax ID</label>
-        <input type="text" id="orgTaxId" placeholder="Enter company official Tax ID...">
+        <label>Tax ID</label>
+        <input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID">
       </div>
       <div class="terminal-input-row">
-        <label>4. Contact Phone Number</label>
-        <input type="text" id="orgPhone" placeholder="Enter corporate telephone link...">
+        <label>Phone Number</label>
+        <input type="text" id="orgPhone" placeholder="Enter linkage phone contact">
       </div>
       <div class="terminal-input-row">
-        <label>5. Contact Email Address</label>
-        <input type="email" id="orgEmail" placeholder="corporate-contact@domain.com">
+        <label>Contact Email Address</label>
+        <input type="email" id="orgEmail" placeholder="business@company.com">
       </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue</button>
+      <div class="terminal-input-row">
+        <label>Website URL (Optional)</label>
+        <input type="text" id="orgWebsite" placeholder="https://www.company.com">
+      </div>
+      <div class="terminal-input-row">
+        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <input type="password" id="orgPasswordInput" placeholder="Set account secure password...">
+      </div>
+      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Profile Pic</button>
     </div>
 
     <div id="avatarStep" style="display: none;">
-      <h4 style="color: #00aaff; margin-top:
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Asset Profile Mapping</h4>
+      <div class="terminal-input-row">
+        <label style="display: block; margin-bottom: 12px;">Select Profile Picture Asset</label>
+        <input type="file" id="avatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
+      </div>
+      <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration Flow</button>
+    </div>
+
+    <div id="approvalPendingStep" style="display: none;">
+      <div class="approval-status-box">
+        <h3>⚠️ Pending for Approval</h3>
+        <p>Aapka registration logs database me transmit ho gaya hai. NetNo Games System Core team aapki files aur Tax ID parameters manual review karegi. Verification complete hone ke baad hi portal operational access clear hoga.</p>
+        <button type="button" class="terminal-submit-btn" style="background: #222; border: 1px solid #444; margin-top: 15px;" onclick="closeLoginPanel()">Close Terminal</button>
+      </div>
+    </div>
+
+    <div id="loginError" class="terminal-alert-msg"></div>
+  </div>
+</div>
+
+<div id="settingsOverlay" class="settings-overlay" onclick="if(event.target.id==='settingsOverlay')closeSettingsModal();">
+  <div class="settings-box">
+    <div class="settings-header">
+      <span>Settings</span>
+      <span style="cursor:pointer; font-size:22px; color: #71767b;" onclick="closeSettingsModal()">×</span>
+    </div>
+    <div class="settings-body-vertical">
+      <button class="x-menu-btn" onclick="openSubPanel('username')">Account Username</button>
+      <button class="x-menu-btn" onclick="openSubPanel('avatar')">Profile Picture</button>
+      <button class="x-menu-btn" onclick="openSubPanel('bio')">Bio</button>
+      <button class="x-menu-btn" onclick="openSubPanel('socials')">Your Socials</button>
+      <button class="x-menu-btn x-menu-btn-danger" onclick="openSubPanel('delete')">Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<div id="usernameSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
+    <h3>Change Username</h3>
+    <div class="terminal-input-row">
+      <label>New Username (Max 15 Characters)</label>
+      <input type="text" id="settingProfileName" maxlength="15" oninput="document.getElementById('userCount').innerText = this.value.length + '/15'">
+      <span class="char-counter" id="userCount">0/15</span>
+    </div>
+    <button class="terminal-submit-btn" onclick="applySettingsNameChange()">Continue</button>
+  </div>
+</div>
+
+<div id="avatarSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
+    <h3>Update Profile Picture</h3>
+    <div class="terminal-input-row">
+      <label>Select Graphics Asset</label>
+      <input type="file" id="settingProfilePicInput" accept="image/*" class="file-input">
+    </div>
+    <button class="terminal-submit-btn" onclick="applySettingsAvatarChange()">Continue</button>
+  </div>
+</div>
+
+<div id="bioSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
+    <h3>Update Bio</h3>
+    <div class="terminal-input-row">
+      <label>Bio Log Entry (Max 1000 Characters)</label>
+      <textarea id="settingProfileDesc" maxlength="1000" rows="5" oninput="document.getElementById('bioCount').innerText = this.value.length + '/1000'" style="width:100%; background:#111; border:1px solid #333; border-radius:5px; color:white; padding:10px; box-sizing:border-box; font-family:Arial, sans-serif; resize:none;"></textarea>
+      <span class="char-counter" id="bioCount">0/1000</span>
+    </div>
+    <button class="terminal-submit-btn" onclick="applySettingsDescChange()">Continue</button>
+  </div>
+</div>
+
+<div id="socialsSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box" style="max-width: 460px;">
+    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
+    <h3>Social Transmission Streams</h3>
+    <div class="terminal-input-row"><label>1. YouTube Channel Link</label><input type="text" id="socialyt"></div>
+    <div class="terminal-input-row"><label>2. Subreddit Link</label><input type="text" id="socialreddit"></div>
+    <div class="terminal-input-row"><label>3. Discord Server Link</label><input type="text" id="socialdiscord"></div>
+    <div class="terminal-input-row"><label>4. Twitter X Link</label><input type="text" id="socialtwitter"></div>
+    <div class="terminal-input-row"><label>5. Your Website Link</label><input type="text" id="socialweb"></div>
+    <button class="terminal-submit-btn" onclick="applySettingsSocialsChange()">Continue</button>
+  </div>
+</div>
+
+<div id="deleteSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
+    <h3 style="color:#f4212e;">Danger Zone: Destruction Core</h3>
+    <p style="color:#71767b; font-size:13px; line-height:1.5;">Enter system profile verification password to authorize destruction sequence.</p>
+    <div class="terminal-input-row">
+      <label>Validation Password</label>
+      <input type="password" id="deleteAccountPassword">
+    </div>
+    <button class="terminal-submit-btn" style="background:#f4212e;" onclick="applySettingsAccountTermination()">Authorize Destruction</button>
+    <div style="text-align: center; margin-top: 15px;">
+      <span onclick="triggerResetKeyForDeletion()" style="color: #00aaff; font-size: 13px; cursor: pointer; text-decoration: underline; font-weight: bold;">
+        Forgot Password? Reset via Email
+      </span>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="portallogin.js"></script>
+</body>
+</html>
