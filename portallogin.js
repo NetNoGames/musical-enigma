@@ -27,40 +27,36 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const provider = new GoogleAuthProvider(); 
 
-// Global Architecture Routing Engines States
-let activeWorkflowMode = ""; 
+// Flow Controller States Matrix
+let activeWorkflowMode = ""; // "individual" or "organization"
 let registrationEmail = ""; 
 let registrationPassword = ""; 
 let isRegistrationProcess = false; 
 let chosenUsername = "";
 
 onAuthStateChanged(auth, (user) => { 
-  if (user) {
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
-    if (pendingCheck === "true") {
-      isRegistrationProcess = true;
-      document.getElementById("authGateways").style.display = "none";
-      document.getElementById("credentialsStep").style.display = "none";
-      document.getElementById("orgCredentialsStep").style.display = "none";
-      document.getElementById("avatarStep").style.display = "none";
-      document.getElementById("orgAvatarStep").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
-    if(!isRegistrationProcess) {
-      applyUserUIData(user); 
-    }
-  } else { 
+  // Agar organization dynamic node pending pe hai, toh block clear rkhna h
+  const pendingCheck = localStorage.getItem("netno_org_pending_" + (user ? user.email : ""));
+  if (user && pendingCheck === "true") {
+    isRegistrationProcess = true;
+    document.getElementById("authGateways").style.display = "none";
+    document.getElementById("approvalPendingStep").style.display = "block";
+    return;
+  }
+
+  if (user && !isRegistrationProcess) { 
+    applyUserUIData(user); 
+  } else if (!user) { 
     resetGlobalSessionUI(); 
   } 
 }); 
 
 window.openLoginPanel = function() { 
   const user = auth.currentUser; 
-  document.getElementById("loginOverlay").style.display = "flex"; 
   if (user) {
     const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
     if(pendingCheck === "true") {
+      document.getElementById("loginOverlay").style.display = "flex"; 
       document.getElementById("authGateways").style.display = "none"; 
       document.getElementById("approvalPendingStep").style.display = "block";
       return;
@@ -70,6 +66,7 @@ window.openLoginPanel = function() {
       return; 
     }
   } 
+  document.getElementById("loginOverlay").style.display = "flex"; 
   restoreInitialAuthView(); 
 }; 
 
@@ -82,7 +79,6 @@ function restoreInitialAuthView() {
   document.getElementById("credentialsStep").style.display = "none"; 
   document.getElementById("orgCredentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "none"; 
-  document.getElementById("orgAvatarStep").style.display = "none";
   document.getElementById("approvalPendingStep").style.display = "none";
   document.getElementById("loginError").innerText = ""; 
   document.getElementById("usernameInput").value = ""; 
@@ -100,6 +96,8 @@ window.handleDirectLogin = async function(e) {
   try { 
     isRegistrationProcess = false; 
     const result = await signInWithEmailAndPassword(auth, email, password); 
+    
+    // Core structure pending lock validation
     const pendingCheck = localStorage.getItem("netno_org_pending_" + result.user.email);
     if(pendingCheck === "true") {
       isRegistrationProcess = true;
@@ -113,13 +111,13 @@ window.handleDirectLogin = async function(e) {
   } 
 }; 
 
-// ROUTER PIPELINE ACCORDING TO USER EVENT SELECTION
+// INDIVIDUAL AUR ORGANIZATION BUTTON MATRIX ROUTER LINK
 window.triggerRouteAuth = async function(selectedMode) {
   activeWorkflowMode = selectedMode;
   const errorDiv = document.getElementById("loginError"); 
   errorDiv.innerText = ""; 
   try { 
-    // Force email choices window view on every trigger event
+    // Isse user ko account/email select karne ka window forced clear dikhega
     provider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, provider); 
     const user = result.user; 
@@ -139,6 +137,7 @@ window.triggerRouteAuth = async function(selectedMode) {
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } else { 
+      // Agar account unlinked fresh hai, toh selected mode ke anusaar box pop-up hoga
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
       if (activeWorkflowMode === "individual") {
@@ -149,11 +148,11 @@ window.triggerRouteAuth = async function(selectedMode) {
     } 
   } catch (error) { 
     isRegistrationProcess = false; 
-    errorDiv.innerText = "Authentication Protocol Failure: " + error.message; 
+    errorDiv.innerText = "Authentication Failure: " + error.message; 
   } 
 };
 
-// INDIVIDUAL SAVE GATEWAY CONTROLLER
+// INDIVIDUAL CONFIG CONTINUE PROCESSING
 window.submitCredentialsStep = function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const chosenPassword = document.getElementById("setupPasswordInput").value; 
@@ -163,11 +162,11 @@ window.submitCredentialsStep = function() {
     return; 
   } 
   if (username.length > 15) { 
-    errorDiv.innerText = "Username strictly limited to 15 characters."; 
+    errorDiv.innerText = "Username strict limit is 15 characters."; 
     return; 
   } 
   if (!chosenPassword || chosenPassword.length < 6) { 
-    errorDiv.innerText = "Password initialization requires at least 6 characters."; 
+    errorDiv.innerText = "Please set security password (at least 6 characters long)."; 
     return; 
   } 
   chosenUsername = username;
@@ -177,34 +176,43 @@ window.submitCredentialsStep = function() {
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// ORGANIZATION METADATA STORAGE GATEWAY CONTROLLER
+// ORGANIZATION CONFIG CONTINUE PROCESSING
 window.submitOrgCredentialsStep = function() {
   const compName = document.getElementById("orgCompanyName").value.trim();
   const ownerName = document.getElementById("orgOwnerName").value.trim();
   const taxId = document.getElementById("orgTaxId").value.trim();
   const phone = document.getElementById("orgPhone").value.trim();
   const email = document.getElementById("orgEmail").value.trim();
+  const website = document.getElementById("orgWebsite").value.trim();
+  const chosenPassword = document.getElementById("orgPasswordInput").value;
   const errorDiv = document.getElementById("loginError");
 
-  if(!compName || !ownerName || !taxId || !phone || !email) {
-    errorDiv.innerText = "All corporate parameter data fields are required.";
+  if(!compName || !ownerName || !taxId || !phone || !email || !chosenPassword) {
+    errorDiv.innerText = "Please populate all corporate mandatory fields.";
+    return;
+  }
+  if (chosenPassword.length < 6) {
+    errorDiv.innerText = "Security validation password must be >= 6 characters.";
     return;
   }
 
+  // Local storage mapping configurations
   localStorage.setItem("netno_org_comp_" + registrationEmail, compName);
   localStorage.setItem("netno_org_owner_" + registrationEmail, ownerName);
   localStorage.setItem("netno_org_tax_" + registrationEmail, taxId);
   localStorage.setItem("netno_org_phone_" + registrationEmail, phone);
   localStorage.setItem("netno_org_email_" + registrationEmail, email);
+  localStorage.setItem("netno_org_web_" + registrationEmail, website);
 
   chosenUsername = compName; 
+  registrationPassword = chosenPassword; 
 
   errorDiv.innerText = "";
   document.getElementById("orgCredentialsStep").style.display = "none";
-  document.getElementById("orgAvatarStep").style.display = "block";
+  document.getElementById("avatarStep").style.display = "block";
 };
 
-// FINALIZE INDIVIDUAL PROFILE COMPILATION
+// FINAL REGISTRATION AND GRAPHICAL ASSET COMPILATION BINDING
 window.finalizeAccountRegistration = async function() { 
   const fileInput = document.getElementById("avatarFileInput"); 
   const errorDiv = document.getElementById("loginError"); 
@@ -221,67 +229,35 @@ window.finalizeAccountRegistration = async function() {
       }); 
     } 
     if (user) { 
+      // Link security key passwords parameters base
       await updateProfile(user, { displayName: chosenUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" }); 
-      localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
-      localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
+      try { 
+        localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
+        localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
+      } catch (storageErr) { 
+        console.warn("Storage resource quota context exception."); 
+      } 
       try { 
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
         await linkWithCredential(user, passwordCredential); 
       } catch (linkErr) { 
-        console.warn("Link operation catched natively: ", linkErr.message); 
+        console.warn("Credential binding route caught: ", linkErr.message); 
       } 
-      isRegistrationProcess = false; 
-      executeLoginSuccess(); 
+      
+      // Verification workflow conditional route
+      document.getElementById("avatarStep").style.display = "none";
+      if (activeWorkflowMode === "organization") {
+        localStorage.setItem("netno_org_pending_" + registrationEmail, "true");
+        document.getElementById("approvalPendingStep").style.display = "block";
+      } else {
+        isRegistrationProcess = false; 
+        executeLoginSuccess(); 
+      }
     } 
   } catch (err) { 
-    errorDiv.innerText = "Pipeline File Matrix Compilation Error: " + err.message; 
+    errorDiv.innerText = "Pipeline Allocation Processing Error: " + err.message; 
   } 
 }; 
-
-// FINALIZE ORGANIZATION BLOCK & FREEZE TO APPROVAL STATUS PANEL SCREEN
-window.finalizeOrgAccountRegistration = async function() {
-  const fileInput = document.getElementById("orgAvatarFileInput");
-  const chosenPassword = document.getElementById("orgPasswordInput").value;
-  const errorDiv = document.getElementById("loginError");
-  errorDiv.innerText = "";
-
-  if(!chosenPassword || chosenPassword.length < 6) {
-    errorDiv.innerText = "Security password requires a minimum of 6 characters.";
-    return;
-  }
-
-  try {
-    let user = auth.currentUser;
-    let finalBase64Url = "https://www.w3schools.com/howto/img_avatar.png"; 
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      finalBase64Url = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-    }
-    if (user) {
-      registrationPassword = chosenPassword;
-      await updateProfile(user, { displayName: chosenUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" });
-      localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url);
-      localStorage.setItem("netno_setup_done_" + registrationEmail, "true");
-      
-      try {
-        const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword);
-        await linkWithCredential(user, passwordCredential);
-      } catch (linkErr) {
-        console.warn("Credential link operational bypass: ", linkErr.message);
-      }
-
-      localStorage.setItem("netno_org_pending_" + registrationEmail, "true");
-      document.getElementById("orgAvatarStep").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-    }
-  } catch(err) {
-    errorDiv.innerText = "Enterprise Registration Compilation Error: " + err.message;
-  }
-};
 
 function executeLoginSuccess() { 
   document.getElementById("loginOverlay").style.display = "none"; 
@@ -338,7 +314,7 @@ window.handleLogout = async function() {
     } 
     window.openLoginPanel(); 
   } catch (error) { 
-    alert("Logout System Pipeline Failure: " + error.message); 
+    alert("Logout Execution Failure: " + error.message); 
   } 
 }; 
 
@@ -373,7 +349,7 @@ window.applySettingsNameChange = async function() {
   const newName = document.getElementById("settingProfileName").value.trim(); 
   const user = auth.currentUser; 
   if (!newName) { 
-    alert("Username field parameter validation criteria empty."); 
+    alert("Username target parameter cannot be blank."); 
     return; 
   } 
   try { 
@@ -381,9 +357,9 @@ window.applySettingsNameChange = async function() {
     applyUserUIData(user); 
     document.getElementById("usernameSubPanel").style.display = "none"; 
     document.getElementById("settingsOverlay").style.display = "flex"; 
-    alert("Username remapped successfully."); 
+    alert("Username updated successfully."); 
   } catch(e) { 
-    alert("Database update error trace: " + e.message); 
+    alert("Config matrix trace modification failure: " + e.message); 
   } 
 }; 
 
@@ -391,7 +367,7 @@ window.applySettingsAvatarChange = async function() {
   const fileInput = document.getElementById("settingProfilePicInput"); 
   const user = auth.currentUser; 
   if(fileInput.files.length === 0) { 
-    alert("Please load asset source graphic data profile."); 
+    alert("Please allocate graphical input resource target file."); 
     return; 
   } 
   try { 
@@ -405,9 +381,9 @@ window.applySettingsAvatarChange = async function() {
     applyUserUIData(user); 
     document.getElementById("avatarSubPanel").style.display = "none"; 
     document.getElementById("settingsOverlay").style.display = "flex"; 
-    alert("Avatar asset stream successfully written."); 
+    alert("Profile graphics asset recompiled."); 
   } catch(e) { 
-    alert("Exception trace captured: " + e.message); 
+    alert("Exception error trace handled: " + e.message); 
   } 
 }; 
 
@@ -418,7 +394,7 @@ window.applySettingsDescChange = function() {
   localStorage.setItem("netno_profile_desc_" + user.email, txt); 
   document.getElementById("bioSubPanel").style.display = "none"; 
   document.getElementById("settingsOverlay").style.display = "flex"; 
-  alert("Bio information safely updated."); 
+  alert("Bio description database logs written safely."); 
 }; 
 
 window.applySettingsSocialsChange = function() { 
@@ -431,18 +407,18 @@ window.applySettingsSocialsChange = function() {
   localStorage.setItem("netno_soc_web_" + user.email, document.getElementById("socialweb").value.trim()); 
   document.getElementById("socialsSubPanel").style.display = "none"; 
   document.getElementById("settingsOverlay").style.display = "flex"; 
-  alert("Social routing tables updated."); 
+  alert("Social coordinate transmission arrays updated."); 
 }; 
 
-// ACCOUNT DELETION SYSTEM ENFORCED VIA SET PASSWORD IN PREVIOUS REGISTRATION STEPS
+// CRITICAL ENFORCED PASSWORD VERIFICATION DELETION SYSTEM
 window.applySettingsAccountTermination = async function() { 
   const pass = document.getElementById("deleteAccountPassword").value; 
   const user = auth.currentUser; 
   if(!pass) { 
-    alert("Verification cryptographic password required."); 
+    alert("Password input authentication key required."); 
     return; 
   } 
-  if(confirm("CRITICAL WARNING SYSTEM: Are you completely confident in deleting this network node structure?")) { 
+  if(confirm("Structural Warning Trace: Are you entirely sure you want to delete this profile node?")) { 
     try { 
       const credential = EmailAuthProvider.credential(user.email, pass); 
       await reauthenticateWithCredential(user, credential);
@@ -451,11 +427,11 @@ window.applySettingsAccountTermination = async function() {
       localStorage.removeItem("netno_setup_done_" + user.email); 
       localStorage.removeItem("netno_user_avatar_" + user.email); 
       localStorage.removeItem("netno_org_pending_" + user.email);
-      alert("Node successfully terminated from NetNo Database Registry."); 
+      alert("Profile deletion complete. Session aborted."); 
       document.getElementById("deleteSubPanel").style.display = "none"; 
       window.location.reload(); 
     } catch(err) { 
-      alert("Invalid password specified. Node structural destruction sequence rejected."); 
+      alert("Invalid password specified. Termination rejected."); 
     } 
   } 
 }; 
@@ -463,19 +439,19 @@ window.applySettingsAccountTermination = async function() {
 window.triggerResetKeyForDeletion = async function() { 
   const user = auth.currentUser; 
   if (!user || !user.email) { 
-    alert("Active profile context target metadata state missing."); 
+    alert("Error: Active user profile sequence data matrix not discovered."); 
     return; 
   } 
   const targetEmail = user.email; 
   try { 
     await sendPasswordResetEmail(auth, targetEmail); 
-    alert("Payload Dispatched! Open email sequence context on " + targetEmail + " to configure a new validation password layout."); 
+    alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai."); 
   } catch (err) { 
-    alert("Delivery network exception: " + err.message); 
+    alert("Token delivery exception trace: " + err.message); 
   } 
 }; 
 
-// UI Visual States Interfaces Link Controllers
+// Global Layout Management 
 let sidebar = document.getElementById("sidebar"); 
 let userSidebar = document.getElementById("userSidebar"); 
 let panel = document.getElementById("panel"); 
@@ -541,7 +517,7 @@ window.closePanelOnOverlay = function(event) {
 }; 
 
 window.downloadLauncher = function() { 
-  alert("Starting NetNo System Downloader Hub Integration Link..."); 
+  alert("Download Start"); 
 }; 
 
 window.addEventListener('keydown', function(e) { 
