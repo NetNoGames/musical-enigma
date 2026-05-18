@@ -55,7 +55,7 @@ window.closePanelGrid = function() {
   userSidebar.style.left = "-260px";
   userProfileHeader.style.display = "none";
   
-  // Permanent global fix: Maintain Developer Portal blue layout button availability perfectly on reset 
+  // Main Layout Maintenance Fix: Retain Developer Portal blue layout button perfectly on resets
   portalBtn.style.display = "block";
 };
 
