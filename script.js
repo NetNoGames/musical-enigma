@@ -5,9 +5,10 @@ let panelImg = document.getElementById("panelImg");
 let downloadBtn = document.getElementById("downloadBtn");
 let portalBtn = document.getElementById("portalBtn");
 let communityLinks = document.getElementById("communityLinks");
+let userProfileHeader = document.getElementById("userProfileHeader");
 
 window.toggleMenu = function() {
-  userSidebar.style.left = "-260px"; // Auto close user menu if main sidebar opens
+  userSidebar.style.left = "-260px"; // Close dashboard side menu
   if (sidebar.style.left === "0px") {
     sidebar.style.left = "-220px";
   } else {
@@ -15,9 +16,8 @@ window.toggleMenu = function() {
   }
 };
 
-// NEW: Developer Left Side Panel Trigger Hook
 window.toggleUserMenu = function() {
-  sidebar.style.left = "-220px"; // Auto close main sidebar if user menu opens
+  sidebar.style.left = "-220px"; // Close main right sidebar
   if (userSidebar.style.left === "0px") {
     userSidebar.style.left = "-260px";
   } else {
@@ -33,6 +33,16 @@ window.openPanel = function(img, isCommunity) {
   sidebar.style.left = "-220px";
   userSidebar.style.left = "-260px";
 
+  // PROFILE ICON SEGREGATION FIX: Safe Isolation from other panels
+  if (img === 'developerportal.png') {
+     // Icon tabhi on hoga jab panel developer portal ka khulega
+     if(userProfileHeader.getAttribute('data-logged') !== "false") {
+        userProfileHeader.style.display = "block";
+     }
+  } else {
+     userProfileHeader.style.display = "none"; // Baki kisi bhi dusre image panel me hide rahega icon
+  }
+
   if (isCommunity) {
     communityLinks.style.display = "flex";
   } else {
@@ -44,9 +54,16 @@ window.closePanelGrid = function() {
   panel.style.display = "none";
   communityLinks.style.display = "none";
   downloadBtn.style.display = "block";
-  // Only bring back portal main action button if session header is not running
-  if (document.getElementById("userProfileHeader").style.display !== "block") {
-    portalBtn.style.display = "block";
+  userSidebar.style.left = "-260px";
+  userProfileHeader.style.display = "none"; // Hide completely outside the view
+
+  if (userProfileHeader.style.borderColor === "white" || portalBtn.style.display === "none") {
+     // Agar active state running nahi hai tabhi main trigger on karein
+     if(document.getElementById("headerProfilePic").src === "") {
+        portalBtn.style.display = "block";
+     } else {
+        portalBtn.style.display = "block"; // Portal main button keeps working fine globally
+     }
   }
 };
 
@@ -60,7 +77,6 @@ window.downloadLauncher = function() {
   alert("Download Start");
 };
 
-// ESC Key Framework Binder Hook
 window.addEventListener('keydown', function(e) {
   if (e.key === "Escape") {
     window.closePanelGrid();
