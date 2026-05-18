@@ -56,9 +56,9 @@ window.closeLoginPanel = function() {
 
 function restoreInitialAuthView() { 
   document.getElementById("authGateways").style.display = "block"; 
-  if(document.getElementById("accountTypeStep")) document.getElementById("accountTypeStep").style.display = "none";
+  document.getElementById("accountTypeStep").style.display = "none";
   document.getElementById("credentialsStep").style.display = "none"; 
-  if(document.getElementById("orgCredentialsStep")) document.getElementById("orgCredentialsStep").style.display = "none";
+  document.getElementById("orgCredentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "none"; 
   document.getElementById("loginError").innerText = ""; 
   document.getElementById("usernameInput").value = ""; 
@@ -89,18 +89,15 @@ window.handleGoogleAuth = async function() {
     const user = result.user; 
     registrationEmail = user.email; 
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email); 
+    
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) { 
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } else { 
+      // NEW USER VERIFICATION DETECTED: Show Individual vs Org Choice!
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
-      // Individual aur Organization select karne ka options page dikhayenge
-      if(document.getElementById("accountTypeStep")) {
-        document.getElementById("accountTypeStep").style.display = "block";
-      } else {
-        document.getElementById("credentialsStep").style.display = "block"; 
-      }
+      document.getElementById("accountTypeStep").style.display = "block";
     } 
   } catch (error) { 
     isRegistrationProcess = false; 
@@ -108,7 +105,6 @@ window.handleGoogleAuth = async function() {
   } 
 }; 
 
-// Choice Router Function
 window.selectAccountType = function(type) {
   document.getElementById("accountTypeStep").style.display = "none";
   if (type === 'individual') {
@@ -141,7 +137,6 @@ window.submitCredentialsStep = function() {
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// Organization validation pipeline setup
 window.submitOrgCredentialsStep = function() {
   const compName = document.getElementById("orgCompanyName").value.trim();
   const ownerName = document.getElementById("orgOwnerName").value.trim();
@@ -160,14 +155,13 @@ window.submitOrgCredentialsStep = function() {
     return;
   }
 
-  // Locally store properties data safe mapping traces
   localStorage.setItem("netno_org_comp_" + registrationEmail, compName);
   localStorage.setItem("netno_org_owner_" + registrationEmail, ownerName);
   localStorage.setItem("netno_org_phone_" + registrationEmail, phone);
   localStorage.setItem("netno_org_email_" + registrationEmail, email);
   localStorage.setItem("netno_org_web_" + registrationEmail, website);
 
-  chosenUsername = compName; // Account automatically builds on company name parameter
+  chosenUsername = compName; 
   registrationPassword = chosenPassword;
 
   errorDiv.innerText = "";
@@ -271,7 +265,6 @@ window.handleLogout = async function() {
   } 
 }; 
 
-// MODERN X-PANELS CORE OPERATIONS ENGINE 
 window.openSettingsModal = function() { 
   document.getElementById("userSidebar").style.left = "-260px"; 
   document.getElementById("settingsOverlay").style.display = "flex"; 
@@ -364,7 +357,7 @@ window.applySettingsSocialsChange = function() {
   alert("Social coordinate transmission arrays updated."); 
 }; 
 
-// ACCOUNT DELETION RE-AUTHENTICATION VALIDATION MATRIX (BUG FIXED)
+// ACCOUNT DELETION RE-AUTHENTICATION ENGINE (BUG FIXED)
 window.applySettingsAccountTermination = async function() { 
   const pass = document.getElementById("deleteAccountPassword").value; 
   const user = auth.currentUser; 
@@ -374,11 +367,10 @@ window.applySettingsAccountTermination = async function() {
   } 
   if(confirm("Structural Warning Trace: Are you entirely sure you want to delete this profile node?")) { 
     try { 
-      // Pehle security key verification trace match check karega!
+      // actual system password match trace verify check karega!
       const credential = EmailAuthProvider.credential(user.email, pass); 
       await reauthenticateWithCredential(user, credential);
       
-      // Match hone par hi yahan code execute hoga
       await deleteUser(user); 
       localStorage.removeItem("netno_setup_done_" + user.email); 
       localStorage.removeItem("netno_user_avatar_" + user.email); 
@@ -400,7 +392,7 @@ window.triggerResetKeyForDeletion = async function() {
   const targetEmail = user.email; 
   try { 
     await sendPasswordResetEmail(auth, targetEmail); 
-    alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai. Wahan password change karke naye password se node structure permanently destroy karein."); 
+    alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai."); 
   } catch (err) { 
     alert("Token delivery exception trace: " + err.message); 
   } 
@@ -484,6 +476,11 @@ window.addEventListener('keydown', function(e) {
     if (typeof window.closeSettingsModal === "function") { 
       window.closeSettingsModal(); 
     } 
-    document.querySelectorAll('.sub-panel-overlay').forEach(el => el.style.display = 'none'); 
+    document.querySelectorAll('.sub-panel-overlay').forEach(el => {
+      if(el.style.display === 'flex') {
+        el.style.display = 'none';
+        document.getElementById('settingsOverlay').style.display = 'flex';
+      }
+    }); 
   } 
 });
