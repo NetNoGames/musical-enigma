@@ -134,7 +134,7 @@ window.finalizeAccountRegistration = async function() {
       try { 
         localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
         localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
-      } catch (storageErr) { console.warn("Storage context full exception handled."); } 
+      } catch (storageErr) { console.warn("Storage exception handled."); } 
       
       try { 
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
@@ -202,7 +202,7 @@ window.handleLogout = async function() {
   } catch (error) { alert("Logout Execution Failure: " + error.message); } 
 }; 
 
-// MAPPED SETTINGS OPERATIONS
+// SETTINGS MODAL MAPPINGS
 window.openSettingsModal = function() {
   document.getElementById("userSidebar").style.left = "-260px";
   document.getElementById("settingsOverlay").style.display = "flex";
@@ -212,8 +212,8 @@ window.openSettingsModal = function() {
     document.getElementById("settingProfileName").value = user.displayName || "";
     document.getElementById("settingProfileDesc").value = localStorage.getItem("netno_profile_desc_" + user.email) || "";
   }
-  switchSettingsTab('control_core');
-  switchAccountSubTab('core_name');
+  switchSettingsTab('account_hub');
+  switchAccountSubTab('sub_name');
 };
 
 window.closeSettingsModal = function() {
@@ -241,19 +241,19 @@ window.switchAccountSubTab = function(subTabId) {
 window.applySettingsNameChange = async function() {
   const newName = document.getElementById("settingProfileName").value.trim();
   const user = auth.currentUser;
-  if (!newName) { alert("Name mapping empty field error."); return; }
+  if (!newName) { alert("Name field cannot be empty."); return; }
   try {
     await updateProfile(user, { displayName: newName });
     applyUserUIData(user);
     closeSettingsModal();
-    alert("Profile configurations updated safely.");
-  } catch(e) { alert("Matrix config modification crash: " + e.message); }
+    alert("Profile name updated successfully.");
+  } catch(e) { alert("Error updating name: " + e.message); }
 };
 
 window.applySettingsAvatarChange = async function() {
   const fileInput = document.getElementById("settingProfilePicInput");
   const user = auth.currentUser;
-  if(fileInput.files.length === 0) { alert("Please allocate image graphic file."); return; }
+  if(fileInput.files.length === 0) { alert("Please choose a profile picture file."); return; }
   try {
     const file = fileInput.files[0];
     const base64Str = await new Promise((resolve) => {
@@ -262,8 +262,8 @@ window.applySettingsAvatarChange = async function() {
     localStorage.setItem("netno_user_avatar_" + user.email, base64Str);
     applyUserUIData(user);
     closeSettingsModal();
-    alert("Profile graphics asset recompiled successfully.");
-  } catch(e) { alert("Asset array data mutation exception: " + e.message); }
+    alert("Profile picture updated.");
+  } catch(e) { alert("Mutation exception: " + e.message); }
 };
 
 window.applySettingsDescChange = function() {
@@ -271,43 +271,47 @@ window.applySettingsDescChange = function() {
   const txt = document.getElementById("settingProfileDesc").value;
   localStorage.setItem("netno_profile_desc_" + user.email, txt);
   closeSettingsModal();
-  alert("Log entry modified.");
+  alert("Bio log updated.");
 };
 
 window.applySettingsAccountTermination = async function() {
   const pass = document.getElementById("deleteAccountPassword").value;
   const user = auth.currentUser;
-  if(!pass) { alert("Authorization password verification code required."); return; }
-  if(confirm("Structural System Check: Are you absolutely certain you want to destroy this user node?")) {
+  if(!pass) { alert("Password input required to execute deletion."); return; }
+  if(confirm("Warning: Are you completely sure you want to permanently delete your profile?")) {
     try {
       const credential = EmailAuthProvider.credential(user.email, pass);
       await linkWithCredential(user, credential).catch(()=>{});
       await deleteUser(user);
       localStorage.removeItem("netno_setup_done_" + user.email);
       localStorage.removeItem("netno_user_avatar_" + user.email);
-      alert("Account data destroyed. Connection aborted.");
+      alert("Account destroyed successfully.");
       closeSettingsModal();
       window.location.reload();
-    } catch(err) { alert("Credential validation mismatch: " + err.message); }
+    } catch(err) { alert("Validation mismatch error: " + err.message); }
   }
 };
 
-// PASSWORD RESET TRANSLATION LINK FUNCTION
+// FIXED CORE RESET: CRASH SAFE AUTOMATED MAILING DISPATCH VIA CURRENT INSTANCE
 window.triggerResetKeyForDeletion = async function() {
   const user = auth.currentUser;
   if (!user || !user.email) {
-    alert("System Failure: Logged-in profile sequence data not discovered.");
+    alert("Error: Active user profile session data structure not found.");
     return;
   }
+  
+  // Real-time dynamic fetch direct from current authenticated config stack
+  const targetEmail = user.email;
+  
   try {
-    await sendPasswordResetEmail(auth, user.email);
-    alert("Reset Link Sent! Aapke register email (" + user.email + ") par secure connection password link deploy kar diya gaya hai. Reset karne ke baad naye password se node entry permanently terminate kar sakte hain.");
+    await sendPasswordResetEmail(auth, targetEmail);
+    alert("Reset Link Sent! Ek secure link aapke email (" + targetEmail + ") par bhej diya gaya hai. Email open karke naya password set karein aur fir usi naye password se yahan account permanently delete karein.");
   } catch (err) {
-    alert("Token delivery matrix exception trace: " + err.message);
+    alert("Failed to send reset link: " + err.message);
   }
 };
 
-// Layout configurations
+// Layout grid configurations
 let sidebar = document.getElementById("sidebar"); 
 let userSidebar = document.getElementById("userSidebar"); 
 let panel = document.getElementById("panel"); 
