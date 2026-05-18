@@ -9,7 +9,8 @@ import {
   EmailAuthProvider, 
   signOut, 
   onAuthStateChanged,
-  deleteUser
+  deleteUser,
+  sendPasswordResetEmail // FIXED: Added Reset Email Package Engine
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; 
 
 const firebaseConfig = { 
@@ -28,7 +29,7 @@ const provider = new GoogleAuthProvider();
 let registrationEmail = ""; 
 let registrationPassword = ""; 
 let isRegistrationProcess = false; 
-let chosenStrategyMode = "Individual"; // Strategy routing state: Individual / Organization
+let chosenStrategyMode = "Individual"; 
 
 // Global Auth State Observer Matrix 
 onAuthStateChanged(auth, (user) => { 
@@ -78,7 +79,6 @@ function restoreInitialAuthView() {
   isRegistrationProcess = false; 
 } 
 
-// 1. PATHWAY A: DIRECT EMAIL/PASSWORD LOGIN ENGINE 
 window.handleDirectLogin = async function(e) { 
   e.preventDefault(); 
   const email = document.getElementById("authEmail").value.trim(); 
@@ -104,7 +104,6 @@ window.handleDirectLogin = async function(e) {
   } 
 }; 
 
-// 2. PATHWAY B: CONTINUE WITH GOOGLE GATEWAY 
 window.handleGoogleAuth = async function() { 
   const errorDiv = document.getElementById("loginError"); 
   errorDiv.innerText = ""; 
@@ -135,7 +134,6 @@ window.handleGoogleAuth = async function() {
   } 
 }; 
 
-// ROUTER SELECTION DELEGATION INTERFACE
 window.routeSegmentRegistration = function(strategy) {
   chosenStrategyMode = strategy;
   document.getElementById("segmentSelectionStep").style.display = "none";
@@ -146,7 +144,6 @@ window.routeSegmentRegistration = function(strategy) {
   }
 };
 
-// 3. REGISTRATION STEP 1 (INDIVIDUAL ROUTE)
 window.submitCredentialsStep = function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const chosenPassword = document.getElementById("setupPasswordInput").value; 
@@ -160,7 +157,6 @@ window.submitCredentialsStep = function() {
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// UPGRADED: REGISTRATION STEP 1 (CORPORATE ORGANIZATION ROUTE)
 window.submitCorporateCredentialsStep = function() {
   const compName = document.getElementById("orgCompName").value.trim();
   const ownerName = document.getElementById("orgOwnerName").value.trim();
@@ -184,7 +180,6 @@ window.submitCorporateCredentialsStep = function() {
   }
 
   registrationPassword = orgPass;
-  // Map fields into memory
   localStorage.setItem("netno_meta_compname_" + registrationEmail, compName);
   localStorage.setItem("netno_meta_owner_" + registrationEmail, ownerName);
   localStorage.setItem("netno_meta_taxid_" + registrationEmail, taxId);
@@ -197,7 +192,6 @@ window.submitCorporateCredentialsStep = function() {
   document.getElementById("avatarStep").style.display = "block";
 };
 
-// 4. REGISTRATION STEP 2: FINALIZE REGISTRATION MAP SYSTEM
 window.finalizeAccountRegistration = async function() { 
   let username = (chosenStrategyMode === "Individual") ? 
                  document.getElementById("usernameInput").value.trim() : 
@@ -303,14 +297,10 @@ window.handleLogout = async function() {
   } catch (error) { alert("Logout Execution Failure: " + error.message); } 
 }; 
 
-// ==========================================
-// UPGRADED: CORE SETTINGS PANEL CONTROLLERS MATRIX
-// ==========================================
 window.openSettingsModal = function() {
   document.getElementById("userSidebar").style.left = "-260px";
   document.getElementById("settingsOverlay").style.display = "flex";
   
-  // Fill data values into form variables inputs placeholder context
   const user = auth.currentUser;
   if(user) {
     document.getElementById("settingProfileName").value = user.displayName || "";
@@ -397,15 +387,29 @@ window.applySettingsAccountTermination = async function() {
   if(!pass) { alert("Authorization credentials matrix signature needed."); return; }
   if(confirm("Structural Warning Trace: Are you absolutely certain you want to trigger irreversible server-side complete profile node destruction?")) {
     try {
-      // Re-auth validation checking simulation linking engine fallback matrix layer
       const credential = EmailAuthProvider.credential(user.email, pass);
-      await linkWithCredential(user, credential).catch(()=>{/*linked safe fallback check contextual stack*/});
+      await linkWithCredential(user, credential).catch(()=>{});
       await deleteUser(user);
       localStorage.removeItem("netno_setup_done_" + user.email);
       alert("Node destruction broadcast complete. Session closed.");
       closeSettingsModal();
       window.location.reload();
     } catch(err) { alert("Authorization system rejected credential token payload matching logic. Check input key verification values: " + err.message); }
+  }
+};
+
+// FIXED UPGRADE: TRIGGER AUTOMATED PASSWORD RESET VIA ACCOUNT PROFILE EMAIL
+window.triggerResetKeyForDeletion = async function() {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("System Trace Error: No active security session identified.");
+    return;
+  }
+  try {
+    await sendPasswordResetEmail(auth, user.email);
+    alert("Reset Link Dispatched: Ek official link aapki mail ID (" + user.email + ") par bhej diya gaya hai. Uspe click karke apna password badlein aur fir yahan naye password se account delete karein.");
+  } catch (err) {
+    alert("Mailing Node Pipeline Fault: " + err.message);
   }
 };
 
