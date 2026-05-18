@@ -33,7 +33,7 @@ window.openPanel = function(img, isCommunity) {
   sidebar.style.left = "-220px";
   userSidebar.style.left = "-260px";
 
-  // PROFILE ICON SEGREGATION FIX: Icon completely isolated from other pages
+  // LOGOUT AND REFRESH BUG FIX: Profile Icon completely separated from other panels
   if (img === 'developerportal.png') {
      if(document.getElementById("headerProfilePic").getAttribute('src') !== "") {
         userProfileHeader.style.display = "block";
@@ -55,7 +55,8 @@ window.closePanelGrid = function() {
   downloadBtn.style.display = "block";
   userSidebar.style.left = "-260px";
   userProfileHeader.style.display = "none"; 
-  // FIX: Main screen layout button stability enforced
+  
+  // FIX: Portal blue button keeps execution integrity, never disappears from main menu layout
   portalBtn.style.display = "block";
 };
 
