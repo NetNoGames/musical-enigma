@@ -10,7 +10,8 @@ import {
   signOut, 
   onAuthStateChanged,
   deleteUser,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; 
 
 const firebaseConfig = { 
@@ -28,7 +29,9 @@ const provider = new GoogleAuthProvider();
 
 let registrationEmail = ""; 
 let registrationPassword = ""; 
+let finalSelectedUsername = "";
 let isRegistrationProcess = false; 
+let chosenAccountType = ""; // 'individual' ya 'organization' store karne ke liye
 
 onAuthStateChanged(auth, (user) => { 
   if (user && !isRegistrationProcess) { 
@@ -54,7 +57,9 @@ window.closeLoginPanel = function() {
 
 function restoreInitialAuthView() { 
   document.getElementById("authGateways").style.display = "block"; 
+  if(document.getElementById("accountTypeStep")) document.getElementById("accountTypeStep").style.display = "none";
   document.getElementById("credentialsStep").style.display = "none"; 
+  if(document.getElementById("orgCredentialsStep")) document.getElementById("orgCredentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "none"; 
   document.getElementById("loginError").innerText = ""; 
   document.getElementById("usernameInput").value = ""; 
@@ -92,7 +97,21 @@ window.handleGoogleAuth = async function() {
     } else { 
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
-      document.getElementById("credentialsStep").style.display = "block"; 
+      
+      // Agar account type element nahi hai toh dynamically create karega screen selector
+      let typeStep = document.getElementById("accountTypeStep");
+      if(!typeStep) {
+        typeStep = document.createElement("div");
+        typeStep.id = "accountTypeStep";
+        typeStep.style.padding = "10px 0";
+        typeStep.innerHTML = `
+          <p style="color: #888; text-align: center; margin-bottom: 20px;">Select your registration account node type:</p>
+          <button type="button" class="terminal-submit-btn" style="margin-bottom:12px; background:#16181c; border:1px solid #2f3336;" onclick="selectRegistrationType('individual')">Individual Account</button>
+          <button type="button" class="terminal-submit-btn" style="background:#16181c; border:1px solid #2f3336;" onclick="selectRegistrationType('organization')">Organization Account</button>
+        `;
+        document.getElementById("authGateways").parentNode.insertBefore(typeStep, document.getElementById("credentialsStep"));
+      }
+      typeStep.style.display = "block"; 
     } 
   } catch (error) { 
     isRegistrationProcess = false; 
@@ -100,6 +119,34 @@ window.handleGoogleAuth = async function() {
   } 
 }; 
 
+// ACCOUNT SPLITTER ROUTER CONTROL ENGINE
+window.selectRegistrationType = function(type) {
+  chosenAccountType = type;
+  document.getElementById("accountTypeStep").style.display = "none";
+  
+  if (type === 'individual') {
+    document.getElementById("credentialsStep").style.display = "block";
+  } else if (type === 'organization') {
+    let orgStep = document.getElementById("orgCredentialsStep");
+    if(!orgStep) {
+      orgStep = document.createElement("div");
+      orgStep.id = "orgCredentialsStep";
+      orgStep.innerHTML = `
+        <div class="terminal-input-row"><label>Company Name (Account Registration Target Name)</label><input type="text" id="orgCompanyName" placeholder="Enter company name..."></div>
+        <div class="terminal-input-row"><label>Company Owner Name</label><input type="text" id="orgOwnerName" placeholder="Enter owner name..."></div>
+        <div class="terminal-input-row"><label>Phone Number</label><input type="text" id="orgPhone" placeholder="Enter phone number..."></div>
+        <div class="terminal-input-row"><label>Email Address</label><input type="email" id="orgEmail" placeholder="Enter business email..."></div>
+        <div class="terminal-input-row"><label>Website (Optional)</label><input type="text" id="orgWebsite" placeholder="www.example.com"></div>
+        <div class="terminal-input-row"><label>Set Account Password (For Login & Deletion)</label><input type="password" id="orgPassword" placeholder="Set security password..."></div>
+        <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Avatar</button>
+      `;
+      document.getElementById("credentialsStep").parentNode.insertBefore(orgStep, document.getElementById("avatarStep"));
+    }
+    orgStep.style.display = "block";
+  }
+};
+
+// SUBMIT DATA VALIDATION: 2A (INDIVIDUAL)
 window.submitCredentialsStep = function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const chosenPassword = document.getElementById("setupPasswordInput").value; 
@@ -107,14 +154,46 @@ window.submitCredentialsStep = function() {
   if (!username) { errorDiv.innerText = "Please specify a unique username."; return; } 
   if (username.length > 15) { errorDiv.innerText = "Username strict limit is 15 characters."; return; } 
   if (!chosenPassword || chosenPassword.length < 6) { errorDiv.innerText = "Please set password (at least 6 characters long)."; return; } 
+  
+  finalSelectedUsername = username;
   registrationPassword = chosenPassword; 
   errorDiv.innerText = ""; 
   document.getElementById("credentialsStep").style.display = "none"; 
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
+// SUBMIT DATA VALIDATION: 2B (ORGANIZATION SYSTEM)
+window.submitOrgCredentialsStep = function() {
+  const compName = document.getElementById("orgCompanyName").value.trim();
+  const ownerName = document.getElementById("orgOwnerName").value.trim();
+  const phone = document.getElementById("orgPhone").value.trim();
+  const email = document.getElementById("orgEmail").value.trim();
+  const website = document.getElementById("orgWebsite").value.trim();
+  const chosenPassword = document.getElementById("orgPassword").value;
+  const errorDiv = document.getElementById("loginError");
+
+  if (!compName) { errorDiv.innerText = "Company Name is mandatory field."; return; }
+  if (!ownerName) { errorDiv.innerText = "Owner Name is mandatory field."; return; }
+  if (!phone) { errorDiv.innerText = "Phone Number is required."; return; }
+  if (!email) { errorDiv.innerText = "Email address matrix required."; return; }
+  if (!chosenPassword || chosenPassword.length < 6) { errorDiv.innerText = "Set a secure account verification password (min 6 chars)."; return; }
+
+  // Database local storage indexing metadata logs
+  localStorage.setItem("netno_org_comp_" + registrationEmail, compName);
+  localStorage.setItem("netno_org_owner_" + registrationEmail, ownerName);
+  localStorage.setItem("netno_org_phone_" + registrationEmail, phone);
+  localStorage.setItem("netno_org_email_" + registrationEmail, email);
+  localStorage.setItem("netno_org_web_" + registrationEmail, website);
+
+  finalSelectedUsername = compName; // Organization Profile is built on Company Name directly!
+  registrationPassword = chosenPassword;
+  errorDiv.innerText = "";
+  document.getElementById("orgCredentialsStep").style.display = "none";
+  document.getElementById("avatarStep").style.display = "block";
+};
+
+// FINALIZE CORE PIPELINE COMPILATION
 window.finalizeAccountRegistration = async function() { 
-  const username = document.getElementById("usernameInput").value.trim(); 
   const fileInput = document.getElementById("avatarFileInput"); 
   const errorDiv = document.getElementById("loginError"); 
   errorDiv.innerText = ""; 
@@ -130,16 +209,17 @@ window.finalizeAccountRegistration = async function() {
       }); 
     } 
     if (user) { 
-      await updateProfile(user, { displayName: username, photoURL: "https://www.w3schools.com/howto/img_avatar.png" }); 
+      await updateProfile(user, { displayName: finalSelectedUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" }); 
       try { 
         localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
         localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
+        localStorage.setItem("netno_account_type_" + registrationEmail, chosenAccountType);
       } catch (storageErr) { console.warn("Storage exception handled."); } 
       
       try { 
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
         await linkWithCredential(user, passwordCredential); 
-      } catch (linkErr) { console.warn("Credential linkage handled context: ", linkErr.message); } 
+      } catch (linkErr) { console.warn("Credential linkage handled: ", linkErr.message); } 
       
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
@@ -202,133 +282,125 @@ window.handleLogout = async function() {
   } catch (error) { alert("Logout Execution Failure: " + error.message); } 
 }; 
 
-// MODERN X-PANELS CORE OPERATIONS ENGINE
-window.openSettingsModal = function() {
-  document.getElementById("userSidebar").style.left = "-260px";
-  document.getElementById("settingsOverlay").style.display = "flex";
-  
-  const user = auth.currentUser;
-  if(user) {
-    document.getElementById("settingProfileName").value = user.displayName || "";
-    document.getElementById("userCount").innerText = (user.displayName || "").length + "/15";
-    
-    const savedBio = localStorage.getItem("netno_profile_desc_" + user.email) || "";
-    document.getElementById("settingProfileDesc").value = savedBio;
-    document.getElementById("bioCount").innerText = savedBio.length + "/1000";
-    
-    document.getElementById("socialyt").value = localStorage.getItem("netno_soc_yt_" + user.email) || "";
-    document.getElementById("socialreddit").value = localStorage.getItem("netno_soc_reddit_" + user.email) || "";
-    document.getElementById("socialdiscord").value = localStorage.getItem("netno_soc_discord_" + user.email) || "";
-    document.getElementById("socialtwitter").value = localStorage.getItem("netno_soc_twitter_" + user.email) || "";
-    document.getElementById("socialweb").value = localStorage.getItem("netno_soc_web_" + user.email) || "";
-  }
-};
+// MODERN TWITTER/X VERTICAL SETTINGS OVERLAY CORE ENGINE
+window.openSettingsModal = function() { 
+  document.getElementById("userSidebar").style.left = "-260px"; 
+  document.getElementById("settingsOverlay").style.display = "flex"; 
+  const user = auth.currentUser; 
+  if(user) { 
+    document.getElementById("settingProfileName").value = user.displayName || ""; 
+    document.getElementById("userCount").innerText = (user.displayName || "").length + "/15"; 
+    const savedBio = localStorage.getItem("netno_profile_desc_" + user.email) || ""; 
+    document.getElementById("settingProfileDesc").value = savedBio; 
+    document.getElementById("bioCount").innerText = savedBio.length + "/1000"; 
+    document.getElementById("socialyt").value = localStorage.getItem("netno_soc_yt_" + user.email) || ""; 
+    document.getElementById("socialreddit").value = localStorage.getItem("netno_soc_reddit_" + user.email) || ""; 
+    document.getElementById("socialdiscord").value = localStorage.getItem("netno_soc_discord_" + user.email) || ""; 
+    document.getElementById("socialtwitter").value = localStorage.getItem("netno_soc_twitter_" + user.email) || ""; 
+    document.getElementById("socialweb").value = localStorage.getItem("netno_soc_web_" + user.email) || ""; 
+  } 
+}; 
 
-window.closeSettingsModal = function() {
-  document.getElementById("settingsOverlay").style.display = "none";
-};
+window.closeSettingsModal = function() { 
+  document.getElementById("settingsOverlay").style.display = "none"; 
+}; 
 
-// FLOW ROUTER: Closes Settings & Opens Sub Panel Modals Directly
-window.openSubPanel = function(panelKey) {
-  document.getElementById("settingsOverlay").style.display = "none";
-  document.getElementById(panelKey + "SubPanel").style.display = "flex";
-};
+window.openSubPanel = function(panelKey) { 
+  document.getElementById("settingsOverlay").style.display = "none"; 
+  document.getElementById(panelKey + "SubPanel").style.display = "flex"; 
+}; 
 
-// ACTION 1: USERNAME UPDATE
-window.applySettingsNameChange = async function() {
-  const newName = document.getElementById("settingProfileName").value.trim();
-  const user = auth.currentUser;
-  if (!newName) { alert("Username target parameter cannot be blank."); return; }
-  try {
-    await updateProfile(user, { displayName: newName });
-    applyUserUIData(user);
-    document.getElementById("usernameSubPanel").style.display = "none";
-    document.getElementById("settingsOverlay").style.display = "flex";
-    alert("Username updated successfully.");
-  } catch(e) { alert("Config matrix trace modification failure: " + e.message); }
-};
+window.applySettingsNameChange = async function() { 
+  const newName = document.getElementById("settingProfileName").value.trim(); 
+  const user = auth.currentUser; 
+  if (!newName) { alert("Username target parameter cannot be blank."); return; } 
+  try { 
+    await updateProfile(user, { displayName: newName }); 
+    applyUserUIData(user); 
+    document.getElementById("usernameSubPanel").style.display = "none"; 
+    document.getElementById("settingsOverlay").style.display = "flex"; 
+    alert("Username updated successfully."); 
+  } catch(e) { alert("Config matrix trace modification failure: " + e.message); } 
+}; 
 
-// ACTION 2: AVATAR ASSET PICTURE UPDATE
-window.applySettingsAvatarChange = async function() {
-  const fileInput = document.getElementById("settingProfilePicInput");
-  const user = auth.currentUser;
-  if(fileInput.files.length === 0) { alert("Please allocate graphical input resource target file."); return; }
-  try {
-    const file = fileInput.files[0];
-    const base64Str = await new Promise((resolve) => {
-      const r = new FileReader(); r.onloadend = () => resolve(r.result); r.readAsDataURL(file);
-    });
-    localStorage.setItem("netno_user_avatar_" + user.email, base64Str);
-    applyUserUIData(user);
-    document.getElementById("avatarSubPanel").style.display = "none";
-    document.getElementById("settingsOverlay").style.display = "flex";
-    alert("Profile graphics asset recompiled.");
-  } catch(e) { alert("Exception error trace handled: " + e.message); }
-};
+window.applySettingsAvatarChange = async function() { 
+  const fileInput = document.getElementById("settingProfilePicInput"); 
+  const user = auth.currentUser; 
+  if(fileInput.files.length === 0) { alert("Please allocate graphical input resource target file."); return; } 
+  try { 
+    const file = fileInput.files[0]; 
+    const base64Str = await new Promise((resolve) => { 
+      const r = new FileReader(); r.onloadend = () => resolve(r.result); r.readAsDataURL(file); 
+    }); 
+    localStorage.setItem("netno_user_avatar_" + user.email, base64Str); 
+    applyUserUIData(user); 
+    document.getElementById("avatarSubPanel").style.display = "none"; 
+    document.getElementById("settingsOverlay").style.display = "flex"; 
+    alert("Profile graphics asset recompiled."); 
+  } catch(e) { alert("Exception error trace handled: " + e.message); } 
+}; 
 
-// ACTION 3: BIO SAVE DATA LOGGING (1000 Limit Managed)
-window.applySettingsDescChange = function() {
-  const user = auth.currentUser;
-  if(!user) return;
-  const txt = document.getElementById("settingProfileDesc").value;
-  localStorage.setItem("netno_profile_desc_" + user.email, txt);
-  document.getElementById("bioSubPanel").style.display = "none";
-  document.getElementById("settingsOverlay").style.display = "flex";
-  alert("Bio description database logs written safely.");
-};
+window.applySettingsDescChange = function() { 
+  const user = auth.currentUser; 
+  if(!user) return; 
+  const txt = document.getElementById("settingProfileDesc").value; 
+  localStorage.setItem("netno_profile_desc_" + user.email, txt); 
+  document.getElementById("bioSubPanel").style.display = "none"; 
+  document.getElementById("settingsOverlay").style.display = "flex"; 
+  alert("Bio description database logs written safely."); 
+}; 
 
-// ACTION 4: SOCIAL STREAM INTEGRATION MATRIX LINKS
-window.applySettingsSocialsChange = function() {
-  const user = auth.currentUser;
-  if(!user) return;
-  localStorage.setItem("netno_soc_yt_" + user.email, document.getElementById("socialyt").value.trim());
-  localStorage.setItem("netno_soc_reddit_" + user.email, document.getElementById("socialreddit").value.trim());
-  localStorage.setItem("netno_soc_discord_" + user.email, document.getElementById("socialdiscord").value.trim());
-  localStorage.setItem("netno_soc_twitter_" + user.email, document.getElementById("socialtwitter").value.trim());
-  localStorage.setItem("netno_soc_web_" + user.email, document.getElementById("socialweb").value.trim());
-  
-  document.getElementById("socialsSubPanel").style.display = "none";
-  document.getElementById("settingsOverlay").style.display = "flex";
-  alert("Social coordinate transmission arrays updated.");
-};
+window.applySettingsSocialsChange = function() { 
+  const user = auth.currentUser; 
+  if(!user) return; 
+  localStorage.setItem("netno_soc_yt_" + user.email, document.getElementById("socialyt").value.trim()); 
+  localStorage.setItem("netno_soc_reddit_" + user.email, document.getElementById("socialreddit").value.trim()); 
+  localStorage.setItem("netno_soc_discord_" + user.email, document.getElementById("socialdiscord").value.trim()); 
+  localStorage.setItem("netno_soc_twitter_" + user.email, document.getElementById("socialtwitter").value.trim()); 
+  localStorage.setItem("netno_soc_web_" + user.email, document.getElementById("socialweb").value.trim()); 
+  document.getElementById("socialsSubPanel").style.display = "none"; 
+  document.getElementById("settingsOverlay").style.display = "flex"; 
+  alert("Social coordinate transmission arrays updated."); 
+}; 
 
-// ACTION 5: AUTH TERMINATION EXECUTOR
-window.applySettingsAccountTermination = async function() {
-  const pass = document.getElementById("deleteAccountPassword").value;
-  const user = auth.currentUser;
-  if(!pass) { alert("Password input authentication key required."); return; }
-  if(confirm("Structural Warning Trace: Are you entirely sure you want to delete this profile node?")) {
-    try {
-      const credential = EmailAuthProvider.credential(user.email, pass);
-      await linkWithCredential(user, credential).catch(()=>{});
-      await deleteUser(user);
-      localStorage.removeItem("netno_setup_done_" + user.email);
-      localStorage.removeItem("netno_user_avatar_" + user.email);
-      alert("Profile deletion complete. Session aborted.");
-      document.getElementById("deleteSubPanel").style.display = "none";
-      window.location.reload();
-    } catch(err) { alert("Authorization rejected: " + err.message); }
-  }
-};
+// ACCOUNT DELETION RE-AUTHENTICATION VALIDATION FIX (NO MORE EMPTY PASSWORDS DELETION BUG)
+window.applySettingsAccountTermination = async function() { 
+  const pass = document.getElementById("deleteAccountPassword").value; 
+  const user = auth.currentUser; 
+  if(!pass) { alert("Password input authentication key required."); return; } 
+  if(confirm("Structural Warning Trace: Are you entirely sure you want to delete this profile node?")) { 
+    try { 
+      // 1. Create standard Auth token layer credential
+      const credential = EmailAuthProvider.credential(user.email, pass); 
+      
+      // 2. STAGE RE-AUTHENTICATION INSTEAD OF BLIND LINKING TO REJECT BAD PASSWORDS
+      await reauthenticateWithCredential(user, credential); 
+      
+      // 3. Delete from Firebase Core node system only if previous authentication clears safely
+      await deleteUser(user); 
+      localStorage.removeItem("netno_setup_done_" + user.email); 
+      localStorage.removeItem("netno_user_avatar_" + user.email); 
+      localStorage.removeItem("netno_account_type_" + user.email);
+      alert("Profile deletion complete. Session aborted safely."); 
+      document.getElementById("deleteSubPanel").style.display = "none"; 
+      window.location.reload(); 
+    } catch(err) { 
+      alert("Authorization tracking failure: Invalid password! Core structural termination rejected."); 
+    } 
+  } 
+}; 
 
-// SECURE INSTANT DISPATCH FRAMEWORK: DIRECT EMAIL PUSH FIX
-window.triggerResetKeyForDeletion = async function() {
-  const user = auth.currentUser;
-  if (!user || !user.email) {
-    alert("Error: Active user profile sequence data matrix not discovered.");
-    return;
-  }
-  const targetEmail = user.email;
-  try {
-    // Explicit dynamic direct context update mapping targeting config auth reference stack
-    await sendPasswordResetEmail(auth, targetEmail);
-    alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai. Wahan password change karke naye password se node structure permanently destroy karein.");
-  } catch (err) {
-    alert("Token delivery exception trace: " + err.message);
-  }
-};
+window.triggerResetKeyForDeletion = async function() { 
+  const user = auth.currentUser; 
+  if (!user || !user.email) { alert("Error: Active user profile sequence data matrix not discovered."); return; } 
+  const targetEmail = user.email; 
+  try { 
+    await sendPasswordResetEmail(auth, targetEmail); 
+    alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai. Wahan password change karke naye password se node structure permanently destroy karein."); 
+  } catch (err) { alert("Token delivery exception trace: " + err.message); } 
+}; 
 
-// Global Layout Management
+// Sidebar & Layout Core Node Mappings
 let sidebar = document.getElementById("sidebar"); 
 let userSidebar = document.getElementById("userSidebar"); 
 let panel = document.getElementById("panel"); 
@@ -389,7 +461,7 @@ window.addEventListener('keydown', function(e) {
   if (e.key === "Escape") { 
     window.closePanelGrid(); 
     if (typeof window.closeLoginPanel === "function") { window.closeLoginPanel(); } 
-    if (typeof window.closeSettingsModal === "function") { window.closeSettingsModal(); }
-    document.querySelectorAll('.sub-panel-overlay').forEach(el => el.style.display = 'none');
+    if (typeof window.closeSettingsModal === "function") { window.closeSettingsModal(); } 
+    document.querySelectorAll('.sub-panel-overlay').forEach(el => el.style.display = 'none'); 
   } 
 });
