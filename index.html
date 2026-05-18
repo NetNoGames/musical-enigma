@@ -73,12 +73,12 @@
 
     <div id="credentialsStep" style="display: none;">
       <div class="terminal-input-row">
-        <label>Choose Custom Username</label>
-        <input type="text" id="usernameInput">
+        <label>Choose Username (Max 15 Characters)</label>
+        <input type="text" id="usernameInput" maxlength="15" placeholder="Enter username...">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (For Future Direct Login)</label>
-        <input type="password" id="setupPasswordInput">
+        <label>Set Account Password (For Future Direct Email/Password Login)</label>
+        <input type="password" id="setupPasswordInput" placeholder="Enter password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Avatar</button>
     </div>
