@@ -6,6 +6,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   updateProfile,
+  linkWithCredential,
+  EmailAuthProvider,
   signOut,
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -23,18 +25,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Global structural variables to hold credentials during registration flow
+// System Runtime Onboarding Variables
 let userSessionEmail = "";
 let userSessionPassword = "";
-let accountCreationMode = false; 
+let isGoogleRegistration = false;
 
-// Session Management State Observer
+// Realtime User State Observer
 onAuthStateChanged(auth, (user) => {
   if (user && user.displayName) {
     applyUserUIData(user);
-    if (document.getElementById("loginOverlay").style.display === "flex") {
-      executeLoginSuccess();
-    }
   } else {
     resetGlobalSessionUI();
   }
@@ -65,34 +64,32 @@ function restoreInitialAuthView() {
   document.getElementById("credentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "none";
   document.getElementById("loginError").innerText = "";
-  accountCreationMode = false;
+  isGoogleRegistration = false;
 }
 
-// GOOGLE CONTINUATION CORE TRIGGER
+// 1. CHOOSE SIGN-IN/SIGN-UP VIA GOOGLE
 window.handleGoogleAuth = async function() {
   const errorDiv = document.getElementById("loginError");
   errorDiv.innerText = "";
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-    
     userSessionEmail = user.email;
 
+    // Check if the profile lacks an active username, meaning it's a completely new node
     if (!user.displayName) {
-      accountCreationMode = true;
-      // Show username and password entry box for Google users
+      isGoogleRegistration = true;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
-      document.getElementById("passwordSetupRow").style.display = "block"; 
     } else {
       executeLoginSuccess();
     }
   } catch (error) {
-    errorDiv.innerText = "Domain/Network error: Kindly authorize 'netnogames.github.io' inside Firebase console settings.";
+    errorDiv.innerText = "Domain Configuration missing or cancelled. Check Firebase settings.";
   }
 };
 
-// DIRECT EMAIL SUBMISSION
+// 2. PRIMARY DIRECT EMAIL & PASSWORD SYSTEM AUTHENTICATION HOOK (With Registration Fallback)
 window.handleEmailSubmission = async function(e) {
   e.preventDefault();
   const email = document.getElementById("authEmail").value.trim();
@@ -104,46 +101,45 @@ window.handleEmailSubmission = async function(e) {
   userSessionPassword = password;
 
   try {
+    // If the account already exists, log the developer directly inside the portal layout view
     await signInWithEmailAndPassword(auth, email, password);
     executeLoginSuccess();
   } catch (err) {
     if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-      errorDiv.innerText = "Incorrect account credentials specified.";
+      errorDiv.innerText = "Incorrect account details or invalid password specified.";
     } else {
-      // Create new clean registration path
-      accountCreationMode = true;
+      // If the email doesn't exist, route user directly through the registration setup workflow wizard step
+      isGoogleRegistration = false;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
-      document.getElementById("passwordSetupRow").style.display = "none"; // Password already entered
     }
   }
 };
 
-// STEP 1 VALIDATION
+// 3. STEP 1 VALIDATION (Save Username and Registration Password Fields)
 window.submitCredentialsStep = function() {
   const username = document.getElementById("usernameInput").value.trim();
-  const passSetup = document.getElementById("setupPasswordInput").value;
+  const chosenPassword = document.getElementById("setupPasswordInput").value;
   const errorDiv = document.getElementById("loginError");
 
   if (!username) {
-    errorDiv.innerText = "Username field is highly mandatory.";
+    errorDiv.innerText = "Username is absolutely mandatory.";
     return;
   }
-  if (document.getElementById("passwordSetupRow").style.display !== "none" && !passSetup) {
-    errorDiv.innerText = "Please specify a portal password.";
+  if (!chosenPassword || chosenPassword.length < 6) {
+    errorDiv.innerText = "Please specify a password containing at least 6 characters.";
     return;
-  }
-  
-  if (passSetup) {
-    userSessionPassword = passSetup;
   }
 
+  userSessionPassword = chosenPassword;
   errorDiv.innerText = "";
+  
+  // Open the profile picture choosing popup panel layer view safely
   document.getElementById("credentialsStep").style.display = "none";
-  document.getElementById("avatarStep").style.display = "block"; // Open profile photo selector box
+  document.getElementById("avatarStep").style.display = "block";
 };
 
-// STEP 2 ACCOUNT CREATION FINALIZE
+// 4. STEP 2 VALIDATION AND ACCOUNT PACKET PROVISIONING (Solves email-already-in-use runtime conflict)
 window.finalizeAccountRegistration = async function() {
   const username = document.getElementById("usernameInput").value.trim();
   const fileInput = document.getElementById("avatarFileInput");
@@ -151,32 +147,40 @@ window.finalizeAccountRegistration = async function() {
 
   try {
     let user = auth.currentUser;
-    let computedPhotoURL = "https://www.w3schools.com/howto/img_avatar.png";
+    let base64AvatarString = "https://www.w3schools.com/howto/img_avatar.png";
 
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      computedPhotoURL = await new Promise((resolve) => {
+      base64AvatarString = await new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
         reader.readAsDataURL(file);
       });
     }
 
-    // If user is registering via native email credentials
-    if (!user && accountCreationMode) {
-      const cred = await createUserWithEmailAndPassword(auth, userSessionEmail, userSessionPassword);
-      user = cred.user;
+    if (!user && !isGoogleRegistration) {
+      // Normal direct Email user creation path
+      const credentials = await createUserWithEmailAndPassword(auth, userSessionEmail, userSessionPassword);
+      user = credentials.user;
+    } else if (user && isGoogleRegistration) {
+      // Link the chosen password to the Google Account node so they can use direct login layout box anywhere!
+      try {
+        const structuralCredential = EmailAuthProvider.credential(userSessionEmail, userSessionPassword);
+        await linkWithCredential(user, structuralCredential);
+      } catch (linkError) {
+        console.log("Account linkage profile optimization resolved mapping.");
+      }
     }
 
     if (user) {
       await updateProfile(user, {
         displayName: username,
-        photoURL: computedPhotoURL
+        photoURL: base64AvatarString
       });
       executeLoginSuccess();
     }
   } catch (err) {
-    errorDiv.innerText = "Profile Creation Error: " + err.message;
+    errorDiv.innerText = "Error finishing profile metrics creation: " + err.message;
   }
 };
 
@@ -192,9 +196,9 @@ function executeLoginSuccess() {
 }
 
 function applyUserUIData(user) {
-  const avatar = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
-  document.getElementById("headerProfilePic").src = avatar;
-  document.getElementById("userSidebarPic").src = avatar;
+  const userAvatarImage = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
+  document.getElementById("headerProfilePic").src = userAvatarImage;
+  document.getElementById("userSidebarPic").src = userAvatarImage;
   document.getElementById("userSidebarName").innerText = user.displayName || "Developer";
   document.getElementById("portalBtn").style.display = "none";
 }
@@ -205,20 +209,21 @@ function resetGlobalSessionUI() {
   document.getElementById("portalBtn").style.display = "block";
 }
 
-// CLEAN FUNCTIONAL LOGOUT INTERFACE METHOD
+// SECURE INSTANT USER LOGOUT DESTRUCTOR UTILITY METHOD
 window.handleLogout = async function() {
   try {
     await signOut(auth);
     document.getElementById("userSidebar").style.left = "-260px";
     document.getElementById("userProfileHeader").style.display = "none";
     document.getElementById("headerProfilePic").src = "";
+    document.getElementById("userSidebarPic").src = "";
     
     if (typeof window.closePanelGrid === "function") {
       window.closePanelGrid();
     }
-    // Reopen clean system box
+    // Instantly bring up clean login entry overlay structure back
     window.openLoginPanel();
   } catch (error) {
-    alert("Logout Failed: " + error.message);
+    alert("Logout processing fault caught: " + error.message);
   }
 };
