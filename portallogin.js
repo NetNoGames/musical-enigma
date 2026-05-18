@@ -8,8 +8,8 @@ import {
   linkWithCredential, 
   EmailAuthProvider, 
   signOut, 
-  onAuthStateChanged,
-  deleteUser,
+  onAuthStateChanged, 
+  deleteUser, 
   sendPasswordResetEmail,
   reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; 
@@ -29,9 +29,8 @@ const provider = new GoogleAuthProvider();
 
 let registrationEmail = ""; 
 let registrationPassword = ""; 
-let finalSelectedUsername = "";
 let isRegistrationProcess = false; 
-let chosenAccountType = ""; // 'individual' ya 'organization' store karne ke liye
+let chosenUsername = "";
 
 onAuthStateChanged(auth, (user) => { 
   if (user && !isRegistrationProcess) { 
@@ -90,28 +89,18 @@ window.handleGoogleAuth = async function() {
     const user = result.user; 
     registrationEmail = user.email; 
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email); 
-
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) { 
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } else { 
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
-      
-      // Agar account type element nahi hai toh dynamically create karega screen selector
-      let typeStep = document.getElementById("accountTypeStep");
-      if(!typeStep) {
-        typeStep = document.createElement("div");
-        typeStep.id = "accountTypeStep";
-        typeStep.style.padding = "10px 0";
-        typeStep.innerHTML = `
-          <p style="color: #888; text-align: center; margin-bottom: 20px;">Select your registration account node type:</p>
-          <button type="button" class="terminal-submit-btn" style="margin-bottom:12px; background:#16181c; border:1px solid #2f3336;" onclick="selectRegistrationType('individual')">Individual Account</button>
-          <button type="button" class="terminal-submit-btn" style="background:#16181c; border:1px solid #2f3336;" onclick="selectRegistrationType('organization')">Organization Account</button>
-        `;
-        document.getElementById("authGateways").parentNode.insertBefore(typeStep, document.getElementById("credentialsStep"));
+      // Individual aur Organization select karne ka options page dikhayenge
+      if(document.getElementById("accountTypeStep")) {
+        document.getElementById("accountTypeStep").style.display = "block";
+      } else {
+        document.getElementById("credentialsStep").style.display = "block"; 
       }
-      typeStep.style.display = "block"; 
     } 
   } catch (error) { 
     isRegistrationProcess = false; 
@@ -119,80 +108,73 @@ window.handleGoogleAuth = async function() {
   } 
 }; 
 
-// ACCOUNT SPLITTER ROUTER CONTROL ENGINE
-window.selectRegistrationType = function(type) {
-  chosenAccountType = type;
+// Choice Router Function
+window.selectAccountType = function(type) {
   document.getElementById("accountTypeStep").style.display = "none";
-  
   if (type === 'individual') {
     document.getElementById("credentialsStep").style.display = "block";
   } else if (type === 'organization') {
-    let orgStep = document.getElementById("orgCredentialsStep");
-    if(!orgStep) {
-      orgStep = document.createElement("div");
-      orgStep.id = "orgCredentialsStep";
-      orgStep.innerHTML = `
-        <div class="terminal-input-row"><label>Company Name (Account Registration Target Name)</label><input type="text" id="orgCompanyName" placeholder="Enter company name..."></div>
-        <div class="terminal-input-row"><label>Company Owner Name</label><input type="text" id="orgOwnerName" placeholder="Enter owner name..."></div>
-        <div class="terminal-input-row"><label>Phone Number</label><input type="text" id="orgPhone" placeholder="Enter phone number..."></div>
-        <div class="terminal-input-row"><label>Email Address</label><input type="email" id="orgEmail" placeholder="Enter business email..."></div>
-        <div class="terminal-input-row"><label>Website (Optional)</label><input type="text" id="orgWebsite" placeholder="www.example.com"></div>
-        <div class="terminal-input-row"><label>Set Account Password (For Login & Deletion)</label><input type="password" id="orgPassword" placeholder="Set security password..."></div>
-        <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Avatar</button>
-      `;
-      document.getElementById("credentialsStep").parentNode.insertBefore(orgStep, document.getElementById("avatarStep"));
-    }
-    orgStep.style.display = "block";
+    document.getElementById("orgCredentialsStep").style.display = "block";
   }
 };
 
-// SUBMIT DATA VALIDATION: 2A (INDIVIDUAL)
 window.submitCredentialsStep = function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const chosenPassword = document.getElementById("setupPasswordInput").value; 
   const errorDiv = document.getElementById("loginError"); 
-  if (!username) { errorDiv.innerText = "Please specify a unique username."; return; } 
-  if (username.length > 15) { errorDiv.innerText = "Username strict limit is 15 characters."; return; } 
-  if (!chosenPassword || chosenPassword.length < 6) { errorDiv.innerText = "Please set password (at least 6 characters long)."; return; } 
-  
-  finalSelectedUsername = username;
+  if (!username) { 
+    errorDiv.innerText = "Please specify a unique username."; 
+    return; 
+  } 
+  if (username.length > 15) { 
+    errorDiv.innerText = "Username strict limit is 15 characters."; 
+    return; 
+  } 
+  if (!chosenPassword || chosenPassword.length < 6) { 
+    errorDiv.innerText = "Please set password (at least 6 characters long)."; 
+    return; 
+  } 
+  chosenUsername = username;
   registrationPassword = chosenPassword; 
   errorDiv.innerText = ""; 
   document.getElementById("credentialsStep").style.display = "none"; 
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// SUBMIT DATA VALIDATION: 2B (ORGANIZATION SYSTEM)
+// Organization validation pipeline setup
 window.submitOrgCredentialsStep = function() {
   const compName = document.getElementById("orgCompanyName").value.trim();
   const ownerName = document.getElementById("orgOwnerName").value.trim();
   const phone = document.getElementById("orgPhone").value.trim();
   const email = document.getElementById("orgEmail").value.trim();
   const website = document.getElementById("orgWebsite").value.trim();
-  const chosenPassword = document.getElementById("orgPassword").value;
+  const chosenPassword = document.getElementById("orgPasswordInput").value;
   const errorDiv = document.getElementById("loginError");
 
-  if (!compName) { errorDiv.innerText = "Company Name is mandatory field."; return; }
-  if (!ownerName) { errorDiv.innerText = "Owner Name is mandatory field."; return; }
-  if (!phone) { errorDiv.innerText = "Phone Number is required."; return; }
-  if (!email) { errorDiv.innerText = "Email address matrix required."; return; }
-  if (!chosenPassword || chosenPassword.length < 6) { errorDiv.innerText = "Set a secure account verification password (min 6 chars)."; return; }
+  if(!compName || !ownerName || !phone || !email || !chosenPassword) {
+    errorDiv.innerText = "Please fill all mandatory organization fields.";
+    return;
+  }
+  if (chosenPassword.length < 6) {
+    errorDiv.innerText = "Password must be at least 6 characters long.";
+    return;
+  }
 
-  // Database local storage indexing metadata logs
+  // Locally store properties data safe mapping traces
   localStorage.setItem("netno_org_comp_" + registrationEmail, compName);
   localStorage.setItem("netno_org_owner_" + registrationEmail, ownerName);
   localStorage.setItem("netno_org_phone_" + registrationEmail, phone);
   localStorage.setItem("netno_org_email_" + registrationEmail, email);
   localStorage.setItem("netno_org_web_" + registrationEmail, website);
 
-  finalSelectedUsername = compName; // Organization Profile is built on Company Name directly!
+  chosenUsername = compName; // Account automatically builds on company name parameter
   registrationPassword = chosenPassword;
+
   errorDiv.innerText = "";
   document.getElementById("orgCredentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "block";
 };
 
-// FINALIZE CORE PIPELINE COMPILATION
 window.finalizeAccountRegistration = async function() { 
   const fileInput = document.getElementById("avatarFileInput"); 
   const errorDiv = document.getElementById("loginError"); 
@@ -209,22 +191,25 @@ window.finalizeAccountRegistration = async function() {
       }); 
     } 
     if (user) { 
-      await updateProfile(user, { displayName: finalSelectedUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" }); 
+      await updateProfile(user, { displayName: chosenUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" }); 
       try { 
         localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
         localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
-        localStorage.setItem("netno_account_type_" + registrationEmail, chosenAccountType);
-      } catch (storageErr) { console.warn("Storage exception handled."); } 
-      
+      } catch (storageErr) { 
+        console.warn("Storage exception handled."); 
+      } 
       try { 
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
         await linkWithCredential(user, passwordCredential); 
-      } catch (linkErr) { console.warn("Credential linkage handled: ", linkErr.message); } 
-      
+      } catch (linkErr) { 
+        console.warn("Credential linkage handled context: ", linkErr.message); 
+      } 
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } 
-  } catch (err) { errorDiv.innerText = "Registration Pipeline Error: " + err.message; } 
+  } catch (err) { 
+    errorDiv.innerText = "Registration Pipeline Error: " + err.message; 
+  } 
 }; 
 
 function executeLoginSuccess() { 
@@ -239,7 +224,7 @@ function executeLoginSuccess() {
 } 
 
 function applyUserUIData(user) { 
-  if(!user) return;
+  if(!user) return; 
   const savedCacheAvatar = localStorage.getItem("netno_user_avatar_" + user.email); 
   const finalAvatar = savedCacheAvatar || "https://www.w3schools.com/howto/img_avatar.png"; 
   const headerImg = document.getElementById("headerProfilePic"); 
@@ -277,12 +262,16 @@ window.handleLogout = async function() {
     const headerProfileDiv = document.getElementById("userProfileHeader"); 
     if (userSidebarDiv) userSidebarDiv.style.left = "-260px"; 
     if (headerProfileDiv) headerProfileDiv.style.display = "none"; 
-    if (typeof window.closePanelGrid === "function") { window.closePanelGrid(); } 
+    if (typeof window.closePanelGrid === "function") { 
+      window.closePanelGrid(); 
+    } 
     window.openLoginPanel(); 
-  } catch (error) { alert("Logout Execution Failure: " + error.message); } 
+  } catch (error) { 
+    alert("Logout Execution Failure: " + error.message); 
+  } 
 }; 
 
-// MODERN TWITTER/X VERTICAL SETTINGS OVERLAY CORE ENGINE
+// MODERN X-PANELS CORE OPERATIONS ENGINE 
 window.openSettingsModal = function() { 
   document.getElementById("userSidebar").style.left = "-260px"; 
   document.getElementById("settingsOverlay").style.display = "flex"; 
@@ -313,31 +302,43 @@ window.openSubPanel = function(panelKey) {
 window.applySettingsNameChange = async function() { 
   const newName = document.getElementById("settingProfileName").value.trim(); 
   const user = auth.currentUser; 
-  if (!newName) { alert("Username target parameter cannot be blank."); return; } 
+  if (!newName) { 
+    alert("Username target parameter cannot be blank."); 
+    return; 
+  } 
   try { 
     await updateProfile(user, { displayName: newName }); 
     applyUserUIData(user); 
     document.getElementById("usernameSubPanel").style.display = "none"; 
     document.getElementById("settingsOverlay").style.display = "flex"; 
     alert("Username updated successfully."); 
-  } catch(e) { alert("Config matrix trace modification failure: " + e.message); } 
+  } catch(e) { 
+    alert("Config matrix trace modification failure: " + e.message); 
+  } 
 }; 
 
 window.applySettingsAvatarChange = async function() { 
   const fileInput = document.getElementById("settingProfilePicInput"); 
   const user = auth.currentUser; 
-  if(fileInput.files.length === 0) { alert("Please allocate graphical input resource target file."); return; } 
+  if(fileInput.files.length === 0) { 
+    alert("Please allocate graphical input resource target file."); 
+    return; 
+  } 
   try { 
     const file = fileInput.files[0]; 
     const base64Str = await new Promise((resolve) => { 
-      const r = new FileReader(); r.onloadend = () => resolve(r.result); r.readAsDataURL(file); 
+      const r = new FileReader(); 
+      r.onloadend = () => resolve(r.result); 
+      r.readAsDataURL(file); 
     }); 
     localStorage.setItem("netno_user_avatar_" + user.email, base64Str); 
     applyUserUIData(user); 
     document.getElementById("avatarSubPanel").style.display = "none"; 
     document.getElementById("settingsOverlay").style.display = "flex"; 
     alert("Profile graphics asset recompiled."); 
-  } catch(e) { alert("Exception error trace handled: " + e.message); } 
+  } catch(e) { 
+    alert("Exception error trace handled: " + e.message); 
+  } 
 }; 
 
 window.applySettingsDescChange = function() { 
@@ -363,44 +364,49 @@ window.applySettingsSocialsChange = function() {
   alert("Social coordinate transmission arrays updated."); 
 }; 
 
-// ACCOUNT DELETION RE-AUTHENTICATION VALIDATION FIX (NO MORE EMPTY PASSWORDS DELETION BUG)
+// ACCOUNT DELETION RE-AUTHENTICATION VALIDATION MATRIX (BUG FIXED)
 window.applySettingsAccountTermination = async function() { 
   const pass = document.getElementById("deleteAccountPassword").value; 
   const user = auth.currentUser; 
-  if(!pass) { alert("Password input authentication key required."); return; } 
+  if(!pass) { 
+    alert("Password input authentication key required."); 
+    return; 
+  } 
   if(confirm("Structural Warning Trace: Are you entirely sure you want to delete this profile node?")) { 
     try { 
-      // 1. Create standard Auth token layer credential
+      // Pehle security key verification trace match check karega!
       const credential = EmailAuthProvider.credential(user.email, pass); 
+      await reauthenticateWithCredential(user, credential);
       
-      // 2. STAGE RE-AUTHENTICATION INSTEAD OF BLIND LINKING TO REJECT BAD PASSWORDS
-      await reauthenticateWithCredential(user, credential); 
-      
-      // 3. Delete from Firebase Core node system only if previous authentication clears safely
+      // Match hone par hi yahan code execute hoga
       await deleteUser(user); 
       localStorage.removeItem("netno_setup_done_" + user.email); 
       localStorage.removeItem("netno_user_avatar_" + user.email); 
-      localStorage.removeItem("netno_account_type_" + user.email);
-      alert("Profile deletion complete. Session aborted safely."); 
+      alert("Profile deletion complete. Session aborted."); 
       document.getElementById("deleteSubPanel").style.display = "none"; 
       window.location.reload(); 
     } catch(err) { 
-      alert("Authorization tracking failure: Invalid password! Core structural termination rejected."); 
+      alert("Invalid password specified. Termination rejected."); 
     } 
   } 
 }; 
 
 window.triggerResetKeyForDeletion = async function() { 
   const user = auth.currentUser; 
-  if (!user || !user.email) { alert("Error: Active user profile sequence data matrix not discovered."); return; } 
+  if (!user || !user.email) { 
+    alert("Error: Active user profile sequence data matrix not discovered."); 
+    return; 
+  } 
   const targetEmail = user.email; 
   try { 
     await sendPasswordResetEmail(auth, targetEmail); 
     alert("Reset Link Dispatched! Aapke logged-in email id (" + targetEmail + ") par password update transmission payload deploy ho gaya hai. Wahan password change karke naye password se node structure permanently destroy karein."); 
-  } catch (err) { alert("Token delivery exception trace: " + err.message); } 
+  } catch (err) { 
+    alert("Token delivery exception trace: " + err.message); 
+  } 
 }; 
 
-// Sidebar & Layout Core Node Mappings
+// Global Layout Management 
 let sidebar = document.getElementById("sidebar"); 
 let userSidebar = document.getElementById("userSidebar"); 
 let panel = document.getElementById("panel"); 
@@ -412,14 +418,20 @@ let userProfileHeader = document.getElementById("userProfileHeader");
 
 window.toggleMenu = function() { 
   userSidebar.style.left = "-260px"; 
-  if (sidebar.style.left === "0px") { sidebar.style.left = "-220px"; } 
-  else { sidebar.style.left = "0px"; } 
+  if (sidebar.style.left === "0px") { 
+    sidebar.style.left = "-220px"; 
+  } else { 
+    sidebar.style.left = "0px"; 
+  } 
 }; 
 
 window.toggleUserMenu = function() { 
   sidebar.style.left = "-220px"; 
-  if (userSidebar.style.left === "0px") { userSidebar.style.left = "-260px"; } 
-  else { userSidebar.style.left = "0px"; } 
+  if (userSidebar.style.left === "0px") { 
+    userSidebar.style.left = "-260px"; 
+  } else { 
+    userSidebar.style.left = "0px"; 
+  } 
 }; 
 
 window.openPanel = function(img, isCommunity) { 
@@ -437,8 +449,11 @@ window.openPanel = function(img, isCommunity) {
   } else { 
     if (userProfileHeader) userProfileHeader.style.display = "none"; 
   } 
-  if (isCommunity) { communityLinks.style.display = "flex"; } 
-  else { communityLinks.style.display = "none"; } 
+  if (isCommunity) { 
+    communityLinks.style.display = "flex"; 
+  } else { 
+    communityLinks.style.display = "none"; 
+  } 
 }; 
 
 window.closePanelGrid = function() { 
@@ -456,12 +471,19 @@ window.closePanelOnOverlay = function(event) {
   } 
 }; 
 
-window.downloadLauncher = function() { alert("Download Start"); }; 
+window.downloadLauncher = function() { 
+  alert("Download Start"); 
+}; 
+
 window.addEventListener('keydown', function(e) { 
   if (e.key === "Escape") { 
     window.closePanelGrid(); 
-    if (typeof window.closeLoginPanel === "function") { window.closeLoginPanel(); } 
-    if (typeof window.closeSettingsModal === "function") { window.closeSettingsModal(); } 
+    if (typeof window.closeLoginPanel === "function") { 
+      window.closeLoginPanel(); 
+    } 
+    if (typeof window.closeSettingsModal === "function") { 
+      window.closeSettingsModal(); 
+    } 
     document.querySelectorAll('.sub-panel-overlay').forEach(el => el.style.display = 'none'); 
   } 
 });
