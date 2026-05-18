@@ -6,7 +6,6 @@
 <title>NetNo Games</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* X / Twitter Inspired Modern Architecture Modern Engine UI */
   .settings-overlay, .sub-panel-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 4000;
@@ -39,7 +38,6 @@
   .sub-panel-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: #fff; }
   .char-counter { font-size: 12px; color: #71767b; text-align: right; margin-top: 4px; display: block; }
 
-  /* Separate Portal Authorization Button Layout Matrix */
   .individual-sso-btn {
     width: 100%; padding: 12px; background: #00aaff; color: white; border: none;
     border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold;
@@ -54,10 +52,7 @@
   }
   .organization-sso-btn:hover { background: rgba(0, 170, 255, 0.1); transform: scale(1.02); }
 
-  /* Approval State Screen Design Overlay */
-  .approval-status-box {
-    text-align: center; padding: 20px; color: white;
-  }
+  .approval-status-box { text-align: center; padding: 20px; color: white; }
   .approval-status-box h3 { color: #ffcc00; font-size: 22px; margin-bottom: 15px; }
   .approval-status-box p { color: #888; font-size: 14px; line-height: 1.6; }
 </style>
@@ -144,34 +139,26 @@
     <div id="orgCredentialsStep" style="display: none;">
       <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Organization Cluster Configuration</h4>
       <div class="terminal-input-row">
-        <label>Company Name</label>
+        <label>1. Company Name</label>
         <input type="text" id="orgCompanyName" placeholder="Enter company / studio name">
       </div>
       <div class="terminal-input-row">
-        <label>Company Owner Name</label>
+        <label>2. Company Owner Name</label>
         <input type="text" id="orgOwnerName" placeholder="Enter owner full name">
       </div>
       <div class="terminal-input-row">
-        <label>Tax ID</label>
+        <label>3. Tax ID</label>
         <input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID">
       </div>
       <div class="terminal-input-row">
-        <label>Phone Number</label>
+        <label>4. Contact Phone Number</label>
         <input type="text" id="orgPhone" placeholder="Enter linkage phone contact">
       </div>
       <div class="terminal-input-row">
-        <label>Contact Email Address</label>
+        <label>5. Contact Email Address</label>
         <input type="email" id="orgEmail" placeholder="business@company.com">
       </div>
-      <div class="terminal-input-row">
-        <label>Website URL (Optional)</label>
-        <input type="text" id="orgWebsite" placeholder="https://www.company.com">
-      </div>
-      <div class="terminal-input-row">
-        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
-        <input type="password" id="orgPasswordInput" placeholder="Set account secure password...">
-      </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Profile Pic</button>
+      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Security Setup</button>
     </div>
 
     <div id="avatarStep" style="display: none;">
@@ -183,10 +170,23 @@
       <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration Flow</button>
     </div>
 
+    <div id="orgAvatarStep" style="display: none;">
+      <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Corporate Security & Profile Customization</h4>
+      <div class="terminal-input-row">
+        <label style="display: block; margin-bottom: 12px;">Select Company Profile Picture</label>
+        <input type="file" id="orgAvatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
+      </div>
+      <div class="terminal-input-row">
+        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <input type="password" id="orgPasswordInput" placeholder="Set enterprise validation password...">
+      </div>
+      <button type="button" class="terminal-submit-btn" onclick="finalizeOrgAccountRegistration()">Submit for Approval</button>
+    </div>
+
     <div id="approvalPendingStep" style="display: none;">
       <div class="approval-status-box">
         <h3>⚠️ Pending for Approval</h3>
-        <p>Aapka registration logs database me transmit ho gaya hai. NetNo Games System Core team aapki files aur Tax ID parameters manual review karegi. Verification complete hone ke baad hi portal operational access clear hoga.</p>
+        <p>Aapka registration logs database me transmit ho gaya hai. NetNo Games System Admin account aapki profile check karke ise approve ya reject karega. Tab tak access locked rahega.</p>
         <button type="button" class="terminal-submit-btn" style="background: #222; border: 1px solid #444; margin-top: 15px;" onclick="closeLoginPanel()">Close Terminal</button>
       </div>
     </div>
