@@ -33,7 +33,6 @@ window.openPanel = function(img, isCommunity) {
   sidebar.style.left = "-220px";
   userSidebar.style.left = "-260px";
 
-  // Strict Segregation Rule: Display Profile circular thumbnail ONLY inside Developer Portal panel view
   if (img === 'developerportal.png') {
     if (document.getElementById("headerProfilePic").getAttribute('src') !== "") {
       userProfileHeader.style.display = "block";
@@ -56,12 +55,8 @@ window.closePanelGrid = function() {
   userSidebar.style.left = "-260px";
   userProfileHeader.style.display = "none";
   
-  // Make sure portal blue button remains completely functional on dashboard reset
-  if (document.getElementById("headerProfilePic").getAttribute('src') === "" || !document.getElementById("headerProfilePic").src) {
-    portalBtn.style.display = "block";
-  } else {
-    portalBtn.style.display = "block";
-  }
+  // Permanent global fix: Maintain Developer Portal blue layout button availability perfectly on reset 
+  portalBtn.style.display = "block";
 };
 
 window.closePanelOnOverlay = function(event) {
