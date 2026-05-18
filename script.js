@@ -54,8 +54,6 @@ window.closePanelGrid = function() {
   downloadBtn.style.display = "block";
   userSidebar.style.left = "-260px";
   userProfileHeader.style.display = "none";
-  
-  // Main Layout Maintenance Fix: Retain Developer Portal blue layout button perfectly on resets
   portalBtn.style.display = "block";
 };
 
