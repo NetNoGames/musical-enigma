@@ -6,10 +6,12 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   updateProfile,
-  onAuthStateChanged
+  linkWithCredential,
+  EmailAuthProvider,
+  signOut,
+  onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// FIREBASE INITIALIZATION CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
   authDomain: "netno-games-d8580.firebaseapp.com",
@@ -23,12 +25,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Google Account Select Prompt Config (Isse saari Google IDs screen par aa jayengi)
-provider.setCustomParameters({
-  prompt: 'select_account'
-});
+provider.setCustomParameters({ prompt: 'select_account' });
 
-// --- GLOBAL ATTACHMENTS FOR OVERLAYS ---
+// Global Auth State Monitor (Persists UI even after page refresh)
+onAuthStateChanged(auth, (user) => {
+  if (user && user.displayName) {
+    showUserSessionUI(user);
+  } else {
+    hideUserSessionUI();
+  }
+});
 
 window.openLoginPanel = function() {
   document.getElementById("loginOverlay").style.display = "flex";
@@ -40,34 +46,36 @@ window.openLoginPanel = function() {
 
 window.closeLoginPanel = function() {
   document.getElementById("loginOverlay").style.display = "none";
-  document.getElementById("downloadBtn").style.display = "block";
-  document.getElementById("portalBtn").style.display = "block";
+  if (!auth.currentUser || !auth.currentUser.displayName) {
+    document.getElementById("downloadBtn").style.display = "block";
+    document.getElementById("portalBtn").style.display = "block";
+  }
 };
 
 function resetAuthViews() {
   document.getElementById("authForm").style.display = "block";
   document.getElementById("googleAuthBtn").style.display = "block";
+  document.getElementById("authSeparator").style.display = "block";
   document.getElementById("usernameSection").style.display = "none";
+  document.getElementById("setupPasswordRow").style.display = "none";
   document.getElementById("loginError").innerText = "";
 }
 
-// --- METHOD 1: GOOGLE SIGN-IN SYSTEM ---
+// METHOD 1: GOOGLE SIGN-IN SYSTEM WITH EXTRA SETTINGS
 window.handleGoogleAuth = async function() {
   const errorDiv = document.getElementById("loginError");
   errorDiv.innerText = "";
-  
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-    
-    // Check authentication flow metadata state
+
     if (!user.displayName) {
-      // Naya user hai - UI forms switch karein username config ke liye
       document.getElementById("authForm").style.display = "none";
       document.getElementById("googleAuthBtn").style.display = "none";
+      document.getElementById("authSeparator").style.display = "none";
       document.getElementById("usernameSection").style.display = "block";
+      document.getElementById("setupPasswordRow").style.display = "block"; // Open password box for new Google users
     } else {
-      // Purana verified user hai, direct entry trigger karein
       loginSuccess();
     }
   } catch (error) {
@@ -75,20 +83,46 @@ window.handleGoogleAuth = async function() {
   }
 };
 
-// Save custom username parameters
+// SAVE PROFILE AND LINK METADATA MATRIX
 window.saveUsername = async function() {
   const usernameInput = document.getElementById("usernameInput").value.trim();
+  const passwordInput = document.getElementById("usernamePasswordInput").value;
+  const fileInput = document.getElementById("profilePicInput");
   const errorDiv = document.getElementById("loginError");
-  
+
   if (!usernameInput) {
-    errorDiv.innerText = "Please configuration a unique identity tag.";
+    errorDiv.innerText = "Please configure a unique identity tag.";
     return;
   }
-  
+
   try {
-    if (auth.currentUser) {
-      await updateProfile(auth.currentUser, {
-        displayName: usernameInput
+    let user = auth.currentUser;
+    let finalPhotoURL = "https://www.w3schools.com/howto/img_avatar.png"; // Default fallback image
+
+    // Profile Pic Image Binary Base64 Converter Engine
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      finalPhotoURL = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Google password integration bridge hook
+    if (passwordInput && user) {
+      const credential = EmailAuthProvider.credential(user.email, passwordInput);
+      try {
+        await linkWithCredential(user, credential);
+      } catch (linkErr) {
+        console.log("Account linkage managed or fallback authentication registered.");
+      }
+    }
+
+    if (user) {
+      await updateProfile(user, { 
+        displayName: usernameInput,
+        photoURL: finalPhotoURL
       });
       loginSuccess();
     }
@@ -97,7 +131,7 @@ window.saveUsername = async function() {
   }
 };
 
-// --- METHOD 2: DIRECT EMAIL & PASSWORD VERIFICATION ---
+// METHOD 2: DIRECT EMAIL & PASSWORD VERIFICATION
 document.getElementById("authForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   const email = document.getElementById("authEmail").value.trim();
@@ -106,21 +140,19 @@ document.getElementById("authForm").addEventListener("submit", async function(e)
   errorDiv.innerText = "";
 
   try {
-    // Phase 1: Try Logging In directly
     await signInWithEmailAndPassword(auth, email, password);
     loginSuccess();
   } catch (loginError) {
-    // Firebase Code Validation for existing bad password credentials
     if (loginError.code === "auth/wrong-password" || loginError.code === "auth/invalid-credential") {
       errorDiv.innerText = "Account already exists! Please input correct protection key.";
     } else {
-      // Phase 2: User doesn't exist, execute instant registration
       try {
-        const registrationResult = await createUserWithEmailAndPassword(auth, email, password);
-        // Switch interfaces to acquire Display Profile Metadata configuration
+        await createUserWithEmailAndPassword(auth, email, password);
         document.getElementById("authForm").style.display = "none";
         document.getElementById("googleAuthBtn").style.display = "none";
+        document.getElementById("authSeparator").style.display = "none";
         document.getElementById("usernameSection").style.display = "block";
+        document.getElementById("setupPasswordRow").style.display = "none"; // Already setup during direct execution
       } catch (regError) {
         errorDiv.innerText = "Access Matrix Error: " + regError.message;
       }
@@ -130,7 +162,34 @@ document.getElementById("authForm").addEventListener("submit", async function(e)
 
 function loginSuccess() {
   document.getElementById("loginOverlay").style.display = "none";
-  if (typeof window.openPanel === "function") {
-    window.openPanel('developerportal.png', false);
+  const user = auth.currentUser;
+  if (user) {
+    showUserSessionUI(user);
+    if (typeof window.openPanel === "function") {
+      window.openPanel('developerportal.png', false);
+    }
   }
 }
+
+function showUserSessionUI(user) {
+  document.getElementById("userProfileHeader").style.display = "block";
+  document.getElementById("headerProfilePic").src = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
+  document.getElementById("userSidebarPic").src = user.photoURL || "https://www.w3schools.com/howto/img_avatar.png";
+  document.getElementById("userSidebarName").innerText = user.displayName;
+  document.getElementById("portalBtn").style.display = "none"; 
+}
+
+function hideUserSessionUI() {
+  document.getElementById("userProfileHeader").style.display = "none";
+  document.getElementById("userSidebar").style.left = "-260px";
+  document.getElementById("portalBtn").style.display = "block";
+}
+
+window.handleLogout = async function() {
+  try {
+    await signOut(auth);
+    location.reload();
+  } catch (err) {
+    alert("Logout processing failure: " + err.message);
+  }
+};
