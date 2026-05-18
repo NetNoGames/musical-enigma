@@ -33,13 +33,13 @@ window.openPanel = function(img, isCommunity) {
   sidebar.style.left = "-220px";
   userSidebar.style.left = "-260px";
 
-  // LOGOUT AND REFRESH BUG FIX: Profile Icon completely separated from other panels
+  // Strict Segregation Rule: Display Profile circular thumbnail ONLY inside Developer Portal panel view
   if (img === 'developerportal.png') {
-     if(document.getElementById("headerProfilePic").getAttribute('src') !== "") {
-        userProfileHeader.style.display = "block";
-     }
+    if (document.getElementById("headerProfilePic").getAttribute('src') !== "") {
+      userProfileHeader.style.display = "block";
+    }
   } else {
-     userProfileHeader.style.display = "none"; 
+    userProfileHeader.style.display = "none"; 
   }
 
   if (isCommunity) {
@@ -54,10 +54,14 @@ window.closePanelGrid = function() {
   communityLinks.style.display = "none";
   downloadBtn.style.display = "block";
   userSidebar.style.left = "-260px";
-  userProfileHeader.style.display = "none"; 
+  userProfileHeader.style.display = "none";
   
-  // FIX: Portal blue button keeps execution integrity, never disappears from main menu layout
-  portalBtn.style.display = "block";
+  // Make sure portal blue button remains completely functional on dashboard reset
+  if (document.getElementById("headerProfilePic").getAttribute('src') === "" || !document.getElementById("headerProfilePic").src) {
+    portalBtn.style.display = "block";
+  } else {
+    portalBtn.style.display = "block";
+  }
 };
 
 window.closePanelOnOverlay = function(event) {
