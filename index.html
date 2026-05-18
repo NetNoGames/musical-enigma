@@ -60,7 +60,7 @@
       <div class="divider"><span>OR</span></div>
       <form id="authForm" onsubmit="handleEmailSubmission(event)">
         <div class="terminal-input-row">
-          <label>Email</label>
+          <label>Email Address</label>
           <input type="email" id="authEmail" required>
         </div>
         <div class="terminal-input-row">
@@ -76,8 +76,8 @@
         <label>Choose Custom Username</label>
         <input type="text" id="usernameInput">
       </div>
-      <div class="terminal-input-row" id="passwordSetupRow">
-        <label>Set Portal Password</label>
+      <div class="terminal-input-row">
+        <label>Set Account Password (For Future Direct Login)</label>
         <input type="password" id="setupPasswordInput">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Avatar</button>
@@ -85,7 +85,7 @@
 
     <div id="avatarStep" style="display: none;">
       <div class="terminal-input-row">
-        <label>Select Profile Picture</label>
+        <label style="display: block; margin-bottom: 12px;">Select Profile Picture</label>
         <input type="file" id="avatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration</button>
