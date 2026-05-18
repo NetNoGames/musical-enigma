@@ -53,25 +53,27 @@
     <div class="close-terminal-btn" onclick="closeLoginPanel()">×</div>
     <h2 class="login-title">Developer Portal</h2>
 
-    <button id="googleAuthBtn" class="google-sso-btn" onclick="handleGoogleAuth()">
-      Continue With Google
-    </button>
+    <div id="mainAuthSection">
+      <button id="googleAuthBtn" class="google-sso-btn" onclick="handleGoogleAuth()">
+        Continue With Google
+      </button>
 
-    <div id="authSeparator" class="divider">
-      <span>OR</span>
+      <div id="authSeparator" class="divider">
+        <span>OR</span>
+      </div>
+
+      <form id="authForm" onsubmit="emailLogin(event)">
+        <div class="terminal-input-row">
+          <label>Email</label>
+          <input type="email" id="authEmail" required>
+        </div>
+        <div class="terminal-input-row">
+          <label>Password</label>
+          <input type="password" id="authPassword" required>
+        </div>
+        <button type="submit" class="terminal-submit-btn">Login / Register</button>
+      </form>
     </div>
-
-    <form id="authForm">
-      <div class="terminal-input-row">
-        <label>Email</label>
-        <input type="email" id="authEmail" required>
-      </div>
-      <div class="terminal-input-row">
-        <label>Password</label>
-        <input type="password" id="authPassword" required>
-      </div>
-      <button type="submit" class="terminal-submit-btn">Login / Register</button>
-    </form>
 
     <div id="usernameSection" style="display:none;">
       <div class="terminal-input-row">
@@ -82,7 +84,7 @@
         <label>Set Account Password</label>
         <input type="password" id="usernamePasswordInput">
       </div>
-      <button class="terminal-submit-btn" onclick="goToImageUploadStep()">Next: Choose Photo</button>
+      <button type="button" class="terminal-submit-btn" onclick="goToImageUploadStep()">Next: Choose Photo</button>
     </div>
 
     <div id="photoUploadSection" style="display:none;">
@@ -90,7 +92,7 @@
         <label>Upload Profile Picture</label>
         <input type="file" id="profilePicInput" accept="image/*" class="file-input">
       </div>
-      <button class="terminal-submit-btn" onclick="saveUserProfileMatrix()">Enter Dashboard</button>
+      <button type="button" class="terminal-submit-btn" onclick="saveUserProfileMatrix()">Enter Dashboard</button>
     </div>
 
     <div id="loginError" class="terminal-alert-msg"></div>
