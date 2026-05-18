@@ -8,7 +8,7 @@ let communityLinks = document.getElementById("communityLinks");
 let userProfileHeader = document.getElementById("userProfileHeader");
 
 window.toggleMenu = function() {
-  userSidebar.style.left = "-260px"; // Close dashboard side menu
+  userSidebar.style.left = "-260px"; 
   if (sidebar.style.left === "0px") {
     sidebar.style.left = "-220px";
   } else {
@@ -17,7 +17,7 @@ window.toggleMenu = function() {
 };
 
 window.toggleUserMenu = function() {
-  sidebar.style.left = "-220px"; // Close main right sidebar
+  sidebar.style.left = "-220px"; 
   if (userSidebar.style.left === "0px") {
     userSidebar.style.left = "-260px";
   } else {
@@ -33,14 +33,13 @@ window.openPanel = function(img, isCommunity) {
   sidebar.style.left = "-220px";
   userSidebar.style.left = "-260px";
 
-  // PROFILE ICON SEGREGATION FIX: Safe Isolation from other panels
+  // PROFILE ICON SEGREGATION FIX: Icon completely isolated from other pages
   if (img === 'developerportal.png') {
-     // Icon tabhi on hoga jab panel developer portal ka khulega
-     if(userProfileHeader.getAttribute('data-logged') !== "false") {
+     if(document.getElementById("headerProfilePic").getAttribute('src') !== "") {
         userProfileHeader.style.display = "block";
      }
   } else {
-     userProfileHeader.style.display = "none"; // Baki kisi bhi dusre image panel me hide rahega icon
+     userProfileHeader.style.display = "none"; 
   }
 
   if (isCommunity) {
@@ -55,16 +54,9 @@ window.closePanelGrid = function() {
   communityLinks.style.display = "none";
   downloadBtn.style.display = "block";
   userSidebar.style.left = "-260px";
-  userProfileHeader.style.display = "none"; // Hide completely outside the view
-
-  if (userProfileHeader.style.borderColor === "white" || portalBtn.style.display === "none") {
-     // Agar active state running nahi hai tabhi main trigger on karein
-     if(document.getElementById("headerProfilePic").src === "") {
-        portalBtn.style.display = "block";
-     } else {
-        portalBtn.style.display = "block"; // Portal main button keeps working fine globally
-     }
-  }
+  userProfileHeader.style.display = "none"; 
+  // FIX: Main screen layout button stability enforced
+  portalBtn.style.display = "block";
 };
 
 window.closePanelOnOverlay = function(event) {
