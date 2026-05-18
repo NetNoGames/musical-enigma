@@ -6,7 +6,7 @@
 <title>NetNo Games</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Modern Dark Minimalist Component Layer Architecture */
+  /* Core Overlay Modals Integration Framework */
   .settings-overlay, .sub-panel-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 4000;
@@ -39,23 +39,23 @@
   .sub-panel-box h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: #fff; }
   .char-counter { font-size: 12px; color: #71767b; text-align: right; margin-top: 4px; display: block; }
   
-  /* Choice Account Matrix Adjustments */
+  /* Split Choice Selection Grid Layout Styling */
   .account-choice-container {
-    display: flex; flex-direction: column; gap: 12px; margin-top: 15px;
+    display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 15px;
   }
   .choice-card-btn {
-    width: 100%; padding: 16px; background: #0d0d12; border: 1px solid #1e242b;
-    border-radius: 8px; color: white; cursor: pointer; text-align: left; transition: 0.2s;
+    width: 100%; padding: 15px; background: #111; border: 1px solid #333;
+    border-radius: 8px; color: white; cursor: pointer; text-align: left; transition: 0.2s ease;
   }
-  .choice-card-btn:hover { border-color: #00aaff; background: rgba(0, 170, 255, 0.05); }
-  .choice-card-btn h4 { margin: 0 0 4px 0; color: #00aaff; font-size: 15px; }
-  .choice-card-btn p { margin: 0; color: #71767b; font-size: 12px; }
+  .choice-card-btn:hover { border-color: #00aaff; background: #161622; transform: scale(1.02); }
+  .choice-card-btn h4 { margin: 0 0 5px 0; color: #00aaff; font-size: 16px; font-weight: bold; }
+  .choice-card-btn p { margin: 0; color: #888; font-size: 13px; line-height: 1.4; }
 </style>
 </head>
 <body>
 
 <div id="userProfileHeader" onclick="toggleUserMenu()" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer;">
-  <img id="headerProfilePic" src="" alt="Profile">
+  <img id="headerProfilePic" src="" alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00aaff; object-fit: cover;">
 </div>
 
 <div id="menuBtn" onclick="toggleMenu()">☰</div>
@@ -68,15 +68,15 @@
   <button onclick="openPanel('games.png', false)">Games</button>
 </div>
 
-<div id="userSidebar">
-  <div class="user-sidebar-profile">
-    <img id="userSidebarPic" src="" alt="Profile">
-    <h3 id="userSidebarName">Developer</h3>
+<div id="userSidebar" style="position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #0b0c10; border-right: 2px solid #00aaff; transition: 0.3s ease; z-index: 1500; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; color: white;">
+  <div class="user-sidebar-profile" style="text-align: center; margin-bottom: 30px;">
+    <img id="userSidebarPic" src="" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #00aaff; object-fit: cover; margin-bottom: 10px;">
+    <h3 id="userSidebarName" style="margin: 0; font-size: 18px; color: white;">Developer</h3>
   </div>
   
-  <button onclick="alert('Create Game ID Clicked')">Create Game ID</button>
-  <button onclick="alert('Your Games Clicked')">Your Games</button>
-  <button onclick="openSettingsModal()" style="margin-bottom: auto;">Settings</button>
+  <button onclick="alert('Create Game ID Clicked')" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Create Game ID</button>
+  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Your Games</button>
+  <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: auto; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Settings</button>
   
   <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">Logout</button>
 </div>
@@ -118,16 +118,16 @@
     </div>
 
     <div id="accountTypeStep" style="display: none;">
-      <p style="color: #888; font-size: 14px; text-align: center; margin-bottom: 15px;">Choose your operation profile type:</p>
+      <p style="color: #888; font-size: 14px; text-align: center; margin-bottom: 10px;">Select your operation account profile type:</p>
       <div class="account-choice-container">
-        <button class="choice-card-btn" onclick="selectAccountType('individual')">
+        <div class="choice-card-btn" onclick="selectAccountType('individual')">
           <h4>Individual Developer</h4>
-          <p>Standard profile for single content creators and independent nodes.</p>
-        </button>
-        <button class="choice-card-btn" onclick="selectAccountType('organization')">
-          <h4>Organization / Studio</h4>
-          <p>Managed cluster profiles for game studios and development companies.</p>
-        </button>
+          <p>Setup standard single profile node using customized username structure.</p>
+        </div>
+        <div class="choice-card-btn" onclick="selectAccountType('organization')">
+          <h4>Organization Account</h4>
+          <p>Register production studio entity managing multiple workspace resources.</p>
+        </div>
       </div>
     </div>
 
@@ -137,46 +137,46 @@
         <input type="text" id="usernameInput" maxlength="15" placeholder="Enter custom username...">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Used for Login/Deletion Validation)</label>
-        <input type="password" id="setupPasswordInput" placeholder="Set a secure password...">
+        <label>Set Account Password (For Login & Deletion)</label>
+        <input type="password" id="setupPasswordInput" placeholder="Set password (at least 6 characters)...">
       </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Avatar</button>
+      <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Profile Picture</button>
     </div>
 
     <div id="orgCredentialsStep" style="display: none;">
       <div class="terminal-input-row">
         <label>Company Name</label>
-        <input type="text" id="orgCompanyName" placeholder="e.g. NetNo Studios">
+        <input type="text" id="orgCompanyName" placeholder="e.g. NetNo Game Studios">
       </div>
       <div class="terminal-input-row">
         <label>Company Owner Name</label>
-        <input type="text" id="orgOwnerName" placeholder="Owner or representative name">
+        <input type="text" id="orgOwnerName" placeholder="Owner full name">
       </div>
       <div class="terminal-input-row">
         <label>Phone Number</label>
-        <input type="text" id="orgPhone" placeholder="Contact number link">
+        <input type="text" id="orgPhone" placeholder="Enter contact link number">
       </div>
       <div class="terminal-input-row">
-        <label>Business Email Address</label>
-        <input type="email" id="orgEmail" placeholder="org@company.com">
+        <label>Email Address</label>
+        <input type="email" id="orgEmail" placeholder="business@company.com">
       </div>
       <div class="terminal-input-row">
         <label>Website URL (Optional)</label>
-        <input type="text" id="orgWebsite" placeholder="https://www.company.com">
+        <input type="text" id="orgWebsite" placeholder="www.yourcompany.com">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Login & Destruction Key)</label>
-        <input type="password" id="orgPasswordInput" placeholder="Set secure password...">
+        <label>Set Password (Same operational task functionality)</label>
+        <input type="password" id="orgPasswordInput" placeholder="Set corporate secure password...">
       </div>
-      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Avatar</button>
+      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Profile Picture</button>
     </div>
 
     <div id="avatarStep" style="display: none;">
       <div class="terminal-input-row">
-        <label style="display: block; margin-bottom: 12px;">Select Profile Picture Asset</label>
+        <label style="display: block; margin-bottom: 12px;">Select Profile Picture Asset File</label>
         <input type="file" id="avatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
       </div>
-      <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration</button>
+      <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration Flow</button>
     </div>
 
     <div id="loginError" class="terminal-alert-msg"></div>
