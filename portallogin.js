@@ -1,18 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"; 
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  signInWithEmailAndPassword, 
-  updateProfile, 
-  linkWithCredential, 
-  EmailAuthProvider, 
-  signOut, 
-  onAuthStateChanged, 
-  deleteUser, 
-  sendPasswordResetEmail,
-  reauthenticateWithCredential
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; 
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; 
+
+// STEAMWORKS EXTENSION IMPORTS
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = { 
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w", 
@@ -25,26 +16,30 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
-const provider = new GoogleAuthProvider(); 
 
+// EXPOSE INSTANCES GLOBAL FOR STEAMWORKS SCRIPT
+window.firebaseAppInstance = app;
+window.firebaseAuthInstance = auth;
+
+const provider = new GoogleAuthProvider(); 
 let activeWorkflowMode = ""; 
 let registrationEmail = ""; 
 let registrationPassword = ""; 
 let isRegistrationProcess = false; 
-let chosenUsername = "";
+let chosenUsername = ""; 
 
 onAuthStateChanged(auth, (user) => { 
-  if (user) {
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
-    if (pendingCheck === "true") {
-      isRegistrationProcess = true;
-      document.getElementById("authGateways").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
-    if(!isRegistrationProcess) {
+  if (user) { 
+    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email); 
+    if (pendingCheck === "true") { 
+      isRegistrationProcess = true; 
+      document.getElementById("authGateways").style.display = "none"; 
+      document.getElementById("approvalPendingStep").style.display = "block"; 
+      return; 
+    } 
+    if(!isRegistrationProcess) { 
       applyUserUIData(user); 
-    }
+    } 
   } else { 
     resetGlobalSessionUI(); 
   } 
@@ -53,17 +48,17 @@ onAuthStateChanged(auth, (user) => {
 window.openLoginPanel = function() { 
   const user = auth.currentUser; 
   document.getElementById("loginOverlay").style.display = "flex"; 
-  if (user) {
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
-    if(pendingCheck === "true") {
+  if (user) { 
+    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email); 
+    if(pendingCheck === "true") { 
       document.getElementById("authGateways").style.display = "none"; 
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
-    if(user.displayName && !isRegistrationProcess) {
+      document.getElementById("approvalPendingStep").style.display = "block"; 
+      return; 
+    } 
+    if(user.displayName && !isRegistrationProcess) { 
       executeLoginSuccess(); 
       return; 
-    }
+    } 
   } 
   restoreInitialAuthView(); 
 }; 
@@ -75,15 +70,15 @@ window.closeLoginPanel = function() {
 function restoreInitialAuthView() { 
   document.getElementById("authGateways").style.display = "block"; 
   document.getElementById("credentialsStep").style.display = "none"; 
-  document.getElementById("orgCredentialsStep").style.display = "none";
+  document.getElementById("orgCredentialsStep").style.display = "none"; 
   document.getElementById("avatarStep").style.display = "none"; 
-  document.getElementById("orgAvatarStep").style.display = "none";
-  document.getElementById("approvalPendingStep").style.display = "none";
+  document.getElementById("orgAvatarStep").style.display = "none"; 
+  document.getElementById("approvalPendingStep").style.display = "none"; 
   document.getElementById("loginError").innerText = ""; 
   document.getElementById("usernameInput").value = ""; 
   document.getElementById("setupPasswordInput").value = ""; 
   isRegistrationProcess = false; 
-  activeWorkflowMode = "";
+  activeWorkflowMode = ""; 
 } 
 
 window.handleDirectLogin = async function(e) { 
@@ -95,60 +90,54 @@ window.handleDirectLogin = async function(e) {
   try { 
     isRegistrationProcess = false; 
     const result = await signInWithEmailAndPassword(auth, email, password); 
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + result.user.email);
-    if(pendingCheck === "true") {
-      isRegistrationProcess = true;
-      document.getElementById("authGateways").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
+    const pendingCheck = localStorage.getItem("netno_org_pending_" + result.user.email); 
+    if(pendingCheck === "true") { 
+      isRegistrationProcess = true; 
+      document.getElementById("authGateways").style.display = "none"; 
+      document.getElementById("approvalPendingStep").style.display = "block"; 
+      return; 
+    } 
     executeLoginSuccess(); 
   } catch (err) { 
     errorDiv.innerText = "Incorrect account details or invalid password specified."; 
   } 
 }; 
 
-// MULTI-SSO INTERFACES ENFORCER
-window.triggerRouteAuth = async function(selectedMode) {
-  activeWorkflowMode = selectedMode;
+window.triggerRouteAuth = async function(selectedMode) { 
+  activeWorkflowMode = selectedMode; 
   const errorDiv = document.getElementById("loginError"); 
   errorDiv.innerText = ""; 
   try { 
-    provider.setCustomParameters({ prompt: 'select_account' });
+    provider.setCustomParameters({ prompt: 'select_account' }); 
     const result = await signInWithPopup(auth, provider); 
     const user = result.user; 
     registrationEmail = user.email; 
-    
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email); 
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
-
-    if (pendingCheck === "true") {
+    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email); 
+    if (pendingCheck === "true") { 
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
-
-    // CHECK: Agar email pehle se use ho chuki hai toh registration dobara nahi hoga
+      document.getElementById("approvalPendingStep").style.display = "block"; 
+      return; 
+    } 
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) { 
       isRegistrationProcess = false; 
       executeLoginSuccess(); 
     } else { 
       isRegistrationProcess = true; 
       document.getElementById("authGateways").style.display = "none"; 
-      if (activeWorkflowMode === "individual") {
+      if (activeWorkflowMode === "individual") { 
         document.getElementById("credentialsStep").style.display = "block"; 
-      } else if (activeWorkflowMode === "organization") {
-        document.getElementById("orgCredentialsStep").style.display = "block";
-      }
+      } else if (activeWorkflowMode === "organization") { 
+        document.getElementById("orgCredentialsStep").style.display = "block"; 
+      } 
     } 
   } catch (error) { 
     isRegistrationProcess = false; 
     errorDiv.innerText = "Authentication Protocol Failure: " + error.message; 
   } 
-};
+}; 
 
-// INDIVIDUAL PIPELINE DATA SUBMISSION
 window.submitCredentialsStep = function() { 
   const username = document.getElementById("usernameInput").value.trim(); 
   const chosenPassword = document.getElementById("setupPasswordInput").value; 
@@ -165,41 +154,35 @@ window.submitCredentialsStep = function() {
     errorDiv.innerText = "Password initialization requires at least 6 characters."; 
     return; 
   } 
-  chosenUsername = username;
+  chosenUsername = username; 
   registrationPassword = chosenPassword; 
   errorDiv.innerText = ""; 
   document.getElementById("credentialsStep").style.display = "none"; 
   document.getElementById("avatarStep").style.display = "block"; 
 }; 
 
-// ORGANIZATION PIPELINE DATA SUBMISSION (SAVING CORE 5 PARAMETERS)
-window.submitOrgCredentialsStep = function() {
-  const compName = document.getElementById("orgCompanyName").value.trim();
-  const ownerName = document.getElementById("orgOwnerName").value.trim();
-  const taxId = document.getElementById("orgTaxId").value.trim();
-  const phone = document.getElementById("orgPhone").value.trim();
-  const email = document.getElementById("orgEmail").value.trim();
-  const errorDiv = document.getElementById("loginError");
-
-  if(!compName || !ownerName || !taxId || !phone || !email) {
-    errorDiv.innerText = "All corporate parameter data fields are required.";
-    return;
-  }
-
-  localStorage.setItem("netno_org_comp_" + registrationEmail, compName);
-  localStorage.setItem("netno_org_owner_" + registrationEmail, ownerName);
-  localStorage.setItem("netno_org_tax_" + registrationEmail, taxId);
-  localStorage.setItem("netno_org_phone_" + registrationEmail, phone);
-  localStorage.setItem("netno_org_email_" + registrationEmail, email);
-
+window.submitOrgCredentialsStep = function() { 
+  const compName = document.getElementById("orgCompanyName").value.trim(); 
+  const ownerName = document.getElementById("orgOwnerName").value.trim(); 
+  const taxId = document.getElementById("orgTaxId").value.trim(); 
+  const phone = document.getElementById("orgPhone").value.trim(); 
+  const email = document.getElementById("orgEmail").value.trim(); 
+  const errorDiv = document.getElementById("loginError"); 
+  if(!compName || !ownerName || !taxId || !phone || !email) { 
+    errorDiv.innerText = "All corporate parameter data fields are required."; 
+    return; 
+  } 
+  localStorage.setItem("netno_org_comp_" + registrationEmail, compName); 
+  localStorage.setItem("netno_org_owner_" + registrationEmail, ownerName); 
+  localStorage.setItem("netno_org_tax_" + registrationEmail, taxId); 
+  localStorage.setItem("netno_org_phone_" + registrationEmail, phone); 
+  localStorage.setItem("netno_org_email_" + registrationEmail, email); 
   chosenUsername = compName; 
+  errorDiv.innerText = ""; 
+  document.getElementById("orgCredentialsStep").style.display = "none"; 
+  document.getElementById("orgAvatarStep").style.display = "block"; 
+}; 
 
-  errorDiv.innerText = "";
-  document.getElementById("orgCredentialsStep").style.display = "none";
-  document.getElementById("orgAvatarStep").style.display = "block"; // Open dedicated Org Pic + Password step
-};
-
-// FINALIZE INDIVIDUAL REGISTRATION MAP
 window.finalizeAccountRegistration = async function() { 
   const fileInput = document.getElementById("avatarFileInput"); 
   const errorDiv = document.getElementById("loginError"); 
@@ -233,50 +216,45 @@ window.finalizeAccountRegistration = async function() {
   } 
 }; 
 
-// FINALIZE ORGANIZATION REGISTRATION (SAVING PIC + PASSWORD & GO PENDING)
-window.finalizeOrgAccountRegistration = async function() {
-  const fileInput = document.getElementById("orgAvatarFileInput");
-  const chosenPassword = document.getElementById("orgPasswordInput").value;
-  const errorDiv = document.getElementById("loginError");
-  errorDiv.innerText = "";
-
-  if(!chosenPassword || chosenPassword.length < 6) {
-    errorDiv.innerText = "Security password requires a minimum of 6 characters.";
-    return;
-  }
-
-  try {
-    let user = auth.currentUser;
+window.finalizeOrgAccountRegistration = async function() { 
+  const fileInput = document.getElementById("orgAvatarFileInput"); 
+  const chosenPassword = document.getElementById("orgPasswordInput").value; 
+  const errorDiv = document.getElementById("loginError"); 
+  errorDiv.innerText = ""; 
+  if(!chosenPassword || chosenPassword.length < 6) { 
+    errorDiv.innerText = "Security password requires a minimum of 6 characters."; 
+    return; 
+  } 
+  try { 
+    let user = auth.currentUser; 
     let finalBase64Url = "https://www.w3schools.com/howto/img_avatar.png"; 
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      finalBase64Url = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-    }
-    if (user) {
-      registrationPassword = chosenPassword;
-      await updateProfile(user, { displayName: chosenUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" });
-      localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url);
-      localStorage.setItem("netno_setup_done_" + registrationEmail, "true");
-      
-      try {
-        const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword);
-        await linkWithCredential(user, passwordCredential);
-      } catch (linkErr) {
-        console.warn("Bypass link constraint safely.");
-      }
-
-      localStorage.setItem("netno_org_pending_" + registrationEmail, "true");
-      document.getElementById("orgAvatarStep").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-    }
-  } catch(err) {
-    errorDiv.innerText = "Enterprise Data Structuring Execution Error: " + err.message;
-  }
-};
+    if (fileInput.files.length > 0) { 
+      const file = fileInput.files[0]; 
+      finalBase64Url = await new Promise((resolve) => { 
+        const reader = new FileReader(); 
+        reader.onloadend = () => resolve(reader.result); 
+        reader.readAsDataURL(file); 
+      }); 
+    } 
+    if (user) { 
+      registrationPassword = chosenPassword; 
+      await updateProfile(user, { displayName: chosenUsername, photoURL: "https://www.w3schools.com/howto/img_avatar.png" }); 
+      localStorage.setItem("netno_user_avatar_" + registrationEmail, finalBase64Url); 
+      localStorage.setItem("netno_setup_done_" + registrationEmail, "true"); 
+      try { 
+        const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword); 
+        await linkWithCredential(user, passwordCredential); 
+      } catch (linkErr) { 
+        console.warn("Bypass link constraint safely."); 
+      } 
+      localStorage.setItem("netno_org_pending_" + registrationEmail, "true"); 
+      document.getElementById("orgAvatarStep").style.display = "none"; 
+      document.getElementById("approvalPendingStep").style.display = "block"; 
+    } 
+  } catch(err) { 
+    errorDiv.innerText = "Enterprise Data Structuring Execution Error: " + err.message; 
+  } 
+}; 
 
 function executeLoginSuccess() { 
   document.getElementById("loginOverlay").style.display = "none"; 
@@ -429,7 +407,6 @@ window.applySettingsSocialsChange = function() {
   alert("Social routing tables updated."); 
 }; 
 
-// CONFIRMING SAVED ENCRYPTED LINKED PASSWORD FOR DELETIONS
 window.applySettingsAccountTermination = async function() { 
   const pass = document.getElementById("deleteAccountPassword").value; 
   const user = auth.currentUser; 
@@ -440,12 +417,11 @@ window.applySettingsAccountTermination = async function() {
   if(confirm("CRITICAL WARNING SYSTEM: Are you completely confident in deleting this network node structure?")) { 
     try { 
       const credential = EmailAuthProvider.credential(user.email, pass); 
-      await reauthenticateWithCredential(user, credential);
-      
+      await reauthenticateWithCredential(user, credential); 
       await deleteUser(user); 
       localStorage.removeItem("netno_setup_done_" + user.email); 
       localStorage.removeItem("netno_user_avatar_" + user.email); 
-      localStorage.removeItem("netno_org_pending_" + user.email);
+      localStorage.removeItem("netno_org_pending_" + user.email); 
       alert("Node successfully terminated from NetNo Database Registry."); 
       document.getElementById("deleteSubPanel").style.display = "none"; 
       window.location.reload(); 
@@ -535,7 +511,7 @@ window.closePanelOnOverlay = function(event) {
 }; 
 
 window.downloadLauncher = function() { 
-  alert("Download Launched Successfully"); 
+  alert("Download Start"); 
 }; 
 
 window.addEventListener('keydown', function(e) { 
@@ -544,14 +520,5 @@ window.addEventListener('keydown', function(e) {
     if (typeof window.closeLoginPanel === "function") { 
       window.closeLoginPanel(); 
     } 
-    if (typeof window.closeSettingsModal === "function") { 
-      window.closeSettingsModal(); 
-    } 
-    document.querySelectorAll('.sub-panel-overlay').forEach(el => {
-      if(el.style.display === 'flex') {
-        el.style.display = 'none';
-        document.getElementById('settingsOverlay').style.display = 'flex';
-      }
-    }); 
   } 
 });
