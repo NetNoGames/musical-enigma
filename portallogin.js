@@ -522,3 +522,167 @@ window.addEventListener('keydown', function(e) {
     } 
   } 
 });
+
+
+
+// =================================================================
+// STEAM-STYLE GAME ENGINE REGISTRY (NEW FUNCTIONALITY)
+// =================================================================
+
+window.openSteamCreatePanel = function() {
+  // Sidebar ko close karke layout responsive load karne ke liye
+  document.getElementById("userSidebar").style.left = "-260px";
+  document.getElementById("createGameSubPanel").style.display = "flex";
+};
+
+window.openSteamYourGamesPanel = function() {
+  document.getElementById("userSidebar").style.left = "-260px";
+  document.getElementById("yourGamesSubPanel").style.display = "flex";
+  renderPublishedSteamGames();
+};
+
+window.publishSteamGamePage = async function() {
+  const name = document.getElementById("steamGameName").value.trim();
+  const desc = document.getElementById("steamGameDesc").value.trim();
+  const trailer = document.getElementById("steamGameTrailer").value.trim();
+  const logoInput = document.getElementById("steamGameLogo");
+  const ssInput = document.getElementById("steamGameScreenshots");
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Authentication validation layer missed. Please log in first.");
+    return;
+  }
+  if (!name || !desc) {
+    alert("Game Name and Description core modules cannot be empty.");
+    return;
+  }
+
+  // Base64 Reader Engine for Logo
+  let logoBase64 = "https://via.placeholder.com/400x150?text=No+Header+Image";
+  if (logoInput.files.length > 0) {
+    logoBase64 = await new Promise((res) => {
+      const reader = new FileReader();
+      reader.onloadend = () => res(reader.result);
+      reader.readAsDataURL(logoInput.files[0]);
+    });
+  }
+
+  // Multi-file Reader Engine for Screenshots
+  let screenshotsArray = [];
+  if (ssInput.files.length > 0) {
+    for (let i = 0; i < ssInput.files.length; i++) {
+      let srcString = await new Promise((res) => {
+        const r = new FileReader();
+        r.onloadend = () => res(r.result);
+        r.readAsDataURL(ssInput.files[i]);
+      });
+      screenshotsArray.push(srcString);
+    }
+  }
+
+  const gameSchema = {
+    id: Date.now(),
+    owner: user.email,
+    title: name,
+    logo: logoBase64,
+    trailer: trailer,
+    screenshots: screenshotsArray,
+    description: desc
+  };
+
+  // Local storage management context
+  let totalGamesRegistry = JSON.parse(localStorage.getItem("netno_steam_games_db")) || [];
+  totalGamesRegistry.push(gameSchema);
+  localStorage.setItem("netno_steam_games_db", JSON.stringify(totalGamesRegistry));
+
+  alert(`'${name}' has been successfully compiled into Steam-style architecture view!`);
+  
+  // Fields Form Reset
+  document.getElementById("steamGameName").value = "";
+  document.getElementById("steamGameDesc").value = "";
+  document.getElementById("steamGameTrailer").value = "";
+  logoInput.value = "";
+  ssInput.value = "";
+  
+  document.getElementById("createGameSubPanel").style.display = "none";
+};
+
+function renderPublishedSteamGames() {
+  const container = document.getElementById("steamGamesContainer");
+  const user = auth.currentUser;
+  container.innerHTML = "";
+
+  if (!user) {
+    container.innerHTML = "<p style='color: red; text-align:center;'>Access Error: Session configuration missing.</p>";
+    return;
+  }
+
+  const allGames = JSON.parse(localStorage.getItem("netno_steam_games_db")) || [];
+  // Filter games created by this specific user session
+  const userGames = allGames.filter(g => g.owner === user.email);
+
+  if (userGames.length === 0) {
+    container.innerHTML = "<p style='color: #666; text-align: center; padding: 20px;'>No custom dashboards built yet. Use 'Create Game ID' structural engine to deploy.</p>";
+    return;
+  }
+
+  userGames.forEach(game => {
+    let screenshotHTML = "";
+    game.screenshots.forEach(ss => {
+      screenshotHTML += `<img src="${ss}" style="width: 120px; height: 75px; object-fit: cover; border-radius: 4px; border: 1px solid #333;" />`;
+    });
+
+    let videoEmbedHTML = "";
+    if (game.trailer) {
+      // Direct integration check or standard processing
+      let cleanEmbed = game.trailer;
+      if(cleanEmbed.includes("watch?v=")) {
+        cleanEmbed = cleanEmbed.replace("watch?v=", "embed/");
+      }
+      videoEmbedHTML = `
+        <div style="margin-top: 12px; width: 100%; position: relative; padding-bottom: 56.25%; height: 0;">
+          <iframe src="${cleanEmbed}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; border: none;" allowfullscreen></iframe>
+        </div>`;
+    }
+
+    const card = document.createElement("div");
+    card.style.background = "#0a0b10";
+    card.style.border = "1px solid #2f3336";
+    card.style.borderRadius = "12px";
+    card.style.padding = "20px";
+    card.style.boxShadow = "0 8px 24px rgba(0,0,0,0.5)";
+
+    card.innerHTML = `
+      <div style="display: flex; gap: 15px; align-items: center; border-bottom: 1px solid #16181c; padding-bottom: 12px;">
+        <img src="${game.logo}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #00aaff;" />
+        <div>
+          <h2 style="margin: 0; font-size: 20px; color: #fff;">${game.title}</h2>
+          <span style="font-size: 11px; background: rgba(0, 170, 255, 0.15); color: #00aaff; padding: 3px 8px; border-radius: 20px; margin-top: 5px; display: inline-block;">Steam Node Live</span>
+        </div>
+      </div>
+      
+      <p style="color: #abb2bf; font-size: 14px; line-height: 1.6; margin: 15px 0;">${game.description}</p>
+      
+      ${videoEmbedHTML}
+      
+      ${game.screenshots.length > 0 ? `
+        <div style="margin-top: 15px;">
+          <h4 style="color: #71767b; font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">Media Screenshots Gallery</h4>
+          <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
+            ${screenshotHTML}
+          </div>
+        </div>
+      ` : ''}
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Escape key binding system to shut down new panels smoothly
+window.addEventListener('keydown', function(e) {
+  if (e.key === "Escape") {
+    document.getElementById("createGameSubPanel").style.display = "none";
+    document.getElementById("yourGamesSubPanel").style.display = "none";
+  }
+});
