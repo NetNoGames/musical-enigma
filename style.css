@@ -5,15 +5,15 @@ body {
   overflow-x: hidden;
 }
 
-/* HERO BACKGROUND FIXED FOR PC & MOBILE */
+/* HERO */
 .hero {
   width: 100%;
   height: 100vh;
-  background: url('mainmenu.png') no-repeat center center;
-  background-size: cover; /* Pure PC aur Mobile screen par adjust hone ke liye */
+  background: url('mainmenu.png') no-repeat center 10%;
+  background-size: 135% 100%;
 }
 
-/* MAIN HERO BUTTONS */
+/* BUTTONS */
 .btn {
   position: absolute;
   left: 8%;
@@ -38,7 +38,7 @@ body {
 .download { top: 60%; }
 .portal { top: 70%; }
 
-/* MENU BAR */
+/* MENU */
 #menuBtn {
   position: fixed;
   top: 15px;
@@ -83,7 +83,7 @@ body {
   color: white;
 }
 
-/* USER PROFILE HEADER */
+/* TOP LEFT CIRCULAR IMAGE WINDOW HEADER */
 #userProfileHeader {
   position: fixed;
   top: 15px;
@@ -110,7 +110,7 @@ body {
   object-fit: cover;
 }
 
-/* DEVELOPER SIDEBAR OVERLAY */
+/* DEVELOPER SIDEBAR OVERLAY (Left Menu Grid) */
 #userSidebar {
   position: fixed;
   left: -260px;
@@ -254,51 +254,19 @@ body {
   z-index: 3000;
 }
 
-/* FIXED RESPONSIVE LOGIN BOX (PC/Mobile) */
 .login-terminal-box {
   width: 90%;
-  max-width: 400px;
+  max-width: 360px;
   background: #08080c;
   border: 2px solid #00aaff;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 30px 25px;
   box-sizing: border-box;
   position: relative;
   box-shadow: 0 0 35px rgba(0, 170, 255, 0.3);
 }
 
-/* NAYA REVERSED LOGIN FIELD ALIGNMENT FIX */
-.terminal-input-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.terminal-input-row label {
-  color: #888;
-  font-size: 14px;
-}
-
-.terminal-input-row input {
-  width: 100%;
-  padding: 12px;
-  box-sizing: border-box;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-  font-size: 14px;
-}
-
-.terminal-input-row input:focus {
-  outline: none;
-  border-color: #00aaff;
-  box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
-}
-
-/* SETTINGS VIEWPORT LAYOUT */
+/* UPGRADED: SYSTEM CONTROL MANAGEMENT MODULE VIEWPORT LAYOUT */
 .settings-terminal-box {
   width: 95%;
   max-width: 720px;
@@ -352,6 +320,48 @@ body {
 .close-terminal-btn:hover { color: red; }
 .login-title { color: #00aaff; text-align: center; margin-bottom: 25px; }
 
-.divider { text-align: center; color: #666; margin-bottom: 20px; font-size: 12px; font-weight: bold;}
+.google-sso-btn {
+  width: 100%;
+  padding: 12px;
+  background: #1a1a22;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  transition: 0.2s ease;
+}
 
-.file-input { background: none !important; border: none !important; padding: 5px 0 !important
+.google-sso-btn:hover { background: #232330; transform: scale(1.02); }
+.divider { text-align: center; color: #666; margin-bottom: 20px; }
+.terminal-input-row { margin-bottom: 15px; }
+.terminal-input-row label { display: block; color: #888; margin-bottom: 6px; font-size: 13px; }
+.terminal-input-row input {
+  width: 100%; padding: 12px; box-sizing: border-box; background: #111;
+  border: 1px solid #333; border-radius: 5px; color: white; font-size: 14px;
+}
+.terminal-input-row input:focus { outline: none; border-color: #00aaff; box-shadow: 0 0 10px rgba(0, 170, 255, 0.3); }
+
+.file-input { background: none !important; border: none !important; padding: 5px 0 !important; color: #888; }
+.terminal-submit-btn {
+  width: 100%; padding: 12px; border: none; border-radius: 5px;
+  background: #00aaff; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s ease;
+}
+.terminal-submit-btn:hover { background: #0088cc; transform: scale(1.02); }
+.terminal-alert-msg { color: red; margin-top: 15px; text-align: center; font-size: 13px; }
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
+  .hero { background-position: center center; background-size: cover; }
+  .btn { left: 5%; font-size: 14px; }
+  .download { top: 60%; }
+  .portal { top: 72%; }
+  #panel img { width: 100%; height: 100vh; object-fit: cover; }
+  .login-terminal-box { width: 92%; padding: 25px 20px; }
+  .settings-terminal-box { flex-direction: column; height: 90vh; }
+  .settings-sidebar-nav { width: 100%; flex-direction: row; overflow-x: auto; }
+  .settings-sub-layout { flex-direction: column; }
+  .settings-sub-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
+}
