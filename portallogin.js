@@ -165,6 +165,13 @@ window.submitCredentialsStep = function() {
     errorDiv.innerText = "Password initialization requires at least 6 characters."; 
     return; 
   } 
+
+
+
+
+
+
+  
   chosenUsername = username;
   registrationPassword = chosenPassword; 
   errorDiv.innerText = ""; 
@@ -555,3 +562,184 @@ window.addEventListener('keydown', function(e) {
     }); 
   } 
 });
+
+
+
+// GAME SYSTEM
+
+window.openCreateGamePanel = function(){
+  document.getElementById("createGameOverlay").style.display = "flex";
+}
+
+window.closeCreateGamePanel = function(){
+  document.getElementById("createGameOverlay").style.display = "none";
+}
+
+window.openYourGamesPanel = function(){
+  document.getElementById("yourGamesOverlay").style.display = "flex";
+  renderGames();
+}
+
+window.closeYourGamesPanel = function(){
+  document.getElementById("yourGamesOverlay").style.display = "none";
+}
+
+async function convertToBase64(file){
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onloadend = ()=> resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+}
+
+window.publishGamePage = async function(){
+
+  const gameName = document.getElementById("gameNameInput").value.trim();
+  const gameDesc = document.getElementById("gameDescInput").value.trim();
+  const trailer = document.getElementById("gameTrailerInput").value.trim();
+
+  if(!gameName || !gameDesc){
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  const bannerFile = document.getElementById("gameBannerInput").files[0];
+  const ss1 = document.getElementById("gameSS1").files[0];
+  const ss2 = document.getElementById("gameSS2").files[0];
+  const ss3 = document.getElementById("gameSS3").files[0];
+
+  const bannerBase64 = bannerFile ? await convertToBase64(bannerFile) : "";
+  const ss1Base64 = ss1 ? await convertToBase64(ss1) : "";
+  const ss2Base64 = ss2 ? await convertToBase64(ss2) : "";
+  const ss3Base64 = ss3 ? await convertToBase64(ss3) : "";
+
+  const gameData = {
+    id: Date.now(),
+    name: gameName,
+    desc: gameDesc,
+    trailer: trailer,
+    banner: bannerBase64,
+    screenshots:[
+      ss1Base64,
+      ss2Base64,
+      ss3Base64
+    ]
+  };
+
+  let allGames = JSON.parse(localStorage.getItem("netno_games") || "[]");
+
+  allGames.push(gameData);
+
+  localStorage.setItem("netno_games", JSON.stringify(allGames));
+
+  alert("Game Published Successfully!");
+
+  closeCreateGamePanel();
+
+  renderGames();
+}
+
+function renderGames(){
+
+  const container = document.getElementById("gamesContainer");
+
+  if(!container) return;
+
+  let allGames = JSON.parse(localStorage.getItem("netno_games") || "[]");
+
+  container.innerHTML = "";
+
+  if(allGames.length === 0){
+    container.innerHTML = `
+      <p style="color:#777;">No Games Published Yet.</p>
+    `;
+    return;
+  }
+
+  allGames.reverse().forEach(game=>{
+
+    container.innerHTML += `
+      <div class="game-card">
+
+        <img src="${game.banner}">
+
+        <div class="game-card-content">
+
+          <h3>${game.name}</h3>
+
+          <p>${game.desc.substring(0,120)}...</p>
+
+          <button class="open-game-btn"
+          onclick="openGamePublicPage(${game.id})">
+          Open Page
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  });
+}
+
+window.openGamePublicPage = function(id){
+
+  let allGames = JSON.parse(localStorage.getItem("netno_games") || "[]");
+
+  const game = allGames.find(g => g.id === id);
+
+  if(!game) return;
+
+  panel.style.display = "block";
+
+  communityLinks.style.display = "none";
+
+  let yt = "";
+
+  if(game.trailer.includes("watch?v=")){
+    yt = game.trailer.replace("watch?v=","embed/");
+  }else{
+    yt = game.trailer;
+  }
+
+  panel.innerHTML = `
+
+  <div class="panel-content-wrapper">
+
+    <div class="game-public-page">
+
+      <img class="game-public-banner" src="${game.banner}">
+
+      <div class="game-title">${game.name}</div>
+
+      <div class="game-description">${game.desc}</div>
+
+      ${
+        game.trailer
+        ?
+        `<iframe class="game-trailer"
+        src="${yt}"
+        allowfullscreen></iframe>`
+        :
+        ``
+      }
+
+      <div class="screenshot-grid">
+
+        ${
+          game.screenshots.map(ss=>
+            ss
+            ?
+            `<img src="${ss}">`
+            :
+            ``
+          ).join("")
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+  `;
+}
