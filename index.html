@@ -110,14 +110,15 @@
       <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')">Individual</button>
       <button class="organization-sso-btn" onclick="triggerRouteAuth('organization')">Organization</button>
       <div class="divider"><span>OR DIRECT LOGIN</span></div>
+      
       <form id="authForm" onsubmit="handleDirectLogin(event)">
         <div class="terminal-input-row">
-          <label>Email Address</label>
-          <input type="email" id="authEmail" required>
+          <label for="authEmail">Email Address</label>
+          <input type="email" id="authEmail" placeholder="Enter your email" required>
         </div>
         <div class="terminal-input-row">
-          <label>Password</label>
-          <input type="password" id="authPassword" required>
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" placeholder="Enter your password" required>
         </div>
         <button type="submit" class="terminal-submit-btn">Login</button>
       </form>
@@ -130,7 +131,7 @@
         <input type="text" id="usernameInput" maxlength="15" placeholder="Enter custom username...">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <label>Set Account Password</label>
         <input type="password" id="setupPasswordInput" placeholder="Set a secure password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Profile Pic</button>
@@ -138,26 +139,11 @@
 
     <div id="orgCredentialsStep" style="display: none;">
       <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Organization Cluster Configuration</h4>
-      <div class="terminal-input-row">
-        <label>1. Company Name</label>
-        <input type="text" id="orgCompanyName" placeholder="Enter company / studio name">
-      </div>
-      <div class="terminal-input-row">
-        <label>2. Company Owner Name</label>
-        <input type="text" id="orgOwnerName" placeholder="Enter owner full name">
-      </div>
-      <div class="terminal-input-row">
-        <label>3. Tax ID</label>
-        <input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID">
-      </div>
-      <div class="terminal-input-row">
-        <label>4. Contact Phone Number</label>
-        <input type="text" id="orgPhone" placeholder="Enter linkage phone contact">
-      </div>
-      <div class="terminal-input-row">
-        <label>5. Contact Email Address</label>
-        <input type="email" id="orgEmail" placeholder="business@company.com">
-      </div>
+      <div class="terminal-input-row"><label>1. Company Name</label><input type="text" id="orgCompanyName" placeholder="Enter company / studio name"></div>
+      <div class="terminal-input-row"><label>2. Company Owner Name</label><input type="text" id="orgOwnerName" placeholder="Enter owner full name"></div>
+      <div class="terminal-input-row"><label>3. Tax ID</label><input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID"></div>
+      <div class="terminal-input-row"><label>4. Contact Phone Number</label><input type="text" id="orgPhone" placeholder="Enter linkage phone contact"></div>
+      <div class="terminal-input-row"><label>5. Contact Email Address</label><input type="email" id="orgEmail" placeholder="business@company.com"></div>
       <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Security Setup</button>
     </div>
 
@@ -177,7 +163,7 @@
         <input type="file" id="orgAvatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <label>Set Account Password</label>
         <input type="password" id="orgPasswordInput" placeholder="Set enterprise validation password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="finalizeOrgAccountRegistration()">Submit for Approval</button>
