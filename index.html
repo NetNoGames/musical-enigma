@@ -59,41 +59,50 @@
 </head>
 <body>
 
-<div id="userProfileHeader" onclick="toggleUserMenu()" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer;">
-  <img id="headerProfilePic" src="" alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00aaff; object-fit: cover;">
+<div id="userProfileHeader" onclick="toggleUserMenu()" style="display: none;">
+  <img id="headerProfilePic" src="" alt="Profile">
 </div>
 
 <div id="menuBtn" onclick="toggleMenu()">☰</div>
 
 <div id="sidebar">
-  <button onclick="openPanel('overviewinfo.png', false)">Overview</button>
+  <button onclick="openPanel('Overview Info Panel', 'Explore systems data analytics directly metrics structural grid dashboard overview context layout configs.', false)">Overview</button>
   <button onclick="openLoginPanel()">Portal</button>
-  <button onclick="openPanel('supportpanel.png', false)">Support</button>
-  <button onclick="openPanel('communitypanels.png', true)">Community</button>
-  <button onclick="openPanel('games.png', false)">Games</button>
+  <button onclick="openPanel('Support Hub', 'Connect technical assistance logs engine grid mapping protocols system operations.', false)">Support</button>
+  <button onclick="openPanel('Community Core Network', 'Engage node transmissions channels link structures community feeds.', true)">Community</button>
+  <button onclick="openPanel('Games Framework Catalog', 'Execute sandbox simulations cloud binaries launcher index applications active list.', false)">Games</button>
 </div>
 
-<div id="userSidebar" style="position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #0b0c10; border-right: 2px solid #00aaff; transition: 0.3s ease; z-index: 1500; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; color: white;">
-  <div class="user-sidebar-profile" style="text-align: center; margin-bottom: 30px;">
-    <img id="userSidebarPic" src="" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #00aaff; object-fit: cover; margin-bottom: 10px;">
-    <h3 id="userSidebarName" style="margin: 0; font-size: 18px; color: white;">Developer</h3>
+<div id="userSidebar">
+  <div class="user-sidebar-profile">
+    <img id="userSidebarPic" src="" alt="Profile">
+    <h3 id="userSidebarName">Developer</h3>
   </div>
-  
-  <button onclick="alert('Create Game ID Clicked')" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Create Game ID</button>
-  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Your Games</button>
-  <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: auto; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Settings</button>
-  
-  <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">Logout</button>
+  <button onclick="alert('Create Game ID Clicked')">Create Game ID</button>
+  <button onclick="alert('Your Games Clicked')">Your Games</button>
+  <button onclick="openSettingsModal()">Settings</button>
+  <button onclick="handleLogout()" class="logout-btn">Logout</button>
 </div>
 
-<div class="hero"></div>
+<div class="hero">
+  <div class="hero-text-container">
+    <div class="hero-tagline">"Experience the next gen of indie games"</div>
+    <div class="hero-site-title">NetNo Games Site</div>
+  </div>
+</div>
 
 <div class="btn download" id="downloadBtn" onclick="downloadLauncher()">Download Game</div>
 <div class="btn portal" id="portalBtn" onclick="openLoginPanel()">Developer Portal</div>
 
 <div id="panel" onclick="closePanelOnOverlay(event)">
-  <div class="panel-content-wrapper">
-    <img id="panelImg" alt="Panel Content">
+  <div class="ng-header-bar">
+    <div class="ng-logo-text">NG</div>
+  </div>
+
+  <div class="procedural-panel-viewport">
+    <h1 id="panelDynamicTitle" class="panel-dynamic-title">Panel Header</h1>
+    <p id="panelDynamicDesc" class="panel-dynamic-desc">Dynamic descriptions load parameters runtime configs module layout.</p>
+    
     <div id="communityLinks" class="community-overlay">
       <a href="https://discord.gg/PTbxu9nPZq" target="_blank" class="action-btn">Discord Server</a>
       <a href="https://www.reddit.com/r/NetNoGamesCommunity/s/VMGdDDwaQU" target="_blank" class="action-btn">Subreddit</a>
@@ -104,20 +113,20 @@
 <div id="loginOverlay" class="login-frame-mask">
   <div class="login-terminal-box" style="max-height: 90vh; overflow-y: auto;">
     <div class="close-terminal-btn" onclick="closeLoginPanel()">×</div>
-    <h2 class="login-title">Developer Portal</h2>
+    <h2 class="login-title" style="color:#00aaff; font-size: 24px;">Developer Portal</h2>
     
     <div id="authGateways">
       <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')">Individual</button>
       <button class="organization-sso-btn" onclick="triggerRouteAuth('organization')">Organization</button>
-      <div class="divider"><span>OR DIRECT LOGIN</span></div>
+      <div class="divider" style="text-align: center; color: #555; margin-bottom: 20px; font-size:12px; font-weight:bold;"><span>OR DIRECT LOGIN</span></div>
       <form id="authForm" onsubmit="handleDirectLogin(event)">
         <div class="terminal-input-row">
           <label>Email Address</label>
-          <input type="email" id="authEmail" required>
+          <input type="email" id="authEmail" placeholder="name@example.com" required>
         </div>
         <div class="terminal-input-row">
           <label>Password</label>
-          <input type="password" id="authPassword" required>
+          <input type="password" id="authPassword" placeholder="••••••••" required>
         </div>
         <button type="submit" class="terminal-submit-btn">Login</button>
       </form>
@@ -130,7 +139,7 @@
         <input type="text" id="usernameInput" maxlength="15" placeholder="Enter custom username...">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <label>Set Account Password</label>
         <input type="password" id="setupPasswordInput" placeholder="Set a secure password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue to Profile Pic</button>
@@ -138,26 +147,11 @@
 
     <div id="orgCredentialsStep" style="display: none;">
       <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Organization Cluster Configuration</h4>
-      <div class="terminal-input-row">
-        <label>1. Company Name</label>
-        <input type="text" id="orgCompanyName" placeholder="Enter company / studio name">
-      </div>
-      <div class="terminal-input-row">
-        <label>2. Company Owner Name</label>
-        <input type="text" id="orgOwnerName" placeholder="Enter owner full name">
-      </div>
-      <div class="terminal-input-row">
-        <label>3. Tax ID</label>
-        <input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID">
-      </div>
-      <div class="terminal-input-row">
-        <label>4. Contact Phone Number</label>
-        <input type="text" id="orgPhone" placeholder="Enter linkage phone contact">
-      </div>
-      <div class="terminal-input-row">
-        <label>5. Contact Email Address</label>
-        <input type="email" id="orgEmail" placeholder="business@company.com">
-      </div>
+      <div class="terminal-input-row"><label>1. Company Name</label><input type="text" id="orgCompanyName" placeholder="Enter company / studio name"></div>
+      <div class="terminal-input-row"><label>2. Company Owner Name</label><input type="text" id="orgOwnerName" placeholder="Enter owner full name"></div>
+      <div class="terminal-input-row"><label>3. Tax ID</label><input type="text" id="orgTaxId" placeholder="Enter registration corporate Tax ID"></div>
+      <div class="terminal-input-row"><label>4. Contact Phone Number</label><input type="text" id="orgPhone" placeholder="Enter linkage phone contact"></div>
+      <div class="terminal-input-row"><label>5. Contact Email Address</label><input type="email" id="orgEmail" placeholder="business@company.com"></div>
       <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue to Security Setup</button>
     </div>
 
@@ -165,7 +159,7 @@
       <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Asset Profile Mapping</h4>
       <div class="terminal-input-row">
         <label style="display: block; margin-bottom: 12px;">Select Profile Picture Asset</label>
-        <input type="file" id="avatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
+        <input type="file" id="avatarFileInput" accept="image/*" class="file-input">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration Flow</button>
     </div>
@@ -174,10 +168,10 @@
       <h4 style="color: #00aaff; margin-top: 0; margin-bottom: 15px;">Corporate Security & Profile Customization</h4>
       <div class="terminal-input-row">
         <label style="display: block; margin-bottom: 12px;">Select Company Profile Picture</label>
-        <input type="file" id="orgAvatarFileInput" accept="image/*" style="background: none; border: none; color: white;">
+        <input type="file" id="orgAvatarFileInput" accept="image/*" class="file-input">
       </div>
       <div class="terminal-input-row">
-        <label>Set Account Password (Used for Direct Login/Deletion Verification)</label>
+        <label>Set Account Password</label>
         <input type="password" id="orgPasswordInput" placeholder="Set enterprise validation password...">
       </div>
       <button type="button" class="terminal-submit-btn" onclick="finalizeOrgAccountRegistration()">Submit for Approval</button>
@@ -279,6 +273,30 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Purane sidebar openPanel handlers ko text arrays inject karne ke liye updated handle trick
+  function openPanel(titleText, descText, showCommunity = false) {
+    document.getElementById('panelDynamicTitle').innerText = titleText;
+    document.getElementById('panelDynamicDesc').innerText = descText;
+    
+    var panel = document.getElementById('panel');
+    panel.style.display = 'block';
+    
+    var comm = document.getElementById('communityLinks');
+    if(showCommunity) {
+      comm.style.display = 'flex';
+    } else {
+      comm.style.display = 'none';
+    }
+  }
+  
+  function closePanelOnOverlay(e) {
+    if (e.target.id === 'panel' || e.target.classList.contains('procedural-panel-viewport')) {
+      document.getElementById('panel').style.display = 'none';
+    }
+  }
+</script>
 
 <script type="module" src="portallogin.js"></script>
 </body>
