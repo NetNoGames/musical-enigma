@@ -1,530 +1,128 @@
-body {
-  margin: 0;
-  background: black;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
-}
-
-/* HERO */
-.hero {
-  width: 100%;
-  height: 100vh;
-  background: url('mainmenu.png') no-repeat center 10%;
-  background-size: 135% 100%;
-}
-
-/* BUTTONS */
-.btn {
-  position: absolute;
-  left: 8%;
-  padding: 12px 25px;
-  background: #00aaff;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
-  border: none;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
-
-.btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
-}
-
-.download { top: 60%; }
-.portal { top: 70%; }
-
-/* MENU */
-#menuBtn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  font-size: 28px;
-  color: white;
-  cursor: pointer;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 12px;
-  border-radius: 5px;
-}
-
-/* SIDEBAR */
-#sidebar {
-  position: fixed;
-  left: -220px;
-  top: 0;
-  width: 220px;
-  height: 100%;
-  background: #111;
-  transition: 0.3s ease;
-  z-index: 999;
-  box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-}
-
-#sidebar button {
-  width: 100%;
-  padding: 18px 20px;
-  background: none;
-  border: none;
-  color: #ccc;
-  text-align: left;
-  font-size: 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #222;
-  transition: 0.2s;
-}
-
-#sidebar button:hover {
-  background: #00aaff;
-  color: white;
-}
-
-/* TOP LEFT CIRCULAR IMAGE WINDOW HEADER */
-#userProfileHeader {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 2px solid #00aaff;
-  cursor: pointer;
-  z-index: 1000;
-  overflow: hidden;
-  box-shadow: 0 0 12px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
-
-#userProfileHeader:hover {
-  transform: scale(1.08);
-  border-color: white;
-}
-
-#headerProfilePic {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* DEVELOPER SIDEBAR OVERLAY (Left Menu Grid) */
-#userSidebar {
-  position: fixed;
-  left: -260px;
-  top: 0;
-  width: 260px;
-  height: 100%;
-  background: #060609;
-  border-right: 2px solid #00aaff;
-  transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
-  z-index: 1002;
-  box-shadow: 8px 0 25px rgba(0,0,0,0.6);
-  display: flex;
-  flex-direction: column;
-}
-
-.user-sidebar-profile {
-  padding: 25px 15px;
-  text-align: center;
-  background: #0d0d12;
-  border-bottom: 1px solid #1a1a26;
-}
-
-#userSidebarPic {
-  width: 75px;
-  height: 75px;
-  border-radius: 50%;
-  border: 2px solid #00aaff;
-  object-fit: cover;
-  margin-bottom: 8px;
-}
-
-#userSidebarName {
-  color: white;
-  margin: 0;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-}
-
-#userSidebar button {
-  width: 100%;
-  padding: 15px 20px;
-  background: none;
-  border: none;
-  color: #aaa;
-  text-align: left;
-  font-size: 14px;
-  cursor: pointer;
-  border-bottom: 1px solid #14141f;
-  transition: 0.2s ease;
-}
-
-#userSidebar button:hover {
-  background: rgba(0, 170, 255, 0.1);
-  color: #00aaff;
-  padding-left: 25px;
-}
-
-#userSidebar .logout-btn {
-  margin-top: auto;
-  border-top: 1px solid #1a1a26;
-  color: #ff4444;
-}
-
-#userSidebar .logout-btn:hover {
-  background: rgba(255, 68, 68, 0.12);
-  color: red;
-}
-
-/* PANEL & LOGIN SYSTEM STYLES */
-#panel {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 998;
-  overflow-y: auto;
-}
-
-.panel-content-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-#panel img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-.community-overlay {
-  display: none;
-  position: absolute;
-  top: 65%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  flex-direction: column;
-  gap: 20px;
-  width: 90%;
-  max-width: 280px;
-  text-align: center;
-  z-index: 1001;
-}
-
-.action-btn {
-  display: block;
-  padding: 14px 25px;
-  background: #00aaff;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 16px;
-  border-radius: 5px;
-  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-  transition: 0.2s ease;
-}
-
-.action-btn:hover {
-  background: #0088cc;
-  transform: scale(1.05);
-}
-
-.login-frame-mask, .settings-frame-mask {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(5px);
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-}
-
-.login-terminal-box {
-  width: 90%;
-  max-width: 360px;
-  background: #08080c;
-  border: 2px solid #00aaff;
-  border-radius: 10px;
-  padding: 30px 25px;
-  box-sizing: border-box;
-  position: relative;
-  box-shadow: 0 0 35px rgba(0, 170, 255, 0.3);
-}
-
-/* UPGRADED: SYSTEM CONTROL MANAGEMENT MODULE VIEWPORT LAYOUT */
-.settings-terminal-box {
-  width: 95%;
-  max-width: 720px;
-  height: 80vh;
-  background: #060609;
-  border: 2px solid #00aaff;
-  border-radius: 12px;
-  box-sizing: border-box;
-  display: flex;
-  overflow: hidden;
-  box-shadow: 0 0 45px rgba(0, 170, 255, 0.4);
-}
-
-.settings-sidebar-nav {
-  width: 200px;
-  background: #0c0d14;
-  border-right: 1px solid #1a1a26;
-  display: flex;
-  flex-direction: column;
-}
-
-.settings-nav-btn {
-  width: 100%; padding: 15px; background: none; border: none; text-align: left;
-  color: #888; font-size: 14px; cursor: pointer; border-bottom: 1px solid #14151f; transition: 0.2s;
-}
-.settings-nav-btn.active, .settings-nav-btn:hover { color: #00aaff; background: rgba(0,170,255,0.05); }
-.settings-nav-btn.danger-tab { color: #ff4444; }
-.settings-nav-btn.danger-tab.active, .settings-nav-btn.danger-tab:hover { background: rgba(255,68,68,0.08); color: red; }
-.settings-nav-btn.close-tab { margin-top: auto; border-top: 1px solid #1a1a26; border-bottom: none; color: #666; }
-
-.settings-view-viewport { flex: 1; padding: 25px; overflow-y: auto; background: #060609; color: white; }
-.settings-tab-content { width: 100%; height: 100%; }
-
-.settings-sub-layout { display: flex; width: 100%; height: 100%; gap: 20px; }
-.settings-sub-sidebar { width: 150px; display: flex; flex-direction: column; border-right: 1px solid #1a1a26; gap: 5px; }
-.sub-nav-btn {
-  width: 100%; padding: 10px; background: none; border: none; color: #666; text-align: left; font-size: 13px; cursor: pointer; transition:0.2s;
-}
-.sub-nav-btn.active, .sub-nav-btn:hover { color: white; border-left: 2px solid #00aaff; padding-left: 14px; }
-.settings-sub-viewport { flex: 1; padding: 5px; }
-
-.close-terminal-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 28px;
-  color: #666;
-  cursor: pointer;
-}
-
-.close-terminal-btn:hover { color: red; }
-.login-title { color: #00aaff; text-align: center; margin-bottom: 25px; }
-
-.google-sso-btn {
-  width: 100%;
-  padding: 12px;
-  background: #1a1a22;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  transition: 0.2s ease;
-}
-
-.google-sso-btn:hover { background: #232330; transform: scale(1.02); }
-.divider { text-align: center; color: #666; margin-bottom: 20px; }
-.terminal-input-row { margin-bottom: 15px; }
-.terminal-input-row label { display: block; color: #888; margin-bottom: 6px; font-size: 13px; }
-.terminal-input-row input {
-  width: 100%; padding: 12px; box-sizing: border-box; background: #111;
-  border: 1px solid #333; border-radius: 5px; color: white; font-size: 14px;
-}
-.terminal-input-row input:focus { outline: none; border-color: #00aaff; box-shadow: 0 0 10px rgba(0, 170, 255, 0.3); }
-
-.file-input { background: none !important; border: none !important; padding: 5px 0 !important; color: #888; }
-.terminal-submit-btn {
-  width: 100%; padding: 12px; border: none; border-radius: 5px;
-  background: #00aaff; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s ease;
-}
-.terminal-submit-btn:hover { background: #0088cc; transform: scale(1.02); }
-.terminal-alert-msg { color: red; margin-top: 15px; text-align: center; font-size: 13px; }
-
-/* MOBILE RESPONSIVENESS */
-@media (max-width: 768px) {
-  .hero { background-position: center center; background-size: cover; }
-  .btn { left: 5%; font-size: 14px; }
-  .download { top: 60%; }
-  .portal { top: 72%; }
-  #panel img { width: 100%; height: 100vh; object-fit: cover; }
-  .login-terminal-box { width: 92%; padding: 25px 20px; }
-  .settings-terminal-box { flex-direction: column; height: 90vh; }
-  .settings-sidebar-nav { width: 100%; flex-direction: row; overflow-x: auto; }
-  .settings-sub-layout { flex-direction: column; }
-  .settings-sub-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
-}
-/* GAME CREATE PANEL */
+/* =========================
+STEAM STYLE GAME SYSTEM
+========================= */
 
 .game-create-box,
 .your-games-box{
   width:95%;
-  max-width:900px;
+  max-width:1000px;
   height:90vh;
-  background:#060609;
-  border:2px solid #00aaff;
-  border-radius:12px;
+  background:#0f1923;
+  border:1px solid #1f2f46;
+  border-radius:14px;
   overflow:hidden;
   display:flex;
   flex-direction:column;
+  box-shadow:0 0 40px rgba(0,0,0,0.7);
 }
 
 .game-create-header{
-  padding:18px;
-  border-bottom:1px solid #222;
+  height:65px;
+  background:#101822;
+  border-bottom:1px solid #22354d;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
+  padding:0 25px;
   color:white;
-}
-
-.game-create-header h2{
-  margin:0;
+  font-size:20px;
+  font-weight:bold;
 }
 
 .game-create-header span{
-  font-size:28px;
   cursor:pointer;
-  color:#777;
-}
-
-.game-create-header span:hover{
-  color:red;
+  font-size:30px;
 }
 
 .game-create-body{
   flex:1;
-  overflow-y:auto;
-  padding:20px;
+  overflow:auto;
+  padding:25px;
+}
+
+.terminal-input-row{
+  margin-bottom:20px;
+}
+
+.terminal-input-row label{
+  display:block;
+  color:#7da7d9;
+  margin-bottom:8px;
+  font-size:15px;
+}
+
+.terminal-input-row input{
+  width:100%;
+  height:48px;
+  background:#111822;
+  border:1px solid #2a3d55;
+  border-radius:8px;
+  color:white;
+  padding:0 15px;
+  box-sizing:border-box;
+  font-size:15px;
+}
+
+.terminal-submit-btn{
+  width:100%;
+  height:55px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#06bfff,#2d73ff);
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:20px;
 }
 
 .games-container{
   padding:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:20px;
-  overflow-y:auto;
+  overflow:auto;
+  flex:1;
 }
 
-.game-card{
-  background:#111;
-  border:1px solid #222;
-  border-radius:10px;
-  overflow:hidden;
-  transition:0.2s;
-}
-
-.game-card:hover{
-  transform:translateY(-4px);
-  border-color:#00aaff;
-}
-
-.game-card img{
-  width:100%;
-  height:150px;
-  object-fit:cover;
-}
-
-.game-card-content{
-  padding:15px;
-}
-
-.game-card-content h3{
-  color:white;
-  margin-top:0;
-}
-
-.game-card-content p{
-  color:#888;
-  font-size:13px;
-  line-height:1.5;
-}
-
-.open-game-btn{
-  width:100%;
-  padding:10px;
-  background:#00aaff;
-  border:none;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  border-radius:5px;
-  margin-top:10px;
-}
-
-.open-game-btn:hover{
-  background:#0088cc;
-}
-
-/* GAME PAGE */
-
-.game-public-page{
-  padding:25px;
-  color:white;
-}
-
-.game-public-banner{
-  width:100%;
-  height:300px;
-  object-fit:cover;
+.steam-game-card{
+  background:#111822;
+  border:1px solid #25384f;
   border-radius:12px;
-  margin-bottom:25px;
-}
-
-.game-title{
-  font-size:38px;
-  margin-bottom:15px;
-}
-
-.game-description{
-  color:#aaa;
-  line-height:1.8;
+  overflow:hidden;
   margin-bottom:30px;
 }
 
-.game-trailer{
+.steam-game-banner{
   width:100%;
-  height:400px;
-  border:none;
+  height:260px;
+  object-fit:cover;
+}
+
+.steam-game-content{
+  padding:20px;
+}
+
+.steam-game-title{
+  color:white;
+  font-size:28px;
+  margin-bottom:12px;
+}
+
+.steam-game-desc{
+  color:#9eb4c9;
+  line-height:1.7;
+  margin-bottom:20px;
+}
+
+.steam-ss-row{
+  display:flex;
+  gap:15px;
+  overflow:auto;
+  margin-top:20px;
+}
+
+.steam-ss-row img{
+  width:300px;
+  height:170px;
+  object-fit:cover;
   border-radius:10px;
-  margin-bottom:30px;
-}
-
-.screenshot-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-}
-
-.screenshot-grid img{
-  width:100%;
-  border-radius:10px;
-  border:1px solid #222;
-}
-
-@media(max-width:768px){
-
-  .game-public-banner{
-    height:180px;
-  }
-
-  .game-title{
-    font-size:28px;
-  }
-
-  .game-trailer{
-    height:220px;
-  }
-
+  border:1px solid #304760;
 }
