@@ -1,30 +1,8 @@
-<div id="userSidebar" style="position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #0b0c10; border-right: 2px solid #00aaff; transition: 0.3s ease; z-index: 1500; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; color: white;">
+<!-- STEAM CREATE GAME PANEL -->
 
-  <div class="user-sidebar-profile" style="text-align: center; margin-bottom: 30px;">
-    <img id="userSidebarPic" src="" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #00aaff; object-fit: cover; margin-bottom: 10px;">
-    <h3 id="userSidebarName" style="margin: 0; font-size: 18px; color: white;">Developer</h3>
-  </div>
-
-  <button onclick="openCreateGamePanel()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">
-    Create Game ID
-  </button>
-
-  <button onclick="openYourGamesPanel()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">
-    Your Games
-  </button>
-
-  <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: auto; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">
-    Settings
-  </button>
-
-  <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">
-    Logout
-  </button>
-
-</div>
-
-<!-- CREATE GAME PANEL -->
-<div id="createGameOverlay" class="sub-panel-overlay"
+<div id="createGameOverlay"
+class="sub-panel-overlay"
+style="display:none;"
 onclick="if(event.target.id==='createGameOverlay') closeCreateGamePanel();">
 
   <div class="game-create-box">
@@ -38,43 +16,67 @@ onclick="if(event.target.id==='createGameOverlay') closeCreateGamePanel();">
 
       <div class="terminal-input-row">
         <label>Game Name</label>
-        <input type="text" id="gameNameInput" placeholder="Enter game name">
+        <input type="text"
+        id="gameNameInput"
+        placeholder="Enter game name">
       </div>
 
       <div class="terminal-input-row">
         <label>Short Description</label>
-        <textarea id="gameDescInput" rows="5"
+
+        <textarea
+        id="gameDescInput"
+        rows="6"
         placeholder="Describe your game..."
-        style="width:100%; background:#111; border:1px solid #333; border-radius:5px; color:white; padding:10px; box-sizing:border-box;"></textarea>
+        style="
+        width:100%;
+        background:#111822;
+        border:1px solid #2a3d55;
+        border-radius:8px;
+        color:white;
+        padding:15px;
+        box-sizing:border-box;
+        resize:none;"></textarea>
       </div>
 
       <div class="terminal-input-row">
-        <label>Game Trailer Video URL</label>
-        <input type="text" id="gameTrailerInput"
+        <label>Trailer URL</label>
+
+        <input type="text"
+        id="gameTrailerInput"
         placeholder="https://youtube.com/...">
       </div>
 
       <div class="terminal-input-row">
         <label>Game Banner</label>
-        <input type="file" id="gameBannerInput" accept="image/*">
+        <input type="file"
+        id="gameBannerInput"
+        accept="image/*">
       </div>
 
       <div class="terminal-input-row">
         <label>Screenshot 1</label>
-        <input type="file" id="gameSS1" accept="image/*">
+        <input type="file"
+        id="gameSS1"
+        accept="image/*">
       </div>
 
       <div class="terminal-input-row">
         <label>Screenshot 2</label>
-        <input type="file" id="gameSS2" accept="image/*">
+        <input type="file"
+        id="gameSS2"
+        accept="image/*">
       </div>
 
       <div class="terminal-input-row">
         <label>Screenshot 3</label>
-        <input type="file" id="gameSS3" accept="image/*">
+        <input type="file"
+        id="gameSS3"
+        accept="image/*">
       </div>
 
-      <button class="terminal-submit-btn"
+      <button
+      class="terminal-submit-btn"
       onclick="publishGamePage()">
       Publish Game
       </button>
@@ -82,10 +84,14 @@ onclick="if(event.target.id==='createGameOverlay') closeCreateGamePanel();">
     </div>
 
   </div>
+
 </div>
 
-<!-- YOUR GAMES PANEL -->
-<div id="yourGamesOverlay" class="sub-panel-overlay"
+<!-- YOUR GAMES -->
+
+<div id="yourGamesOverlay"
+class="sub-panel-overlay"
+style="display:none;"
 onclick="if(event.target.id==='yourGamesOverlay') closeYourGamesPanel();">
 
   <div class="your-games-box">
@@ -95,8 +101,41 @@ onclick="if(event.target.id==='yourGamesOverlay') closeYourGamesPanel();">
       <span onclick="closeYourGamesPanel()">×</span>
     </div>
 
-    <div id="gamesContainer" class="games-container"></div>
+    <div id="gamesContainer"
+    class="games-container"></div>
 
   </div>
 
 </div>
+
+<!-- BUTTONS -->
+
+<button onclick="openCreateGamePanel()"
+style="
+width:100%;
+padding:12px;
+background:#111822;
+border:1px solid #304760;
+color:white;
+margin-bottom:10px;
+cursor:pointer;
+text-align:left;
+font-weight:bold;
+border-radius:8px;">
+Create Game ID
+</button>
+
+<button onclick="openYourGamesPanel()"
+style="
+width:100%;
+padding:12px;
+background:#111822;
+border:1px solid #304760;
+color:white;
+margin-bottom:10px;
+cursor:pointer;
+text-align:left;
+font-weight:bold;
+border-radius:8px;">
+Your Games
+</button>
