@@ -141,6 +141,18 @@ body {
 .steam-game-meta { font-size: 11px; color: #66c0f4; background: rgba(102,192,244,0.1); padding: 2px 6px; border-radius: 3px; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
 .steam-game-price { font-size: 13px; color: #b8b6b4; font-weight: bold; margin-top: 8px; }
 
+/* NEW STYLES FOR EDIT & REMOVE BUTTONS IN CARD */
+.card-action-bar {
+  display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #2a475e;
+}
+.card-btn {
+  flex: 1; padding: 6px 10px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; border-radius: 3px; transition: 0.2s;
+}
+.card-edit-btn { background: #00aaff; color: white; }
+.card-edit-btn:hover { background: #0088cc; }
+.card-remove-btn { background: #2a1418; color: #ff4444; border: 1px solid #541d24; }
+.card-remove-btn:hover { background: #ff4444; color: white; }
+
 @media (max-width: 768px) {
   .hero { background-position: center center; background-size: cover; }
   .btn { left: 5%; font-size: 14px; }
@@ -288,17 +300,19 @@ body {
 <div id="steamCreationPanel" class="steam-overlay" onclick="if(event.target.id==='steamCreationPanel') closeSteamCreationEngine();">
   <div class="steam-box">
     <div class="steam-header">
-      <span>NetNo works page</span>
+      <span id="creationFormTitle">NetNo works page</span>
       <span style="cursor:pointer; font-size:24px; color:#66c0f4;" onclick="closeSteamCreationEngine()">×</span>
     </div>
     <div class="steam-body">
       <form id="steamGameForm" onsubmit="saveSteamGamePage(event)">
+        <input type="hidden" id="editGameId" value="">
+
         <div class="steam-input-group">
           <label>Game Application Title</label>
           <input type="text" id="steamGameTitle" class="steam-input" required>
         </div>
         <div class="steam-input-group">
-          <label>Game Thumbnail (Image Asset File)</label>
+          <label id="thumbInputLabel">Game Thumbnail (Image Asset File)</label>
           <input type="file" id="steamGameThumb" class="steam-input" accept="image/*" required>
         </div>
         
@@ -306,20 +320,31 @@ body {
           <label>Game Genre</label>
           <select id="steamGameGenre" class="steam-input" style="background:#101822;">
             <option value="Action">Action</option>
-            <option value="RPG">RPG</option>
-            <option value="Open World">Open World</option>
-            <option value="Survival">Survival</option>
-            <option value="Strategy">Strategy</option>
-            <option value="RTS">RTS</option>
-            <option value="Horror">Horror</option>
-            <option value="Sandbox">Sandbox</option>
             <option value="Adventure">Adventure</option>
-            <option value="Simulation">Simulation</option>
+            <option value="Action-Adventure">Action-Adventure</option>
+            <option value="RPG">RPG (Role-Playing Game)</option>
+            <option value="MMORPG">MMORPG</option>
+            <option value="Open World">Open World</option>
+            <option value="Sandbox">Sandbox</option>
+            <option value="Survival">Survival</option>
+            <option value="Survival Horror">Survival Horror</option>
+            <option value="Horror">Horror / Dark Thriller</option>
+            <option value="Strategy">Strategy (Turn-Based)</option>
+            <option value="RTS">RTS (Real-Time Strategy)</option>
+            <option value="Tactical">Tactical</option>
+            <option value="Simulation">Simulation (Life/Flight/Driving)</option>
             <option value="Puzzle">Puzzle</option>
-            <option value="Sports / Racing">Sports / Racing</option>
-            <option value="FPS / Shooter">FPS / Shooter</option>
+            <option value="Platformer">Platformer</option>
+            <option value="Sports">Sports</option>
+            <option value="Racing">Racing</option>
+            <option value="FPS / Shooter">FPS / TPS Shooter</option>
+            <option value="Battle Royale">Battle Royale</option>
             <option value="Multiplayer / Co-op">Multiplayer / Co-op</option>
+            <option value="Fighting">Fighting</option>
+            <option value="Arcade">Arcade</option>
             <option value="Casual">Casual</option>
+            <option value="Card / Board">Card & Board Games</option>
+            <option value="Educational">Educational</option>
           </select>
         </div>
 
@@ -335,15 +360,19 @@ body {
         <div class="steam-input-group">
           <label>Game Theme</label>
           <select id="steamGameTheme" class="steam-input" style="background:#101822;">
-            <option value="Cyberpunk">Cyberpunk / Sci-Fi</option>
-            <option value="Medieval">Medieval / Fantasy</option>
-            <option value="Post-Apocalyptic">Post-Apocalyptic</option>
-            <option value="Anime">Anime</option>
-            <option value="Retro">Retro / Pixel Art</option>
-            <option value="Military">Military / Realistic</option>
-            <option value="Space">Space Exploration</option>
-            <option value="Horror">Horror / Dark</option>
-            <option value="Minimalist">Minimalist</option>
+            <option value="Cyberpunk">Cyberpunk</option>
+            <option value="Sci-Fi">Sci-Fi / Futuristic / Space</option>
+            <option value="Fantasy">Fantasy / Magical</option>
+            <option value="Medieval">Medieval / Historical</option>
+            <option value="Post-Apocalyptic">Post-Apocalyptic / Wasteland</option>
+            <option value="Anime">Anime / Cartoon Style</option>
+            <option value="Retro">Retro / 8-Bit / Pixel Art</option>
+            <option value="Military">Military / Realistic Warfare</option>
+            <option value="Horror">Horror / Psychological Dark</option>
+            <option value="Supernatural">Supernatural / Mythological</option>
+            <option value="Steampunk">Steampunk</option>
+            <option value="Modern">Modern / Urban</option>
+            <option value="Abstract">Abstract / Minimalist</option>
           </select>
         </div>
 
@@ -361,7 +390,7 @@ body {
         </div>
         
         <div style="text-align: right; margin-top:20px;">
-          <button type="submit" class="steam-btn-blueprint">Create page</button>
+          <button type="submit" id="submitFormBtn" class="steam-btn-blueprint">Create page</button>
         </div>
       </form>
     </div>
@@ -740,6 +769,14 @@ window.applySettingsAccountTermination = async function() {
 /* NETNOWORK REGISTRY ARCHITECTURE ENGINE */
 window.openSteamCreationEngine = function() {
   document.getElementById("userSidebar").style.left = "-260px";
+  // Reset form status for creation
+  document.getElementById("editGameId").value = "";
+  document.getElementById("creationFormTitle").innerText = "NetNo works page";
+  document.getElementById("submitFormBtn").innerText = "Create page";
+  document.getElementById("steamGameThumb").required = true;
+  document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Image Asset File)";
+  document.getElementById("steamGameForm").reset();
+  
   document.getElementById("steamCreationPanel").style.display = "flex";
 };
 window.closeSteamCreationEngine = function() { document.getElementById("steamCreationPanel").style.display = "none"; };
@@ -756,34 +793,54 @@ window.saveSteamGamePage = async function(e) {
   const user = auth.currentUser;
   const userEmail = user ? user.email : "anonymous_dev";
 
+  const editId = document.getElementById("editGameId").value;
   const title = document.getElementById("steamGameTitle").value.trim();
   const fileInput = document.getElementById("steamGameThumb");
   const genre = document.getElementById("steamGameGenre").value;
-  
-  // FETCH NEW VALUE LOGS FOR EXTRA SYSTEM CONFIGS
   const visibility = document.getElementById("steamGameVisibility").value;
   const theme = document.getElementById("steamGameTheme").value;
-
   const price = document.getElementById("steamGamePrice").value.trim();
   const desc = document.getElementById("steamGameDesc").value.trim();
   const link = document.getElementById("steamGameUrl").value.trim();
 
-  let thumbnailBase64 = "";
-  if (fileInput.files.length > 0) {
-    thumbnailBase64 = await new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(fileInput.files[0]); });
+  let currentGames = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
+
+  if (editId) {
+    // EDIT FLOW LOGIC
+    const index = currentGames.findIndex(g => g.uniqueId === editId);
+    if (index !== -1) {
+      currentGames[index].title = title;
+      currentGames[index].genre = genre;
+      currentGames[index].visibility = visibility;
+      currentGames[index].theme = theme;
+      currentGames[index].price = price;
+      currentGames[index].desc = desc;
+      currentGames[index].link = link;
+
+      if (fileInput.files.length > 0) {
+        currentGames[index].thumbnailBase64 = await new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(fileInput.files[0]); });
+      }
+      localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(currentGames));
+      alert(`"${title}" Updated Successfully!`);
+    }
+  } else {
+    // NEW REGISTRY FLOW LOGIC
+    let thumbnailBase64 = "";
+    if (fileInput.files.length > 0) {
+      thumbnailBase64 = await new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(fileInput.files[0]); });
+    }
+    const newGame = { uniqueId: "game_" + Date.now(), title, thumbnailBase64, genre, visibility, theme, price, desc, link };
+    currentGames.push(newGame);
+    localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(currentGames));
+    alert(`"${title}" Asset Created Successfully on NetNo Registry!`);
   }
 
-  const newGame = { uniqueId: "game_" + Date.now(), title, thumbnailBase64, genre, visibility, theme, price, desc, link };
-  let currentGames = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
-  currentGames.push(newGame);
-  localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(currentGames));
-
-  alert(`"${title}" Asset Created Successfully on NetNo Registry!`);
   document.getElementById("steamGameForm").reset();
   closeSteamCreationEngine();
   openSteamLibraryEngine();
 };
 
+// DYNAMICALLY RENDER EDIT & REMOVE LOGIC INSIDE LIBRARY DECK
 function renderSteamGamesDeck() {
   const user = auth.currentUser;
   const userEmail = user ? user.email : "anonymous_dev";
@@ -807,11 +864,60 @@ function renderSteamGamesDeck() {
         <span class="steam-game-meta" style="color: #a9a9b3; background: rgba(169,169,179,0.1);">${g.visibility || 'Public'}</span>
         <div class="steam-game-price">${g.price}</div>
         ${g.link ? `<a href="${g.link}" target="_blank" style="color:#66c0f4; font-size:12px; text-decoration:none; display:block; margin-top:8px;">Open Web ↗</a>` : ''}
+        
+        <div class="card-action-bar">
+          <button class="card-btn card-edit-btn" onclick="editSteamGamePage('${g.uniqueId}')">Edit</button>
+          <button class="card-btn card-remove-btn" onclick="removeSteamGamePage('${g.uniqueId}')">Remove</button>
+        </div>
       </div>
     `;
     grid.appendChild(card);
   });
 }
+
+// ENGLISH PROMPT REMOVE ENGINE
+window.removeSteamGamePage = function(gameId) {
+  const user = auth.currentUser;
+  const userEmail = user ? user.email : "anonymous_dev";
+  
+  const confirmation = confirm("Are you sure you want to remove this game?");
+  if (confirmation) {
+    let games = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
+    games = games.filter(g => g.uniqueId !== gameId);
+    localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(games));
+    renderSteamGamesDeck();
+  }
+};
+
+// EDIT RE-POPULATION MODULE
+window.editSteamGamePage = function(gameId) {
+  const user = auth.currentUser;
+  const userEmail = user ? user.email : "anonymous_dev";
+  let games = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
+  const targetGame = games.find(g => g.uniqueId === gameId);
+  
+  if (targetGame) {
+    document.getElementById("steamLibraryPanel").style.display = "none";
+    
+    // Set field states
+    document.getElementById("editGameId").value = targetGame.uniqueId;
+    document.getElementById("steamGameTitle").value = targetGame.title;
+    document.getElementById("steamGameGenre").value = targetGame.genre;
+    document.getElementById("steamGameVisibility").value = targetGame.visibility || "Public";
+    document.getElementById("steamGameTheme").value = targetGame.theme || "Cyberpunk";
+    document.getElementById("steamGamePrice").value = targetGame.price;
+    document.getElementById("steamGameDesc").value = targetGame.desc;
+    document.getElementById("steamGameUrl").value = targetGame.link || "";
+    
+    // Thumbnail is optional during editing process
+    document.getElementById("steamGameThumb").required = false;
+    document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
+    
+    document.getElementById("creationFormTitle").innerText = "Edit NetNo Page Settings";
+    document.getElementById("submitFormBtn").innerText = "Save changes";
+    document.getElementById("steamCreationPanel").style.display = "flex";
+  }
+};
 
 // NAVIGATION HANDLERS WIREFRAME
 let sidebar = document.getElementById("sidebar");
