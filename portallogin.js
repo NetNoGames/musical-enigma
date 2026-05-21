@@ -555,3 +555,99 @@ window.addEventListener('keydown', function(e) {
     }); 
   } 
 });
+// ==========================================
+// STEAM CREATION LOGIC ENGINE (NETNO EXCLUSIVE)
+// ==========================================
+
+window.openSteamCreationEngine = function() {
+  document.getElementById("userSidebar").style.left = "-260px";
+  document.getElementById("steamCreationPanel").style.display = "flex";
+};
+
+window.closeSteamCreationEngine = function() {
+  document.getElementById("steamCreationPanel").style.display = "none";
+};
+
+window.openSteamLibraryEngine = function() {
+  document.getElementById("userSidebar").style.left = "-260px";
+  document.getElementById("steamLibraryPanel").style.display = "flex";
+  renderSteamGamesDeck();
+};
+
+window.closeSteamLibraryEngine = function() {
+  document.getElementById("steamLibraryPanel").style.display = "none";
+};
+
+window.saveSteamGamePage = async function(e) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  const userEmail = user ? user.email : "anonymous_dev";
+
+  const title = document.getElementById("steamGameTitle").value.trim();
+  const fileInput = document.getElementById("steamGameThumb");
+  const genre = document.getElementById("steamGameGenre").value;
+  const price = document.getElementById("steamGamePrice").value.trim();
+  const desc = document.getElementById("steamGameDesc").value.trim();
+  const link = document.getElementById("steamGameUrl").value.trim();
+
+  let thumbnailBase64 = "https://via.placeholder.com/200x110/101822/66c0f4?text=No+Thumb";
+  if (fileInput.files.length > 0) {
+    thumbnailBase64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(fileInput.files[0]);
+    });
+  }
+
+  const uniqueId = "game_" + Date.now();
+  const gameObject = { uniqueId, title, thumbnailBase64, genre, price, desc, link };
+
+  // Fetch data base layer logs
+  let existingGamesArray = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
+  existingGamesArray.push(gameObject);
+  
+  localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(existingGamesArray));
+
+  alert(`"${title}" published onto your NetNo Matrix Stream Registry successfully! Check 'Your Games'.`);
+  document.getElementById("steamGameForm").reset();
+  closeSteamCreationEngine();
+  openSteamLibraryEngine();
+};
+
+function renderSteamGamesDeck() {
+  const user = auth.currentUser;
+  const userEmail = user ? user.email : "anonymous_dev";
+  const container = document.getElementById("steamGamesContainer");
+  container.innerHTML = "";
+
+  let games = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
+
+  if (games.length === 0) {
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #566473; padding: 40px 10px;">No deployed applications discovered. Launch via 'Create Game ID'.</div>`;
+    return;
+  }
+
+  games.forEach(game => {
+    const card = document.createElement("div");
+    card.className = "steam-game-card";
+    card.innerHTML = `
+      <img src="${game.thumbnailBase64}" class="steam-game-thumb" alt="Thumb">
+      <div class="steam-game-details">
+        <h4 class="steam-game-title" title="${game.title}">${game.title}</h4>
+        <span class="steam-game-meta">${game.genre}</span>
+        <div class="steam-game-price">${game.price}</div>
+        ${game.link ? `<a href="${game.link}" target="_blank" style="color:#66c0f4; font-size:12px; text-decoration:none; display:block; margin-top:8px;">Visit Site →</a>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Global Key event extension listener context
+window.addEventListener('keydown', function(e) {
+  if (e.key === "Escape") {
+    closeSteamCreationEngine();
+    closeSteamLibraryEngine();
+  }
+});
+
