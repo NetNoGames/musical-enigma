@@ -55,6 +55,53 @@
   .approval-status-box { text-align: center; padding: 20px; color: white; }
   .approval-status-box h3 { color: #ffcc00; font-size: 22px; margin-bottom: 15px; }
   .approval-status-box p { color: #888; font-size: 14px; line-height: 1.6; }
+
+  /* STEAM STYLE GAME ENGINE OVERLAYS */
+  .steam-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+    background: rgba(10, 14, 22, 0.96); backdrop-filter: blur(10px); z-index: 5000;
+    justify-content: center; align-items: center;
+  }
+  .steam-box {
+    width: 95%; max-width: 650px; height: 85vh; background: #1b2838; border: 1px solid #417a9b;
+    border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  }
+  .steam-header {
+    background: #171a21; padding: 15px 20px; display: flex; justify-content: space-between;
+    align-items: center; color: #dcdedf; font-size: 16px; font-family: 'Motiva Sans', sans-serif;
+    text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2a475e;
+  }
+  .steam-body {
+    flex: 1; overflow-y: auto; padding: 25px; color: #c6d4df; font-size: 14px;
+  }
+  .steam-input-group { margin-bottom: 18px; }
+  .steam-input-group label { display: block; color: #66c0f4; margin-bottom: 6px; font-weight: bold; }
+  .steam-input {
+    width: 100%; padding: 10px; background: #101822; border: 1px solid #2a475e; color: #fff;
+    border-radius: 3px; box-sizing: border-box;
+  }
+  .steam-input:focus { outline: none; border-color: #66c0f4; }
+  .steam-btn-blueprint {
+    background: linear-gradient( to right, #47b649 0%, #348838 100%); padding: 12px 30px;
+    color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 2px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4); display: inline-block;
+  }
+  .steam-btn-blueprint:hover { background: linear-gradient( to right, #52cf54 0%, #3c9b3f 100%); }
+
+  /* STEAM RENDER GRID */
+  .steam-game-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px;
+  }
+  .steam-game-card {
+    background: #171a21; border: 1px solid #2a475e; border-radius: 4px; overflow: hidden;
+    transition: transform 0.2s; position: relative;
+  }
+  .steam-game-card:hover { transform: translateY(-4px); border-color: #66c0f4; }
+  .steam-game-thumb { width: 100%; height: 110px; object-fit: cover; background: #000; }
+  .steam-game-details { padding: 10px; }
+  .steam-game-title { font-weight: bold; color: #fff; font-size: 14px; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .steam-game-meta { font-size: 11px; color: #66c0f4; background: rgba(102,192,244,0.1); padding: 2px 6px; border-radius: 3px; display: inline-block; }
+  .steam-game-price { font-size: 13px; color: #b8b6b4; font-weight: bold; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -79,8 +126,8 @@
     <h3 id="userSidebarName" style="margin: 0; font-size: 18px; color: white;">Developer</h3>
   </div>
   
-  <button onclick="alert('Create Game ID Clicked')" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Create Game ID</button>
-  <button onclick="alert('Your Games Clicked')" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Your Games</button>
+  <button onclick="openSteamCreationEngine()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Create Game ID</button>
+  <button onclick="openSteamLibraryEngine()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: 10px; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Your Games</button>
   <button onclick="openSettingsModal()" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; margin-bottom: auto; cursor: pointer; text-align: left; font-weight: bold; border-radius: 5px;">Settings</button>
   
   <button onclick="handleLogout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ff3333; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s;">Logout</button>
@@ -211,6 +258,66 @@
   </div>
 </div>
 
+<div id="steamCreationPanel" class="steam-overlay" onclick="if(event.target.id==='steamCreationPanel') closeSteamCreationEngine();">
+  <div class="steam-box">
+    <div class="steam-header">
+      <span>Steamworks Console // Create Game Identity</span>
+      <span style="cursor:pointer; font-size:24px; color:#66c0f4;" onclick="closeSteamCreationEngine()">×</span>
+    </div>
+    <div class="steam-body">
+      <form id="steamGameForm" onsubmit="saveSteamGamePage(event)">
+        <div class="steam-input-group">
+          <label>Game Application Title</label>
+          <input type="text" id="steamGameTitle" class="steam-input" required placeholder="e.g., Cyber Strike 2026">
+        </div>
+        <div class="steam-input-group">
+          <label>Game Thumbnail Graphics (Image Asset File)</label>
+          <input type="file" id="steamGameThumb" class="steam-input" accept="image/*" required>
+        </div>
+        <div class="steam-input-group">
+          <label>Primary Store Genre</label>
+          <select id="steamGameGenre" class="steam-input" style="background: #101822;">
+            <option value="Action / RPG">Action / RPG</option>
+            <option value="Open World Survival">Open World Survival</option>
+            <option value="Strategy / RTS">Strategy / RTS</option>
+            <option value="Sci-Fi Simulation">Sci-Fi Simulation</option>
+            <option value="Horror Sandbox">Horror Sandbox</option>
+          </select>
+        </div>
+        <div class="steam-input-group">
+          <label>Store Price Layout Structure ($ USD or INR)</label>
+          <input type="text" id="steamGamePrice" class="steam-input" required placeholder="e.g., $19.99 or Free To Play">
+        </div>
+        <div class="steam-input-group">
+          <label>About The Game (Steam Store Page Description)</label>
+          <textarea id="steamGameDesc" class="steam-input" rows="4" style="resize:none;" required placeholder="Write rich description logs for the community timeline view..."></textarea>
+        </div>
+        <div class="steam-input-group">
+          <label>Official Landing Website Domain Link</label>
+          <input type="url" id="steamGameUrl" class="steam-input" placeholder="https://yourgame.com">
+        </div>
+        <div style="text-align: right; margin-top: 20px;">
+          <button type="submit" class="steam-btn-blueprint">Publish Game Page</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="steamLibraryPanel" class="steam-overlay" onclick="if(event.target.id==='steamLibraryPanel') closeSteamLibraryEngine();">
+  <div class="steam-box" style="max-width: 750px;">
+    <div class="steam-header">
+      <span>Steam Matrix Hub // Your Published Ecosystem</span>
+      <span style="cursor:pointer; font-size:24px; color:#66c0f4;" onclick="closeSteamLibraryEngine()">×</span>
+    </div>
+    <div class="steam-body">
+      <p style="color: #889bb0; margin-top:0;">Database registry me aapke store active applications list yahan view hogi:</p>
+      <div id="steamGamesContainer" class="steam-game-grid">
+        </div>
+    </div>
+  </div>
+</div>
+
 <div id="usernameSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
   <div class="sub-panel-box">
     <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
@@ -262,10 +369,6 @@
   </div>
 </div>
 
-<div id="Gamepagepanel">
-
-</div>
-  
 <div id="deleteSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
   <div class="sub-panel-box">
     <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; color:#71767b;" onclick="this.closest('.sub-panel-overlay').style.display='none'; document.getElementById('settingsOverlay').style.display='flex';">×</div>
