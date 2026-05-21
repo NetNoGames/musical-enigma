@@ -315,36 +315,47 @@ body {
           <label id="thumbInputLabel">Game Thumbnail (Image Asset File)</label>
           <input type="file" id="steamGameThumb" class="steam-input" accept="image/*" required>
         </div>
+
+        <div class="steam-input-group">
+          <label id="trailerInputLabel">Game Trailer (Video File)</label>
+          <input type="file" id="steamGameTrailer" class="steam-input" accept="video/*">
+        </div>
+
+        <div class="steam-input-group">
+          <label id="screenshotsInputLabel">Game Screenshots (Min 2, Max 10)</label>
+          <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="validateScreenshots(this)">
+          <span id="screenshotCountAlert" style="font-size: 12px; color: #66c0f4; display: block; margin-top: 5px;">Selected: 0</span>
+        </div>
         
         <div class="steam-input-group">
           <label>Game Genre</label>
           <select id="steamGameGenre" class="steam-input" style="background:#101822;">
             <option value="Action">Action</option>
-            <option value="Adventure">Adventure</option>
             <option value="Action-Adventure">Action-Adventure</option>
-            <option value="RPG">RPG (Role-Playing Game)</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Arcade">Arcade</option>
+            <option value="Battle Royale">Battle Royale</option>
+            <option value="Card & Board">Card & Board Games</option>
+            <option value="Casual">Casual</option>
+            <option value="Educational">Educational</option>
+            <option value="Fighting">Fighting</option>
+            <option value="FPS / Shooter">FPS / TPS Shooter</option>
+            <option value="Horror">Horror / Dark Thriller</option>
             <option value="MMORPG">MMORPG</option>
+            <option value="Multiplayer / Co-op">Multiplayer / Co-op</option>
             <option value="Open World">Open World</option>
+            <option value="Platformer">Platformer</option>
+            <option value="Puzzle">Puzzle</option>
+            <option value="Racing">Racing</option>
+            <option value="RPG">RPG (Role-Playing Game)</option>
+            <option value="RTS">RTS (Real-Time Strategy)</option>
             <option value="Sandbox">Sandbox</option>
+            <option value="Simulation">Simulation (Life/Flight/Driving)</option>
+            <option value="Sports">Sports</option>
+            <option value="Strategy">Strategy (Turn-Based)</option>
             <option value="Survival">Survival</option>
             <option value="Survival Horror">Survival Horror</option>
-            <option value="Horror">Horror / Dark Thriller</option>
-            <option value="Strategy">Strategy (Turn-Based)</option>
-            <option value="RTS">RTS (Real-Time Strategy)</option>
             <option value="Tactical">Tactical</option>
-            <option value="Simulation">Simulation (Life/Flight/Driving)</option>
-            <option value="Puzzle">Puzzle</option>
-            <option value="Platformer">Platformer</option>
-            <option value="Sports">Sports</option>
-            <option value="Racing">Racing</option>
-            <option value="FPS / Shooter">FPS / TPS Shooter</option>
-            <option value="Battle Royale">Battle Royale</option>
-            <option value="Multiplayer / Co-op">Multiplayer / Co-op</option>
-            <option value="Fighting">Fighting</option>
-            <option value="Arcade">Arcade</option>
-            <option value="Casual">Casual</option>
-            <option value="Card / Board">Card & Board Games</option>
-            <option value="Educational">Educational</option>
           </select>
         </div>
 
@@ -360,26 +371,35 @@ body {
         <div class="steam-input-group">
           <label>Game Theme</label>
           <select id="steamGameTheme" class="steam-input" style="background:#101822;">
-            <option value="Cyberpunk">Cyberpunk</option>
-            <option value="Sci-Fi">Sci-Fi / Futuristic / Space</option>
-            <option value="Fantasy">Fantasy / Magical</option>
-            <option value="Medieval">Medieval / Historical</option>
-            <option value="Post-Apocalyptic">Post-Apocalyptic / Wasteland</option>
-            <option value="Anime">Anime / Cartoon Style</option>
-            <option value="Retro">Retro / 8-Bit / Pixel Art</option>
-            <option value="Military">Military / Realistic Warfare</option>
-            <option value="Horror">Horror / Psychological Dark</option>
-            <option value="Supernatural">Supernatural / Mythological</option>
-            <option value="Steampunk">Steampunk</option>
-            <option value="Modern">Modern / Urban</option>
             <option value="Abstract">Abstract / Minimalist</option>
+            <option value="Anime">Anime / Cartoon Style</option>
+            <option value="Cyberpunk">Cyberpunk</option>
+            <option value="Fantasy">Fantasy / Magical</option>
+            <option value="Horror">Horror / Psychological Dark</option>
+            <option value="Medieval">Medieval / Historical</option>
+            <option value="Military">Military / Realistic Warfare</option>
+            <option value="Modern">Modern / Urban</option>
+            <option value="Post-Apocalyptic">Post-Apocalyptic / Wasteland</option>
+            <option value="Retro">Retro / 8-Bit / Pixel Art</option>
+            <option value="Sci-Fi">Sci-Fi / Futuristic / Space</option>
+            <option value="Steampunk">Steampunk</option>
+            <option value="Supernatural">Supernatural / Mythological</option>
           </select>
         </div>
 
         <div class="steam-input-group">
-          <label>Store Price Layout Structure</label>
-          <input type="text" id="steamGamePrice" class="steam-input" required placeholder="e.g., $19.99 or Free To Play">
+          <label>Game Price</label>
+          <select id="steamPriceType" class="steam-input" style="background:#101822;" onchange="handlePriceTypeChange(this.value)">
+            <option value="Free">Free</option>
+            <option value="Paid">Paid</option>
+          </select>
         </div>
+        <div class="steam-input-group" id="paidAmountContainer" style="display: none;">
+          <label>Enter Amount (Max 10,000)</label>
+          <input type="number" id="steamGamePriceAmount" class="steam-input" min="1" max="10000" placeholder="e.g., 500" oninput="validatePriceLimit(this)">
+          <span id="priceValidationAlert" style="font-size: 12px; color: #ff4444; display: none; margin-top: 5px;">Price cannot exceed 10,000!</span>
+        </div>
+
         <div class="steam-input-group">
           <label>About The Game (NetNo Page Description)</label>
           <textarea id="steamGameDesc" class="steam-input" rows="4" style="resize:none;" required></textarea>
@@ -766,15 +786,61 @@ window.applySettingsAccountTermination = async function() {
   }
 };
 
+/* NEW VALIDATION FUNCTIONS FOR SCREENSHOTS AND PRICE CAP */
+window.validateScreenshots = function(input) {
+  const countAlert = document.getElementById("screenshotCountAlert");
+  const count = input.files.length;
+  countAlert.innerText = `Selected: ${count}`;
+  if (count > 10) {
+    alert("Maximum 10 screenshots are allowed!");
+    input.value = "";
+    countAlert.innerText = "Selected: 0 (Limit Exceeded)";
+    countAlert.style.color = "#ff4444";
+  } else if (count < 2 && count > 0) {
+    countAlert.style.color = "#ffcc00";
+    countAlert.innerText = `Selected: ${count} (Minimum 2 required)`;
+  } else {
+    countAlert.style.color = "#66c0f4";
+  }
+};
+
+window.handlePriceTypeChange = function(value) {
+  const container = document.getElementById("paidAmountContainer");
+  const priceInput = document.getElementById("steamGamePriceAmount");
+  if (value === "Paid") {
+    container.style.display = "block";
+    priceInput.required = true;
+  } else {
+    container.style.display = "none";
+    priceInput.required = false;
+    priceInput.value = "";
+    document.getElementById("priceValidationAlert").style.display = "none";
+  }
+};
+
+window.validatePriceLimit = function(input) {
+  const alertMsg = document.getElementById("priceValidationAlert");
+  if (parseFloat(input.value) > 10000) {
+    input.value = 10000;
+    alertMsg.style.display = "block";
+  } else {
+    alertMsg.style.display = "none";
+  }
+};
+
 /* NETNOWORK REGISTRY ARCHITECTURE ENGINE */
 window.openSteamCreationEngine = function() {
   document.getElementById("userSidebar").style.left = "-260px";
-  // Reset form status for creation
   document.getElementById("editGameId").value = "";
   document.getElementById("creationFormTitle").innerText = "NetNo works page";
   document.getElementById("submitFormBtn").innerText = "Create page";
   document.getElementById("steamGameThumb").required = true;
+  document.getElementById("steamGameScreenshots").required = true;
   document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Image Asset File)";
+  document.getElementById("screenshotCountAlert").innerText = "Selected: 0";
+  document.getElementById("screenshotCountAlert").style.color = "#66c0f4";
+  document.getElementById("paidAmountContainer").style.display = "none";
+  document.getElementById("priceValidationAlert").style.display = "none";
   document.getElementById("steamGameForm").reset();
   
   document.getElementById("steamCreationPanel").style.display = "flex";
@@ -796,12 +862,25 @@ window.saveSteamGamePage = async function(e) {
   const editId = document.getElementById("editGameId").value;
   const title = document.getElementById("steamGameTitle").value.trim();
   const fileInput = document.getElementById("steamGameThumb");
+  const screenshotsInput = document.getElementById("steamGameScreenshots");
   const genre = document.getElementById("steamGameGenre").value;
   const visibility = document.getElementById("steamGameVisibility").value;
   const theme = document.getElementById("steamGameTheme").value;
-  const price = document.getElementById("steamGamePrice").value.trim();
+  
+  const priceType = document.getElementById("steamPriceType").value;
+  const priceAmount = document.getElementById("steamGamePriceAmount").value;
+  const displayPrice = (priceType === "Free") ? "Free" : `₹${priceAmount}`;
+
   const desc = document.getElementById("steamGameDesc").value.trim();
   const link = document.getElementById("steamGameUrl").value.trim();
+
+  // Final check for screenshots count constraint
+  if (!editId || screenshotsInput.files.length > 0) {
+    if (screenshotsInput.files.length < 2 || screenshotsInput.files.length > 10) {
+      alert("Please upload between 2 and 10 screenshots.");
+      return;
+    }
+  }
 
   let currentGames = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
 
@@ -813,7 +892,7 @@ window.saveSteamGamePage = async function(e) {
       currentGames[index].genre = genre;
       currentGames[index].visibility = visibility;
       currentGames[index].theme = theme;
-      currentGames[index].price = price;
+      currentGames[index].price = displayPrice;
       currentGames[index].desc = desc;
       currentGames[index].link = link;
 
@@ -829,7 +908,7 @@ window.saveSteamGamePage = async function(e) {
     if (fileInput.files.length > 0) {
       thumbnailBase64 = await new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(fileInput.files[0]); });
     }
-    const newGame = { uniqueId: "game_" + Date.now(), title, thumbnailBase64, genre, visibility, theme, price, desc, link };
+    const newGame = { uniqueId: "game_" + Date.now(), title, thumbnailBase64, genre, visibility, theme, price: displayPrice, desc, link };
     currentGames.push(newGame);
     localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(currentGames));
     alert(`"${title}" Asset Created Successfully on NetNo Registry!`);
@@ -905,13 +984,26 @@ window.editSteamGamePage = function(gameId) {
     document.getElementById("steamGameGenre").value = targetGame.genre;
     document.getElementById("steamGameVisibility").value = targetGame.visibility || "Public";
     document.getElementById("steamGameTheme").value = targetGame.theme || "Cyberpunk";
-    document.getElementById("steamGamePrice").value = targetGame.price;
+    
+    // Setup Price states on Edit
+    if (targetGame.price === "Free") {
+      document.getElementById("steamPriceType").value = "Free";
+      document.getElementById("paidAmountContainer").style.display = "none";
+      document.getElementById("steamGamePriceAmount").value = "";
+    } else {
+      document.getElementById("steamPriceType").value = "Paid";
+      document.getElementById("paidAmountContainer").style.display = "block";
+      document.getElementById("steamGamePriceAmount").value = targetGame.price.replace("₹", "");
+    }
+
     document.getElementById("steamGameDesc").value = targetGame.desc;
     document.getElementById("steamGameUrl").value = targetGame.link || "";
     
-    // Thumbnail is optional during editing process
+    // Upload files are optional during editing process
     document.getElementById("steamGameThumb").required = false;
+    document.getElementById("steamGameScreenshots").required = false;
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
+    document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
     document.getElementById("creationFormTitle").innerText = "Edit NetNo Page Settings";
     document.getElementById("submitFormBtn").innerText = "Save changes";
