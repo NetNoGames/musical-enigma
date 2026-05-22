@@ -71,11 +71,11 @@ function restoreInitialAuthView() {
   document.getElementById("usernameInput").value = "";
   document.getElementById("setupPasswordInput").value = "";
   
-  // Custom single unified login panel matrix
+  // Enforcing single Google SSO flow with "Continue with Google" naming rule
   const gatewayDiv = document.getElementById("authGateways");
   if (gatewayDiv) {
     gatewayDiv.innerHTML = `
-      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')" style="width:100%; padding:12px; background:#4285F4; color:white; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px;">Continue with Google Account</button>
+      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')" style="width:100%; padding:12px; background:#4285F4; color:white; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px;">Continue with Google</button>
       <div class="divider"><span>OR DIRECT LOGIN</span></div>
       <form id="authForm" onsubmit="event.preventDefault(); handleDirectLogin(event)">
         <div class="terminal-input-row">
@@ -117,7 +117,6 @@ window.handleDirectLogin = async function(e) {
   }
 };
 
-// MODIFIED: Single-flow configuration router setup for Google Auth
 window.triggerRouteAuth = async function(selectedMode) {
   activeWorkflowMode = "individual"; 
   const errorDiv = document.getElementById("loginError");
@@ -130,12 +129,10 @@ window.triggerRouteAuth = async function(selectedMode) {
     
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email);
     
-    // Check validation mapping: Agar user profile details pehle se hain, toh seedhe bypass success login
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) {
       isRegistrationProcess = false;
       executeLoginSuccess();
     } else {
-      // Agar account nahi bana hua hai, toh seedhe credentials setup screen launch hogi
       isRegistrationProcess = true;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
@@ -170,7 +167,7 @@ window.submitCredentialsStep = function() {
 };
 
 window.submitOrgCredentialsStep = function() {
-  // Safe empty fallback placeholder state for integrity maintenance
+  // Retained cleanly for structure safety
 };
 
 window.finalizeAccountRegistration = async function() {
@@ -207,7 +204,7 @@ window.finalizeAccountRegistration = async function() {
 };
 
 window.finalizeOrgAccountRegistration = async function() {
-  // Safe empty fallback placeholder state for integrity maintenance
+  // Retained cleanly for structure safety
 };
 
 function executeLoginSuccess() {
