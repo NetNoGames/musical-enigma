@@ -71,7 +71,7 @@ function restoreInitialAuthView() {
   document.getElementById("usernameInput").value = "";
   document.getElementById("setupPasswordInput").value = "";
   
-  // Modifying HTML content dynamically to remove separate buttons and make it a single Google Flow
+  // Custom single unified login panel matrix
   const gatewayDiv = document.getElementById("authGateways");
   if (gatewayDiv) {
     gatewayDiv.innerHTML = `
@@ -117,7 +117,7 @@ window.handleDirectLogin = async function(e) {
   }
 };
 
-// UNIFIED SINGLE SSO INTERFACE ENFORCER (ORGANIZATION REMOVED)
+// MODIFIED: Single-flow configuration router setup for Google Auth
 window.triggerRouteAuth = async function(selectedMode) {
   activeWorkflowMode = "individual"; 
   const errorDiv = document.getElementById("loginError");
@@ -130,12 +130,12 @@ window.triggerRouteAuth = async function(selectedMode) {
     
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email);
     
-    // Check: Agar account pehle se bana hua hai toh seedhe bypass login karo
+    // Check validation mapping: Agar user profile details pehle se hain, toh seedhe bypass success login
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) {
       isRegistrationProcess = false;
       executeLoginSuccess();
     } else {
-      // Naya account hone par automatic username/password box layout active hoga
+      // Agar account nahi bana hua hai, toh seedhe credentials setup screen launch hogi
       isRegistrationProcess = true;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
@@ -170,7 +170,7 @@ window.submitCredentialsStep = function() {
 };
 
 window.submitOrgCredentialsStep = function() {
-  // Retained cleanly for structure safety
+  // Safe empty fallback placeholder state for integrity maintenance
 };
 
 window.finalizeAccountRegistration = async function() {
@@ -207,7 +207,7 @@ window.finalizeAccountRegistration = async function() {
 };
 
 window.finalizeOrgAccountRegistration = async function() {
-  // Retained cleanly for structure safety
+  // Safe empty fallback placeholder state for integrity maintenance
 };
 
 function executeLoginSuccess() {
