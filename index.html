@@ -153,6 +153,21 @@ body {
 .card-remove-btn { background: #2a1418; color: #ff4444; border: 1px solid #541d24; }
 .card-remove-btn:hover { background: #ff4444; color: white; }
 
+/* SCREENSHOT PREVIEW DYNAMIC STYLING (ONE BELOW ANOTHER) */
+.screenshot-preview-list-wrapper {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
+}
+.screenshot-preview-item {
+  display: flex; align-items: center; gap: 15px; background: #101822; border: 1px solid #2a475e; padding: 8px; border-radius: 3px;
+}
+.screenshot-preview-item img {
+  width: 100px; height: 60px; object-fit: cover; border-radius: 2px; border: 1px solid #417a9b;
+}
+.screenshot-preview-item button {
+  background: #2a475e; color: #66c0f4; border: 1px solid #417a9b; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px;
+}
+.screenshot-preview-item button:hover { background: #417a9b; color: white; }
+
 @media (max-width: 768px) {
   .hero { background-position: center center; background-size: cover; }
   .btn { left: 5%; font-size: 14px; }
@@ -317,14 +332,16 @@ body {
         </div>
 
         <div class="steam-input-group">
-          <label id="trailerInputLabel">Game Trailer (Video File)</label>
-          <input type="file" id="steamGameTrailer" class="steam-input" accept="video/*">
+          <label id="trailerInputLabel">Game Trailer (Video Link Url)</label>
+          <input type="url" id="steamGameTrailer" class="steam-input" placeholder="e.g., https://www.youtube.com/watch?v=...">
         </div>
 
         <div class="steam-input-group">
           <label id="screenshotsInputLabel">Game Screenshots (Min 2, Max 10)</label>
-          <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="validateScreenshots(this)">
+          <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="handleScreenshotsSelection(this)">
           <span id="screenshotCountAlert" style="font-size: 12px; color: #66c0f4; display: block; margin-top: 5px;">Selected: 0</span>
+          
+          <div id="screenshotPreviewListContainer" class="screenshot-preview-list-wrapper"></div>
         </div>
         
         <div class="steam-input-group">
@@ -417,6 +434,8 @@ body {
   </div>
 </div>
 
+<input type="file" id="individualScreenshotSwapper" accept="image/*" style="display: none;" onchange="processSingleScreenshotReplacement(this)">
+
 <div id="steamLibraryPanel" class="steam-overlay" onclick="if(event.target.id==='steamLibraryPanel') closeSteamLibraryEngine();">
   <div class="steam-box" style="max-width:750px;">
     <div class="steam-header">
@@ -482,6 +501,8 @@ body {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+// Added Realtime Database imports
+import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
@@ -489,11 +510,13 @@ const firebaseConfig = {
   projectId: "netno-games-d8580",
   storageBucket: "netno-games-d8580.firebasestorage.app",
   messagingSenderId: "571332011408",
-  appId: "1:571332011408:web:b40acafe4f258e4183bf15"
+  appId: "1:571332011408:web:b40acafe4f258e4183bf15",
+  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com/" // Exact Firebase database endpoint
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const database = getDatabase(app); // Initialized database architecture context
 const provider = new GoogleAuthProvider();
 
 let activeWorkflowMode = "";
@@ -501,6 +524,10 @@ let registrationEmail = "";
 let registrationPassword = "";
 let isRegistrationProcess = false;
 let chosenUsername = "";
+
+// State tracking variable for holding compiled Base64 screenshots list data
+let selectedScreenshotsStorageArray = [];
+let targetScreenshotReplaceIndex = null;
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -786,23 +813,74 @@ window.applySettingsAccountTermination = async function() {
   }
 };
 
-/* NEW VALIDATION FUNCTIONS FOR SCREENSHOTS AND PRICE CAP */
-window.validateScreenshots = function(input) {
+/* CHOOSE SCREENSHOTS AND COMPILE VIEW ONE BELOW ANOTHER */
+window.handleScreenshotsSelection = async function(input) {
   const countAlert = document.getElementById("screenshotCountAlert");
   const count = input.files.length;
   countAlert.innerText = `Selected: ${count}`;
+  
   if (count > 10) {
     alert("Maximum 10 screenshots are allowed!");
     input.value = "";
     countAlert.innerText = "Selected: 0 (Limit Exceeded)";
     countAlert.style.color = "#ff4444";
+    selectedScreenshotsStorageArray = [];
+    document.getElementById("screenshotPreviewListContainer").innerHTML = "";
+    return;
   } else if (count < 2 && count > 0) {
     countAlert.style.color = "#ffcc00";
     countAlert.innerText = `Selected: ${count} (Minimum 2 required)`;
   } else {
     countAlert.style.color = "#66c0f4";
   }
+
+  selectedScreenshotsStorageArray = [];
+  for (let i = 0; i < input.files.length; i++) {
+    const base64Data = await convertFileToBase64(input.files[i]);
+    selectedScreenshotsStorageArray.push(base64Data);
+  }
+  renderScreenshotsVerticalList();
 };
+
+// Function to print preview elements sequentially down the container block
+function renderScreenshotsVerticalList() {
+  const container = document.getElementById("screenshotPreviewListContainer");
+  container.innerHTML = "";
+  
+  selectedScreenshotsStorageArray.forEach((base64String, index) => {
+    const row = document.createElement("div");
+    row.className = "screenshot-preview-item";
+    row.innerHTML = `
+      <img src="${base64String}" alt="ss_${index}">
+      <div>
+        <p style="margin:0 0 5px 0; font-size:12px; color:#dcdedf;">Screenshot #${index + 1}</p>
+        <button type="button" onclick="triggerIndividualScreenshotSwap(${index})">Replace Screenshot</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+window.triggerIndividualScreenshotSwap = function(index) {
+  targetScreenshotReplaceIndex = index;
+  document.getElementById("individualScreenshotSwapper").click();
+};
+
+window.processSingleScreenshotReplacement = async function(input) {
+  if (input.files.length === 0 || targetScreenshotReplaceIndex === null) return;
+  const targetBase64 = await convertFileToBase64(input.files[0]);
+  selectedScreenshotsStorageArray[targetScreenshotReplaceIndex] = targetBase64;
+  renderScreenshotsVerticalList();
+  input.value = "";
+};
+
+function convertFileToBase64(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+}
 
 window.handlePriceTypeChange = function(value) {
   const container = document.getElementById("paidAmountContainer");
@@ -841,6 +919,9 @@ window.openSteamCreationEngine = function() {
   document.getElementById("screenshotCountAlert").style.color = "#66c0f4";
   document.getElementById("paidAmountContainer").style.display = "none";
   document.getElementById("priceValidationAlert").style.display = "none";
+  
+  selectedScreenshotsStorageArray = [];
+  document.getElementById("screenshotPreviewListContainer").innerHTML = "";
   document.getElementById("steamGameForm").reset();
   
   document.getElementById("steamCreationPanel").style.display = "flex";
@@ -854,10 +935,14 @@ window.openSteamLibraryEngine = function() {
 };
 window.closeSteamLibraryEngine = function() { document.getElementById("steamLibraryPanel").style.display = "none"; };
 
+// FIREBASE DATABASE INTEGRATED PUSH OVERRIDE SWITCH
 window.saveSteamGamePage = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
-  const userEmail = user ? user.email : "anonymous_dev";
+  if (!user) {
+    alert("Please log in first to deploy assets to cloud network!");
+    return;
+  }
 
   const editId = document.getElementById("editGameId").value;
   const title = document.getElementById("steamGameTitle").value.trim();
@@ -873,119 +958,139 @@ window.saveSteamGamePage = async function(e) {
 
   const desc = document.getElementById("steamGameDesc").value.trim();
   const link = document.getElementById("steamGameUrl").value.trim();
+  const trailerLink = document.getElementById("steamGameTrailer").value.trim(); // Directly fetch trailer text URL link address
 
-  // Final check for screenshots count constraint
-  if (!editId || screenshotsInput.files.length > 0) {
-    if (screenshotsInput.files.length < 2 || screenshotsInput.files.length > 10) {
-      alert("Please upload between 2 and 10 screenshots.");
-      return;
-    }
+  // Required validations
+  if (!editId && selectedScreenshotsStorageArray.length < 2) {
+    alert("Please select at least 2 screenshots minimum.");
+    return;
   }
 
-  let currentGames = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
+  const gameId = editId ? editId : "game_" + Date.now();
+  const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
 
-  if (editId) {
-    // EDIT FLOW LOGIC
-    const index = currentGames.findIndex(g => g.uniqueId === editId);
-    if (index !== -1) {
-      currentGames[index].title = title;
-      currentGames[index].genre = genre;
-      currentGames[index].visibility = visibility;
-      currentGames[index].theme = theme;
-      currentGames[index].price = displayPrice;
-      currentGames[index].desc = desc;
-      currentGames[index].link = link;
-
-      if (fileInput.files.length > 0) {
-        currentGames[index].thumbnailBase64 = await new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(fileInput.files[0]); });
-      }
-      localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(currentGames));
-      alert(`"${title}" Updated Successfully!`);
-    }
-  } else {
-    // NEW REGISTRY FLOW LOGIC
+  try {
     let thumbnailBase64 = "";
     if (fileInput.files.length > 0) {
-      thumbnailBase64 = await new Promise((res) => { const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(fileInput.files[0]); });
+      thumbnailBase64 = await convertFileToBase64(fileInput.files[0]);
     }
-    const newGame = { uniqueId: "game_" + Date.now(), title, thumbnailBase64, genre, visibility, theme, price: displayPrice, desc, link };
-    currentGames.push(newGame);
-    localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(currentGames));
-    alert(`"${title}" Asset Created Successfully on NetNo Registry!`);
-  }
 
-  document.getElementById("steamGameForm").reset();
-  closeSteamCreationEngine();
-  openSteamLibraryEngine();
+    const gamePayload = {
+      uniqueId: gameId,
+      title,
+      genre,
+      visibility,
+      theme,
+      price: displayPrice,
+      desc,
+      link,
+      trailer: trailerLink, // Optional string link saved safely on parent JSON object layer
+      createdBy: user.email,
+      screenshots: selectedScreenshotsStorageArray
+    };
+
+    if (thumbnailBase64 !== "") {
+      gamePayload.thumbnailBase64 = thumbnailBase64;
+    } else if (editId) {
+      // In edit pipeline, fetch existing node payload thumbnail fallback if no new file is pushed
+      const currentSnapshot = await get(dbRef(database, `users_games/${user.uid}/${gameId}`));
+      if(currentSnapshot.exists() && currentSnapshot.val().thumbnailBase64) {
+        gamePayload.thumbnailBase64 = currentSnapshot.val().thumbnailBase64;
+      }
+    }
+
+    // Live write data payload transaction direct to cloud storage instance tree
+    await set(dbLocationRef, gamePayload);
+    alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
+    
+    document.getElementById("steamGameForm").reset();
+    closeSteamCreationEngine();
+    openSteamLibraryEngine();
+  } catch (err) {
+    alert("Cloud Engine Error: " + err.message);
+  }
 };
 
-// DYNAMICALLY RENDER EDIT & REMOVE LOGIC INSIDE LIBRARY DECK
-function renderSteamGamesDeck() {
+// DYNAMICALLY RENDER EDIT & REMOVE LOGIC FROM FIREBASE REALTIME CLOUD NODE
+async function renderSteamGamesDeck() {
   const user = auth.currentUser;
-  const userEmail = user ? user.email : "anonymous_dev";
   const grid = document.getElementById("steamGamesContainer");
   grid.innerHTML = "";
   
-  let games = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
-  if(games.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1; color:#566473; text-align:center; padding:30px;">No published NetNo Pages discovered.</div>`;
-    return;
-  }
-  games.forEach(g => {
-    const card = document.createElement("div");
-    card.className = "steam-game-card";
-    card.innerHTML = `
-      <img src="${g.thumbnailBase64 || 'https://via.placeholder.com/180x110'}" class="steam-game-thumb">
-      <div class="steam-game-details">
-        <h4 class="steam-game-title">${g.title}</h4>
-        <span class="steam-game-meta">${g.genre}</span>
-        <span class="steam-game-meta" style="color: #ffaa00; background: rgba(255,170,0,0.1);">${g.theme || 'Default Theme'}</span>
-        <span class="steam-game-meta" style="color: #a9a9b3; background: rgba(169,169,179,0.1);">${g.visibility || 'Public'}</span>
-        <div class="steam-game-price">${g.price}</div>
-        ${g.link ? `<a href="${g.link}" target="_blank" style="color:#66c0f4; font-size:12px; text-decoration:none; display:block; margin-top:8px;">Open Web ↗</a>` : ''}
-        
-        <div class="card-action-bar">
-          <button class="card-btn card-edit-btn" onclick="editSteamGamePage('${g.uniqueId}')">Edit</button>
-          <button class="card-btn card-remove-btn" onclick="removeSteamGamePage('${g.uniqueId}')">Remove</button>
+  if(!user) return;
+
+  try {
+    const snapshot = await get(dbRef(database, `users_games/${user.uid}`));
+    if (!snapshot.exists()) {
+      grid.innerHTML = `<div style="grid-column:1/-1; color:#566473; text-align:center; padding:30px;">No published NetNo Pages discovered.</div>`;
+      return;
+    }
+
+    const gamesData = snapshot.val();
+    for (let id in gamesData) {
+      const g = gamesData[id];
+      const card = document.createElement("div");
+      card.className = "steam-game-card";
+      card.innerHTML = `
+        <img src="${g.thumbnailBase64 || 'https://via.placeholder.com/180x110'}" class="steam-game-thumb">
+        <div class="steam-game-details">
+          <h4 class="steam-game-title">${g.title}</h4>
+          <span class="steam-game-meta">${g.genre}</span>
+          <span class="steam-game-meta" style="color: #ffaa00; background: rgba(255,170,0,0.1);">${g.theme || 'Default Theme'}</span>
+          <span class="steam-game-meta" style="color: #a9a9b3; background: rgba(169,169,179,0.1);">${g.visibility || 'Public'}</span>
+          <div class="steam-game-price">${g.price}</div>
+          ${g.link ? `<a href="${g.link}" target="_blank" style="color:#66c0f4; font-size:12px; text-decoration:none; display:block; margin-top:8px;">Open Web ↗</a>` : ''}
+          
+          <div class="card-action-bar">
+            <button class="card-btn card-edit-btn" onclick="editSteamGamePage('${g.uniqueId}')">Edit</button>
+            <button class="card-btn card-remove-btn" onclick="removeSteamGamePage('${g.uniqueId}')">Remove</button>
+          </div>
         </div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
+      `;
+      grid.appendChild(card);
+    }
+  } catch (err) {
+    console.error("Fetch pipeline exception: ", err);
+  }
 }
 
-// ENGLISH PROMPT REMOVE ENGINE
-window.removeSteamGamePage = function(gameId) {
+// REMOVE ENTRY ROUTE DIRECT ON BACKEND SERVER TERMINAL
+window.removeSteamGamePage = async function(gameId) {
   const user = auth.currentUser;
-  const userEmail = user ? user.email : "anonymous_dev";
+  if (!user) return;
   
   const confirmation = confirm("Are you sure you want to remove this game?");
   if (confirmation) {
-    let games = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
-    games = games.filter(g => g.uniqueId !== gameId);
-    localStorage.setItem("netno_steam_games_" + userEmail, JSON.stringify(games));
-    renderSteamGamesDeck();
+    try {
+      await remove(dbRef(database, `users_games/${user.uid}/${gameId}`));
+      alert("Asset removed from cloud registry successfully.");
+      renderSteamGamesDeck();
+    } catch (e) {
+      alert("Error dropping table context: " + e.message);
+    }
   }
 };
 
-// EDIT RE-POPULATION MODULE
-window.editSteamGamePage = function(gameId) {
+// EDIT CLOUD DATA INJECTION SEQUENCE
+window.editSteamGamePage = async function(gameId) {
   const user = auth.currentUser;
-  const userEmail = user ? user.email : "anonymous_dev";
-  let games = JSON.parse(localStorage.getItem("netno_steam_games_" + userEmail)) || [];
-  const targetGame = games.find(g => g.uniqueId === gameId);
-  
-  if (targetGame) {
+  if (!user) return;
+
+  try {
+    const snapshot = await get(dbRef(database, `users_games/${user.uid}/${gameId}`));
+    if (!snapshot.exists()) return;
+
+    const targetGame = snapshot.val();
     document.getElementById("steamLibraryPanel").style.display = "none";
     
-    // Set field states
+    // Setup inputs context properties
     document.getElementById("editGameId").value = targetGame.uniqueId;
     document.getElementById("steamGameTitle").value = targetGame.title;
     document.getElementById("steamGameGenre").value = targetGame.genre;
     document.getElementById("steamGameVisibility").value = targetGame.visibility || "Public";
     document.getElementById("steamGameTheme").value = targetGame.theme || "Cyberpunk";
+    document.getElementById("steamGameTrailer").value = targetGame.trailer || "";
     
-    // Setup Price states on Edit
     if (targetGame.price === "Free") {
       document.getElementById("steamPriceType").value = "Free";
       document.getElementById("paidAmountContainer").style.display = "none";
@@ -999,15 +1104,25 @@ window.editSteamGamePage = function(gameId) {
     document.getElementById("steamGameDesc").value = targetGame.desc;
     document.getElementById("steamGameUrl").value = targetGame.link || "";
     
-    // Upload files are optional during editing process
+    // Set validation settings optional for active file updates
     document.getElementById("steamGameThumb").required = false;
     document.getElementById("steamGameScreenshots").required = false;
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
     document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
+    if (targetGame.screenshots) {
+      selectedScreenshotsStorageArray = targetGame.screenshots;
+      renderScreenshotsVerticalList();
+    } else {
+      selectedScreenshotsStorageArray = [];
+      document.getElementById("screenshotPreviewListContainer").innerHTML = "";
+    }
+
     document.getElementById("creationFormTitle").innerText = "Edit NetNo Page Settings";
     document.getElementById("submitFormBtn").innerText = "Save changes";
     document.getElementById("steamCreationPanel").style.display = "flex";
+  } catch (e) {
+    alert("Fetch error: " + e.message);
   }
 };
 
