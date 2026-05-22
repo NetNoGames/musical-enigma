@@ -71,7 +71,7 @@ function restoreInitialAuthView() {
   document.getElementById("usernameInput").value = "";
   document.getElementById("setupPasswordInput").value = "";
   
-  // Enforcing single Google SSO flow with "Continue with Google" naming rule
+  // Single unified setup interface with "Continue with Google" button
   const gatewayDiv = document.getElementById("authGateways");
   if (gatewayDiv) {
     gatewayDiv.innerHTML = `
@@ -129,10 +129,12 @@ window.triggerRouteAuth = async function(selectedMode) {
     
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email);
     
+    // Check: Agar account pehle se bana hua hai toh bypass login karo, nahi toh credentials step open karo
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) {
       isRegistrationProcess = false;
       executeLoginSuccess();
     } else {
+      // Automatic username/password box layout active for new users
       isRegistrationProcess = true;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
