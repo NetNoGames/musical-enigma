@@ -501,8 +501,9 @@ body {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-// Added Realtime Database imports
 import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+// IMPORTING CRITICAL FIREBASE STORAGE MODULES FOR BLOB ENGINE UPGRADE
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
@@ -511,12 +512,13 @@ const firebaseConfig = {
   storageBucket: "netno-games-d8580.firebasestorage.app",
   messagingSenderId: "571332011408",
   appId: "1:571332011408:web:b40acafe4f258e4183bf15",
-  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com/" // Exact Firebase database endpoint
+  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com/"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app); // Initialized database architecture context
+const database = getDatabase(app); 
+const storage = getStorage(app); // Initialized cloud storage engine environment context
 const provider = new GoogleAuthProvider();
 
 let activeWorkflowMode = "";
@@ -525,8 +527,8 @@ let registrationPassword = "";
 let isRegistrationProcess = false;
 let chosenUsername = "";
 
-// State tracking variable for holding compiled Base64 screenshots list data
-let selectedScreenshotsStorageArray = [];
+// Holds raw blob Files or previous network links securely
+let selectedScreenshotsStorageArray = []; 
 let targetScreenshotReplaceIndex = null;
 
 onAuthStateChanged(auth, (user) => {
@@ -813,52 +815,48 @@ window.applySettingsAccountTermination = async function() {
   }
 };
 
-/* CHOOSE SCREENSHOTS AND APPEND VIEW ONE BELOW ANOTHER WITHOUT REMOVING EXISTING */
-window.handleScreenshotsSelection = async function(input) {
+/* COMPILE MIXED BLOB FILES AND REUSE URLs DYNAMICALLY INSIDE TRACKING SYSTEM */
+window.handleScreenshotsSelection = function(input) {
   const countAlert = document.getElementById("screenshotCountAlert");
   const newFilesCount = input.files.length;
-  
   if (newFilesCount === 0) return;
 
-  // Calculate total combined count (Existing + Incoming)
   const totalCombinedCount = selectedScreenshotsStorageArray.length + newFilesCount;
-
   if (totalCombinedCount > 10) {
     alert(`Maximum 10 screenshots allowed! You currently have ${selectedScreenshotsStorageArray.length}, and you tried to add ${newFilesCount}.`);
     input.value = "";
     return;
   }
 
-  // Append new screenshots to the existing array buffer instead of clearing it
+  // Push raw File object directly into array memory state buffer maps
   for (let i = 0; i < input.files.length; i++) {
-    const base64Data = await convertFileToBase64(input.files[i]);
-    selectedScreenshotsStorageArray.push(base64Data);
-  }
-
-  // Update total tracker UI text string
-  countAlert.innerText = `Selected: ${selectedScreenshotsStorageArray.length}`;
-  if (selectedScreenshotsStorageArray.length < 2) {
-    countAlert.style.color = "#ffcc00";
-    countAlert.innerText += " (Minimum 2 required)";
-  } else {
-    countAlert.style.color = "#66c0f4";
+    selectedScreenshotsStorageArray.push(input.files[i]);
   }
 
   renderScreenshotsVerticalList();
-  input.value = ""; // Clear file field to let user add same file again if needed
+  input.value = ""; 
 };
 
-// Function to print preview elements sequentially down the container block
+// HELPER FUNCTION TO FETCH LIVE BLOB LOCAL URL STRING ON DEMAND DURING RENDERING CYCLES
+function getDisplayUrl(item) {
+  if (item instanceof File) {
+    return URL.createObjectURL(item);
+  }
+  return item; // Absolute Network storage HTTP URL string string fallback
+}
+
 function renderScreenshotsVerticalList() {
   const container = document.getElementById("screenshotPreviewListContainer");
   const countAlert = document.getElementById("screenshotCountAlert");
   container.innerHTML = "";
   
-  selectedScreenshotsStorageArray.forEach((base64String, index) => {
+  selectedScreenshotsStorageArray.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "screenshot-preview-item";
+    const srcUrl = getDisplayUrl(item);
+    
     row.innerHTML = `
-      <img src="${base64String}" alt="ss_${index}">
+      <img src="${srcUrl}" alt="ss_${index}">
       <div>
         <p style="margin:0 0 5px 0; font-size:12px; color:#dcdedf;">Screenshot #${index + 1}</p>
         <button type="button" onclick="triggerIndividualScreenshotSwap(${index})">Replace Screenshot</button>
@@ -867,7 +865,6 @@ function renderScreenshotsVerticalList() {
     container.appendChild(row);
   });
 
-  // Keep counter text synced up during item deletion or mutation lifecycle
   if(countAlert) {
     countAlert.innerText = `Selected: ${selectedScreenshotsStorageArray.length}`;
     if (selectedScreenshotsStorageArray.length < 2) {
@@ -884,21 +881,13 @@ window.triggerIndividualScreenshotSwap = function(index) {
   document.getElementById("individualScreenshotSwapper").click();
 };
 
-window.processSingleScreenshotReplacement = async function(input) {
+window.processSingleScreenshotReplacement = function(input) {
   if (input.files.length === 0 || targetScreenshotReplaceIndex === null) return;
-  const targetBase64 = await convertFileToBase64(input.files[0]);
-  selectedScreenshotsStorageArray[targetScreenshotReplaceIndex] = targetBase64;
+  // Replace direct with fresh file buffer item
+  selectedScreenshotsStorageArray[targetScreenshotReplaceIndex] = input.files[0];
   renderScreenshotsVerticalList();
   input.value = "";
 };
-
-function convertFileToBase64(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(file);
-  });
-}
 
 window.handlePriceTypeChange = function(value) {
   const container = document.getElementById("paidAmountContainer");
@@ -953,7 +942,14 @@ window.openSteamLibraryEngine = function() {
 };
 window.closeSteamLibraryEngine = function() { document.getElementById("steamLibraryPanel").style.display = "none"; };
 
-// FIREBASE DATABASE INTEGRATED PUSH OVERRIDE SWITCH
+// CORE CLOUD STORAGE HELPER INTERACTION LOGIC PIPELINE
+async function uploadFileToFirebaseStorage(fileObject, destinationPath) {
+  const fileRef = storageRef(storage, destinationPath);
+  await uploadBytes(fileRef, fileObject);
+  return await getDownloadURL(fileRef);
+}
+
+// SECURELY UPGRADED SAVE FUNCTION INTEGRATED DIRECTLY WITH FIREBASE BLOB STORAGE BUCKETS
 window.saveSteamGamePage = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
@@ -975,9 +971,8 @@ window.saveSteamGamePage = async function(e) {
 
   const desc = document.getElementById("steamGameDesc").value.trim();
   const link = document.getElementById("steamGameUrl").value.trim();
-  const trailerLink = document.getElementById("steamGameTrailer").value.trim(); // Directly fetch trailer text URL link address
+  const trailerLink = document.getElementById("steamGameTrailer").value.trim();
 
-  // Required validations
   if (!editId && selectedScreenshotsStorageArray.length < 2) {
     alert("Please select at least 2 screenshots minimum.");
     return;
@@ -986,10 +981,39 @@ window.saveSteamGamePage = async function(e) {
   const gameId = editId ? editId : "game_" + Date.now();
   const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
 
+  // Change UI button text to show active upload transmission state progress
+  const submitBtn = document.getElementById("submitFormBtn");
+  const initialBtnText = submitBtn.innerText;
+  submitBtn.innerText = "Uploading Assets to Cloud... 🚀";
+  submitBtn.disabled = true;
+
   try {
-    let thumbnailBase64 = "";
+    let finalThumbnailUrl = "";
+    
+    // 1. Process Thumbnail File upload operation securely if specified
     if (fileInput.files.length > 0) {
-      thumbnailBase64 = await convertFileToBase64(fileInput.files[0]);
+      const thumbFile = fileInput.files[0];
+      finalThumbnailUrl = await uploadFileToFirebaseStorage(
+        thumbFile, 
+        `users/${user.uid}/games/${gameId}/thumb_${Date.now()}_${thumbFile.name}`
+      );
+    }
+
+    // 2. Transmit screenshots arrays conversion mapping sequential stack loops
+    let compiledScreenshotsUrls = [];
+    for (let i = 0; i < selectedScreenshotsStorageArray.length; i++) {
+      const item = selectedScreenshotsStorageArray[i];
+      if (item instanceof File) {
+        // Freshly added file item node stream
+        const urlResult = await uploadFileToFirebaseStorage(
+          item, 
+          `users/${user.uid}/games/${gameId}/ss_${Date.now()}_${i}_${item.name}`
+        );
+        compiledScreenshotsUrls.push(urlResult);
+      } else {
+        // Keep existing image URL reference string intact
+        compiledScreenshotsUrls.push(item);
+      }
     }
 
     const gamePayload = {
@@ -1001,22 +1025,21 @@ window.saveSteamGamePage = async function(e) {
       price: displayPrice,
       desc,
       link,
-      trailer: trailerLink, // Optional string link saved safely on parent JSON object layer
+      trailer: trailerLink,
       createdBy: user.email,
-      screenshots: selectedScreenshotsStorageArray
+      screenshots: compiledScreenshotsUrls // Saved as a lightweight array list of clean download link URLs
     };
 
-    if (thumbnailBase64 !== "") {
-      gamePayload.thumbnailBase64 = thumbnailBase64;
+    if (finalThumbnailUrl !== "") {
+      gamePayload.thumbnailBase64 = finalThumbnailUrl;
     } else if (editId) {
-      // In edit pipeline, fetch existing node payload thumbnail fallback if no new file is pushed
       const currentSnapshot = await get(dbRef(database, `users_games/${user.uid}/${gameId}`));
       if(currentSnapshot.exists() && currentSnapshot.val().thumbnailBase64) {
         gamePayload.thumbnailBase64 = currentSnapshot.val().thumbnailBase64;
       }
     }
 
-    // Live write data payload transaction direct to cloud storage instance tree
+    // Write final structured optimization package map context direct to tree logs node
     await set(dbLocationRef, gamePayload);
     alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
     
@@ -1024,11 +1047,13 @@ window.saveSteamGamePage = async function(e) {
     closeSteamCreationEngine();
     openSteamLibraryEngine();
   } catch (err) {
-    alert("Cloud Engine Error: " + err.message);
+    alert("Cloud Engine Error during asset parsing: " + err.message);
+  } finally {
+    submitBtn.innerText = initialBtnText;
+    submitBtn.disabled = false;
   }
 };
 
-// DYNAMICALLY RENDER EDIT & REMOVE LOGIC FROM FIREBASE REALTIME CLOUD NODE
 async function renderSteamGamesDeck() {
   const user = auth.currentUser;
   const grid = document.getElementById("steamGamesContainer");
@@ -1046,6 +1071,7 @@ async function renderSteamGamesDeck() {
     const gamesData = snapshot.val();
     for (let id in gamesData) {
       const g = gamesData[id];
+      card.className = "steam-game-card";
       const card = document.createElement("div");
       card.className = "steam-game-card";
       card.innerHTML = `
@@ -1071,7 +1097,6 @@ async function renderSteamGamesDeck() {
   }
 }
 
-// REMOVE ENTRY ROUTE DIRECT ON BACKEND SERVER TERMINAL
 window.removeSteamGamePage = async function(gameId) {
   const user = auth.currentUser;
   if (!user) return;
@@ -1088,7 +1113,6 @@ window.removeSteamGamePage = async function(gameId) {
   }
 };
 
-// EDIT CLOUD DATA INJECTION SEQUENCE
 window.editSteamGamePage = async function(gameId) {
   const user = auth.currentUser;
   if (!user) return;
@@ -1100,7 +1124,6 @@ window.editSteamGamePage = async function(gameId) {
     const targetGame = snapshot.val();
     document.getElementById("steamLibraryPanel").style.display = "none";
     
-    // Setup inputs context properties
     document.getElementById("editGameId").value = targetGame.uniqueId;
     document.getElementById("steamGameTitle").value = targetGame.title;
     document.getElementById("steamGameGenre").value = targetGame.genre;
@@ -1121,14 +1144,14 @@ window.editSteamGamePage = async function(gameId) {
     document.getElementById("steamGameDesc").value = targetGame.desc;
     document.getElementById("steamGameUrl").value = targetGame.link || "";
     
-    // Set validation settings optional for active file updates
     document.getElementById("steamGameThumb").required = false;
     document.getElementById("steamGameScreenshots").required = false;
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
     document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
     if (targetGame.screenshots) {
-      selectedScreenshotsStorageArray = targetGame.screenshots;
+      // Direct deep clone injection to global tracking array variables
+      selectedScreenshotsStorageArray = [...targetGame.screenshots];
       renderScreenshotsVerticalList();
     } else {
       selectedScreenshotsStorageArray = [];
@@ -1143,7 +1166,6 @@ window.editSteamGamePage = async function(gameId) {
   }
 };
 
-// NAVIGATION HANDLERS WIREFRAME
 let sidebar = document.getElementById("sidebar");
 let userSidebar = document.getElementById("userSidebar");
 let panel = document.getElementById("panel");
