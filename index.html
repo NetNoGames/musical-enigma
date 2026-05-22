@@ -813,38 +813,45 @@ window.applySettingsAccountTermination = async function() {
   }
 };
 
-/* CHOOSE SCREENSHOTS AND COMPILE VIEW ONE BELOW ANOTHER */
+/* CHOOSE SCREENSHOTS AND APPEND VIEW ONE BELOW ANOTHER WITHOUT REMOVING EXISTING */
 window.handleScreenshotsSelection = async function(input) {
   const countAlert = document.getElementById("screenshotCountAlert");
-  const count = input.files.length;
-  countAlert.innerText = `Selected: ${count}`;
+  const newFilesCount = input.files.length;
   
-  if (count > 10) {
-    alert("Maximum 10 screenshots are allowed!");
+  if (newFilesCount === 0) return;
+
+  // Calculate total combined count (Existing + Incoming)
+  const totalCombinedCount = selectedScreenshotsStorageArray.length + newFilesCount;
+
+  if (totalCombinedCount > 10) {
+    alert(`Maximum 10 screenshots allowed! You currently have ${selectedScreenshotsStorageArray.length}, and you tried to add ${newFilesCount}.`);
     input.value = "";
-    countAlert.innerText = "Selected: 0 (Limit Exceeded)";
-    countAlert.style.color = "#ff4444";
-    selectedScreenshotsStorageArray = [];
-    document.getElementById("screenshotPreviewListContainer").innerHTML = "";
     return;
-  } else if (count < 2 && count > 0) {
-    countAlert.style.color = "#ffcc00";
-    countAlert.innerText = `Selected: ${count} (Minimum 2 required)`;
-  } else {
-    countAlert.style.color = "#66c0f4";
   }
 
-  selectedScreenshotsStorageArray = [];
+  // Append new screenshots to the existing array buffer instead of clearing it
   for (let i = 0; i < input.files.length; i++) {
     const base64Data = await convertFileToBase64(input.files[i]);
     selectedScreenshotsStorageArray.push(base64Data);
   }
+
+  // Update total tracker UI text string
+  countAlert.innerText = `Selected: ${selectedScreenshotsStorageArray.length}`;
+  if (selectedScreenshotsStorageArray.length < 2) {
+    countAlert.style.color = "#ffcc00";
+    countAlert.innerText += " (Minimum 2 required)";
+  } else {
+    countAlert.style.color = "#66c0f4";
+  }
+
   renderScreenshotsVerticalList();
+  input.value = ""; // Clear file field to let user add same file again if needed
 };
 
 // Function to print preview elements sequentially down the container block
 function renderScreenshotsVerticalList() {
   const container = document.getElementById("screenshotPreviewListContainer");
+  const countAlert = document.getElementById("screenshotCountAlert");
   container.innerHTML = "";
   
   selectedScreenshotsStorageArray.forEach((base64String, index) => {
@@ -859,6 +866,17 @@ function renderScreenshotsVerticalList() {
     `;
     container.appendChild(row);
   });
+
+  // Keep counter text synced up during item deletion or mutation lifecycle
+  if(countAlert) {
+    countAlert.innerText = `Selected: ${selectedScreenshotsStorageArray.length}`;
+    if (selectedScreenshotsStorageArray.length < 2) {
+      countAlert.style.color = "#ffcc00";
+      countAlert.innerText += " (Minimum 2 required)";
+    } else {
+      countAlert.style.color = "#66c0f4";
+    }
+  }
 }
 
 window.triggerIndividualScreenshotSwap = function(index) {
@@ -947,7 +965,6 @@ window.saveSteamGamePage = async function(e) {
   const editId = document.getElementById("editGameId").value;
   const title = document.getElementById("steamGameTitle").value.trim();
   const fileInput = document.getElementById("steamGameThumb");
-  const screenshotsInput = document.getElementById("steamGameScreenshots");
   const genre = document.getElementById("steamGameGenre").value;
   const visibility = document.getElementById("steamGameVisibility").value;
   const theme = document.getElementById("steamGameTheme").value;
