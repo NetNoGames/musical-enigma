@@ -41,6 +41,10 @@ onAuthStateChanged(auth, (user) => {
 window.openLoginPanel = function() {
   const user = auth.currentUser;
   document.getElementById("loginOverlay").style.display = "flex";
+  
+  // Force clean view layout directly upon opening to flush any old HTML buttons
+  restoreInitialAuthView();
+
   if (user) {
     const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
     if(pendingCheck === "true") {
@@ -53,7 +57,6 @@ window.openLoginPanel = function() {
       return;
     }
   }
-  restoreInitialAuthView();
 };
 
 window.closeLoginPanel = function() {
@@ -67,26 +70,32 @@ function restoreInitialAuthView() {
   document.getElementById("avatarStep").style.display = "none";
   document.getElementById("orgAvatarStep").style.display = "none";
   document.getElementById("approvalPendingStep").style.display = "none";
-  document.getElementById("loginError").innerText = "";
-  document.getElementById("usernameInput").value = "";
-  document.getElementById("setupPasswordInput").value = "";
   
-  // Single unified setup interface with "Continue with Google" button
+  const loginErrorElement = document.getElementById("loginError");
+  if (loginErrorElement) loginErrorElement.innerText = "";
+  
+  const usernameInputEl = document.getElementById("usernameInput");
+  if (usernameInputEl) usernameInputEl.value = "";
+  
+  const setupPasswordInputEl = document.getElementById("setupPasswordInput");
+  if (setupPasswordInputEl) setupPasswordInputEl.value = "";
+  
+  // CRITICAL FIX: Overwriting the container HTML to completely destroy old Individual/Organization buttons instantly
   const gatewayDiv = document.getElementById("authGateways");
   if (gatewayDiv) {
     gatewayDiv.innerHTML = `
-      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')" style="width:100%; padding:12px; background:#4285F4; color:white; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px;">Continue with Google</button>
-      <div class="divider"><span>OR DIRECT LOGIN</span></div>
+      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')" style="width:100%; padding:12px; background:#4285F4; color:white; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px; font-family:inherit;">Continue with Google</button>
+      <div class="divider" style="text-align:center; margin:15px 0; color:#666;"><span>OR DIRECT LOGIN</span></div>
       <form id="authForm" onsubmit="event.preventDefault(); handleDirectLogin(event)">
-        <div class="terminal-input-row">
-          <label>Email Address</label>
-          <input type="email" id="authEmail" required>
+        <div class="terminal-input-row" style="margin-bottom:12px;">
+          <label style="display:block; margin-bottom:5px; color:#aaa;">Email Address</label>
+          <input type="email" id="authEmail" required style="width:100%; padding:8px; background:#111; border:1px solid #333; color:white; border-radius:4px;">
         </div>
-        <div class="terminal-input-row">
-          <label>Password</label>
-          <input type="password" id="authPassword" required>
+        <div class="terminal-input-row" style="margin-bottom:15px;">
+          <label style="display:block; margin-bottom:5px; color:#aaa;">Password</label>
+          <input type="password" id="authPassword" required style="width:100%; padding:8px; background:#111; border:1px solid #333; color:white; border-radius:4px;">
         </div>
-        <button type="submit" class="terminal-submit-btn">Login</button>
+        <button type="submit" class="terminal-submit-btn" style="width:100%; padding:10px; background:#222; border:1px solid #444; color:white; cursor:pointer; border-radius:4px;">Login</button>
       </form>
     `;
   }
@@ -100,7 +109,7 @@ window.handleDirectLogin = async function(e) {
   const email = document.getElementById("authEmail").value.trim();
   const password = document.getElementById("authPassword").value;
   const errorDiv = document.getElementById("loginError");
-  errorDiv.innerText = "";
+  if (errorDiv) errorDiv.innerText = "";
   try {
     isRegistrationProcess = false;
     const result = await signInWithEmailAndPassword(auth, email, password);
@@ -113,14 +122,14 @@ window.handleDirectLogin = async function(e) {
     }
     executeLoginSuccess();
   } catch (err) {
-    errorDiv.innerText = "Incorrect account details or invalid password specified.";
+    if (errorDiv) errorDiv.innerText = "Incorrect account details or invalid password specified.";
   }
 };
 
 window.triggerRouteAuth = async function(selectedMode) {
   activeWorkflowMode = "individual"; 
   const errorDiv = document.getElementById("loginError");
-  errorDiv.innerText = "";
+  if (errorDiv) errorDiv.innerText = "";
   try {
     provider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, provider);
@@ -129,19 +138,18 @@ window.triggerRouteAuth = async function(selectedMode) {
     
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email);
     
-    // Check: Agar account pehle se bana hua hai toh bypass login karo, nahi toh credentials step open karo
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) {
       isRegistrationProcess = false;
       executeLoginSuccess();
     } else {
-      // Automatic username/password box layout active for new users
+      // Transitioning directly to Username/Password box setup view if it is a new email setup instance
       isRegistrationProcess = true;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
     }
   } catch (error) {
     isRegistrationProcess = false;
-    errorDiv.innerText = "Authentication Protocol Failure: " + error.message;
+    if (errorDiv) errorDiv.innerText = "Authentication Protocol Failure: " + error.message;
   }
 };
 
@@ -150,32 +158,32 @@ window.submitCredentialsStep = function() {
   const chosenPassword = document.getElementById("setupPasswordInput").value;
   const errorDiv = document.getElementById("loginError");
   if (!username) {
-    errorDiv.innerText = "Please specify a unique username.";
+    if (errorDiv) errorDiv.innerText = "Please specify a unique username.";
     return;
   }
   if (username.length > 15) {
-    errorDiv.innerText = "Username strictly limited to 15 characters.";
+    if (errorDiv) errorDiv.innerText = "Username strictly limited to 15 characters.";
     return;
   }
   if (!chosenPassword || chosenPassword.length < 6) {
-    errorDiv.innerText = "Password initialization requires at least 6 characters.";
+    if (errorDiv) errorDiv.innerText = "Password initialization requires at least 6 characters.";
     return;
   }
   chosenUsername = username;
   registrationPassword = chosenPassword;
-  errorDiv.innerText = "";
+  if (errorDiv) errorDiv.innerText = "";
   document.getElementById("credentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "block";
 };
 
 window.submitOrgCredentialsStep = function() {
-  // Retained cleanly for structure safety
+  // Structure pipeline safety retention
 };
 
 window.finalizeAccountRegistration = async function() {
   const fileInput = document.getElementById("avatarFileInput");
   const errorDiv = document.getElementById("loginError");
-  errorDiv.innerText = "";
+  if (errorDiv) errorDiv.innerText = "";
   try {
     let user = auth.currentUser;
     let finalBase64Url = "https://www.w3schools.com/howto/img_avatar.png";
@@ -195,18 +203,18 @@ window.finalizeAccountRegistration = async function() {
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword);
         await linkWithCredential(user, passwordCredential);
       } catch (linkErr) {
-        console.warn("Link execution catch fallback context.");
+        console.warn("Link operation handling fallthrough.");
       }
       isRegistrationProcess = false;
       executeLoginSuccess();
     }
   } catch (err) {
-    errorDiv.innerText = "Registration Processing Error: " + err.message;
+    if (errorDiv) errorDiv.innerText = "Registration Processing Error: " + err.message;
   }
 };
 
 window.finalizeOrgAccountRegistration = async function() {
-  // Retained cleanly for structure safety
+  // Structure pipeline safety retention
 };
 
 function executeLoginSuccess() {
