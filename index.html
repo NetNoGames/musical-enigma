@@ -502,7 +502,6 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-// IMPORTING CRITICAL FIREBASE STORAGE MODULES FOR BLOB ENGINE UPGRADE
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -518,7 +517,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app); 
-const storage = getStorage(app); // Initialized cloud storage engine environment context
+const storage = getStorage(app); 
 const provider = new GoogleAuthProvider();
 
 let activeWorkflowMode = "";
@@ -527,7 +526,6 @@ let registrationPassword = "";
 let isRegistrationProcess = false;
 let chosenUsername = "";
 
-// Holds raw blob Files or previous network links securely
 let selectedScreenshotsStorageArray = []; 
 let targetScreenshotReplaceIndex = null;
 
@@ -824,7 +822,6 @@ window.handleScreenshotsSelection = function(input) {
   const totalCombinedCount = selectedScreenshotsStorageArray.length + newFilesCount;
   if (totalCombinedCount > 10) {
     alert(`Maximum 10 screenshots allowed! You currently have ${selectedScreenshotsStorageArray.length}, and you tried to add ${newFilesCount}.`);
-    input.value = "";
     return;
   }
 
@@ -834,7 +831,6 @@ window.handleScreenshotsSelection = function(input) {
   }
 
   renderScreenshotsVerticalList();
-  input.value = ""; 
 };
 
 // HELPER FUNCTION TO FETCH LIVE BLOB LOCAL URL STRING ON DEMAND DURING RENDERING CYCLES
@@ -842,7 +838,7 @@ function getDisplayUrl(item) {
   if (item instanceof File) {
     return URL.createObjectURL(item);
   }
-  return item; // Absolute Network storage HTTP URL string string fallback
+  return item; 
 }
 
 function renderScreenshotsVerticalList() {
@@ -981,7 +977,6 @@ window.saveSteamGamePage = async function(e) {
   const gameId = editId ? editId : "game_" + Date.now();
   const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
 
-  // Change UI button text to show active upload transmission state progress
   const submitBtn = document.getElementById("submitFormBtn");
   const initialBtnText = submitBtn.innerText;
   submitBtn.innerText = "Uploading Assets to Cloud... 🚀";
@@ -990,7 +985,6 @@ window.saveSteamGamePage = async function(e) {
   try {
     let finalThumbnailUrl = "";
     
-    // 1. Process Thumbnail File upload operation securely if specified
     if (fileInput.files.length > 0) {
       const thumbFile = fileInput.files[0];
       finalThumbnailUrl = await uploadFileToFirebaseStorage(
@@ -999,19 +993,16 @@ window.saveSteamGamePage = async function(e) {
       );
     }
 
-    // 2. Transmit screenshots arrays conversion mapping sequential stack loops
     let compiledScreenshotsUrls = [];
     for (let i = 0; i < selectedScreenshotsStorageArray.length; i++) {
       const item = selectedScreenshotsStorageArray[i];
       if (item instanceof File) {
-        // Freshly added file item node stream
         const urlResult = await uploadFileToFirebaseStorage(
           item, 
           `users/${user.uid}/games/${gameId}/ss_${Date.now()}_${i}_${item.name}`
         );
         compiledScreenshotsUrls.push(urlResult);
       } else {
-        // Keep existing image URL reference string intact
         compiledScreenshotsUrls.push(item);
       }
     }
@@ -1027,7 +1018,7 @@ window.saveSteamGamePage = async function(e) {
       link,
       trailer: trailerLink,
       createdBy: user.email,
-      screenshots: compiledScreenshotsUrls // Saved as a lightweight array list of clean download link URLs
+      screenshots: compiledScreenshotsUrls 
     };
 
     if (finalThumbnailUrl !== "") {
@@ -1039,7 +1030,6 @@ window.saveSteamGamePage = async function(e) {
       }
     }
 
-    // Write final structured optimization package map context direct to tree logs node
     await set(dbLocationRef, gamePayload);
     alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
     
@@ -1071,7 +1061,6 @@ async function renderSteamGamesDeck() {
     const gamesData = snapshot.val();
     for (let id in gamesData) {
       const g = gamesData[id];
-      card.className = "steam-game-card";
       const card = document.createElement("div");
       card.className = "steam-game-card";
       card.innerHTML = `
@@ -1150,7 +1139,6 @@ window.editSteamGamePage = async function(gameId) {
     document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
     if (targetGame.screenshots) {
-      // Direct deep clone injection to global tracking array variables
       selectedScreenshotsStorageArray = [...targetGame.screenshots];
       renderScreenshotsVerticalList();
     } else {
