@@ -378,7 +378,7 @@ body {
 
         <div class="steam-input-group">
           <label>Page Visibility / Distribution Status</label>
-          <select id="steamGameVisibility" class="steam-input" style="background:#101822;">
+          <select id="steamGameVisibility" class="steam-input" style="background:#101822;" onchange="handleVisibilityValidation(this.value)">
             <option value="Public">Public (Everyone can see)</option>
             <option value="Private">Private (Only you can see)</option>
             <option value="Restricted">Restricted (Link sharing only)</option>
@@ -431,6 +431,16 @@ body {
           <input type="file" id="steamGameZip" class="steam-input" accept=".zip" required>
         </div>
         
+        <div id="uploadProgressContainer" style="display: none; margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; color: #66c0f4; font-size: 13px; margin-bottom: 5px;">
+            <span id="uploadStatusText">Uploading Assets...</span>
+            <span id="uploadPercentageText">0%</span>
+          </div>
+          <div style="width: 100%; height: 6px; background: #101822; border: 1px solid #2a475e; border-radius: 3px; overflow: hidden;">
+            <div id="uploadProgressBarLine" style="width: 0%; height: 100%; background: linear-gradient(to right, #00aaff, #0077cc); transition: width 0.1s ease;"></div>
+          </div>
+        </div>
+
         <div style="text-align: right; margin-top:20px;">
           <button type="submit" id="submitFormBtn" class="steam-btn-blueprint">Create page</button>
         </div>
@@ -507,7 +517,7 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
@@ -818,6 +828,49 @@ window.applySettingsAccountTermination = async function() {
   }
 };
 
+/* DYNAMIC ACCUMULATOR FOR RESUMABLE TRACKING UPSTREAM */
+function uploadFileWithProgress(fileObject, destinationPath, weight, totalWeights, completedWeights) {
+  return new Promise((resolve, reject) => {
+    const fileRef = storageRef(storage, destinationPath);
+    const uploadTask = uploadBytesResumable(fileRef, fileObject);
+
+    uploadTask.on('state_changed', 
+      (snapshot) => {
+        const fileProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const currentTaskContribution = (fileProgress / 100) * weight;
+        const totalOverallProgress = Math.min(Math.round(((completedWeights.value + currentTaskContribution) / totalWeights) * 100), 99);
+        
+        document.getElementById("uploadProgressBarLine").style.width = `${totalOverallProgress}%`;
+        document.getElementById("uploadPercentageText").innerText = `${totalOverallProgress}%`;
+      }, 
+      (error) => { reject(error); }, 
+      async () => {
+        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        completedWeights.value += weight;
+        resolve(downloadUrl);
+      }
+    );
+  });
+}
+
+window.handleVisibilityValidation = function(visibilityValue) {
+  const zipInput = document.getElementById("steamGameZip");
+  const zipLabel = document.getElementById("zipInputLabel");
+  const editId = document.getElementById("editGameId").value;
+
+  if (visibilityValue === "Private") {
+    zipInput.required = false;
+    if (!editId) {
+      zipLabel.innerText = "Game ZIP File (Upload Asset) - Optional";
+    }
+  } else {
+    if (!editId) {
+      zipInput.required = true;
+      zipLabel.innerText = "Game ZIP File (Upload Asset)";
+    }
+  }
+};
+
 /* COMPILE MIXED BLOB FILES AND REUSE URLs DYNAMICALLY INSIDE TRACKING SYSTEM */
 window.handleScreenshotsSelection = function(input) {
   const countAlert = document.getElementById("screenshotCountAlert");
@@ -921,24 +974,24 @@ window.openSteamCreationEngine = function() {
   document.getElementById("creationFormTitle").innerText = "NetNo works page";
   document.getElementById("submitFormBtn").innerText = "Create page";
   
-  // Set required flags explicitly for fresh page
   document.getElementById("steamGameThumb").required = true;
   document.getElementById("steamGameScreenshots").required = true;
-  document.getElementById("steamGameZip").required = true; 
   
   document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Image Asset File)";
-  document.getElementById("zipInputLabel").innerText = "Game ZIP File (Upload Asset)";
   document.getElementById("screenshotCountAlert").innerText = "Selected: 0 (Minimum 2 required)";
   document.getElementById("screenshotCountAlert").style.color = "#ffcc00";
   document.getElementById("paidAmountContainer").style.display = "none";
   document.getElementById("priceValidationAlert").style.display = "none";
+  document.getElementById("uploadProgressContainer").style.display = "none";
   
   selectedScreenshotsStorageArray = [];
   document.getElementById("screenshotPreviewListContainer").innerHTML = "";
   document.getElementById("steamGameForm").reset();
   
+  handleVisibilityValidation(document.getElementById("steamGameVisibility").value);
   document.getElementById("steamCreationPanel").style.display = "flex";
 };
+
 window.closeSteamCreationEngine = function() { document.getElementById("steamCreationPanel").style.display = "none"; };
 
 window.openSteamLibraryEngine = function() {
@@ -947,12 +1000,6 @@ window.openSteamLibraryEngine = function() {
   renderSteamGamesDeck();
 };
 window.closeSteamLibraryEngine = function() { document.getElementById("steamLibraryPanel").style.display = "none"; };
-
-async function uploadFileToFirebaseStorage(fileObject, destinationPath) {
-  const fileRef = storageRef(storage, destinationPath);
-  await uploadBytes(fileRef, fileObject);
-  return await getDownloadURL(fileRef);
-}
 
 window.saveSteamGamePage = async function(e) {
   e.preventDefault();
@@ -978,48 +1025,58 @@ window.saveSteamGamePage = async function(e) {
   const link = document.getElementById("steamGameUrl").value.trim();
   const trailerLink = document.getElementById("steamGameTrailer").value.trim();
 
-  // Unified Validation System across edit/create modes
   if (selectedScreenshotsStorageArray.length < 2) {
     alert("Please add at least 2 screenshots minimum before submitting.");
     return;
   }
 
-  const gameId = editId ? editId : "game_" + Date.now();
-  const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
+  let totalWeights = 0;
+  let completedWeights = { value: 0 };
+
+  const hasNewThumb = fileInput.files.length > 0;
+  const hasNewZip = zipFileInput.files.length > 0;
+  
+  let newScreenshotsCount = 0;
+  selectedScreenshotsStorageArray.forEach(item => { if (item instanceof File) newScreenshotsCount++; });
+
+  if (hasNewThumb) totalWeights += 10;
+  if (hasNewZip) totalWeights += 50;
+  totalWeights += (newScreenshotsCount * 15);
 
   const submitBtn = document.getElementById("submitFormBtn");
-  const initialBtnText = submitBtn.innerText;
-  submitBtn.innerText = "Uploading Assets to Cloud... 🚀";
+  const progressContainer = document.getElementById("uploadProgressContainer");
+  
+  if (totalWeights > 0) {
+    progressContainer.style.display = "block";
+    document.getElementById("uploadProgressBarLine").style.width = "0%";
+    document.getElementById("uploadPercentageText").innerText = "0%";
+    document.getElementById("uploadStatusText").innerText = "Transmitting game elements...";
+  }
+
   submitBtn.disabled = true;
 
   try {
+    const gameId = editId ? editId : "game_" + Date.now();
+    const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
+
     let finalThumbnailUrl = "";
     let finalZipUrl = "";
     
-    if (fileInput.files.length > 0) {
+    if (hasNewThumb) {
       const thumbFile = fileInput.files[0];
-      finalThumbnailUrl = await uploadFileToFirebaseStorage(
-        thumbFile, 
-        `users/${user.uid}/games/${gameId}/thumb_${Date.now()}_${thumbFile.name}`
-      );
+      finalThumbnailUrl = await uploadFileWithProgress(thumbFile, `users/${user.uid}/games/${gameId}/thumb_${Date.now()}_${thumbFile.name}`, 10, totalWeights, completedWeights);
     }
 
-    if (zipFileInput.files.length > 0) {
+    if (hasNewZip) {
       const zipFile = zipFileInput.files[0];
-      finalZipUrl = await uploadFileToFirebaseStorage(
-        zipFile,
-        `users/${user.uid}/games/${gameId}/build_${Date.now()}_${zipFile.name}`
-      );
+      finalZipUrl = await uploadFileWithProgress(zipFile, `users/${user.uid}/games/${gameId}/build_${Date.now()}_${zipFile.name}`, 50, totalWeights, completedWeights);
     }
 
     let compiledScreenshotsUrls = [];
     for (let i = 0; i < selectedScreenshotsStorageArray.length; i++) {
       const item = selectedScreenshotsStorageArray[i];
       if (item instanceof File) {
-        const urlResult = await uploadFileToFirebaseStorage(
-          item, 
-          `users/${user.uid}/games/${gameId}/ss_${Date.now()}_${i}_${item.name}`
-        );
+        const urlResult = await uploadFileWithProgress(item, `users/${user.uid}/games/${gameId}/ss_${Date.now()}_${i}_${item.name}`, 15, totalWeights, completedWeights);
         compiledScreenshotsUrls.push(urlResult);
       } else {
         compiledScreenshotsUrls.push(item);
@@ -1059,15 +1116,25 @@ window.saveSteamGamePage = async function(e) {
     }
 
     await set(dbLocationRef, gamePayload);
-    alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
     
-    document.getElementById("steamGameForm").reset();
-    closeSteamCreationEngine();
-    openSteamLibraryEngine();
+    if (totalWeights > 0) {
+      document.getElementById("uploadProgressBarLine").style.width = "100%";
+      document.getElementById("uploadPercentageText").innerText = "100%";
+      document.getElementById("uploadStatusText").innerText = "Deployment Success!";
+    }
+
+    setTimeout(() => {
+      alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
+      document.getElementById("steamGameForm").reset();
+      progressContainer.style.display = "none";
+      closeSteamCreationEngine();
+      openSteamLibraryEngine();
+    }, 400);
+
   } catch (err) {
     alert("Cloud Engine Error during asset parsing: " + err.message);
+    progressContainer.style.display = "none";
   } finally {
-    submitBtn.innerText = initialBtnText;
     submitBtn.disabled = false;
   }
 };
@@ -1162,13 +1229,13 @@ window.editSteamGamePage = async function(gameId) {
     document.getElementById("steamGameDesc").value = targetGame.desc;
     document.getElementById("steamGameUrl").value = targetGame.link || "";
     
-    // REMOVED required validations for edit flow dynamically
     document.getElementById("steamGameThumb").required = false;
     document.getElementById("steamGameScreenshots").required = false;
     document.getElementById("steamGameZip").required = false; 
     
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
     document.getElementById("zipInputLabel").innerText = "Game ZIP File (Leave blank to keep current build)";
+    document.getElementById("uploadProgressContainer").style.display = "none";
     
     if (targetGame.screenshots) {
       selectedScreenshotsStorageArray = [...targetGame.screenshots];
@@ -1180,6 +1247,8 @@ window.editSteamGamePage = async function(gameId) {
 
     document.getElementById("creationFormTitle").innerText = "Edit NetNo Page Settings";
     document.getElementById("submitFormBtn").innerText = "Save changes";
+    
+    handleVisibilityValidation(document.getElementById("steamGameVisibility").value);
     document.getElementById("steamCreationPanel").style.display = "flex";
   } catch (e) {
     alert("Fetch error: " + e.message);
@@ -1239,9 +1308,3 @@ window.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
-
-
-
-
-
-Isme game zip file add kanr ek liye ais ekr ki user file slect kare thne ek blue color ki line comllet ehoho tba jake file page me add ho aur ye file add karna optiona
