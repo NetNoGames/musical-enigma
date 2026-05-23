@@ -502,14 +502,15 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPasswor
 import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+// Updated Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
   authDomain: "netno-games-d8580.firebaseapp.com",
+  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com",
   projectId: "netno-games-d8580",
   storageBucket: "netno-games-d8580.firebasestorage.app",
   messagingSenderId: "571332011408",
-  appId: "1:571332011408:web:b40acafe4f258e4183bf15",
-  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com/"
+  appId: "1:571332011408:web:b40acafe4f258e4183bf15"
 };
 
 const app = initializeApp(firebaseConfig);
