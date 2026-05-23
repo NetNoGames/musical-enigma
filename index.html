@@ -507,7 +507,6 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-// IMPORTING CRITICAL FIREBASE STORAGE MODULES FOR BLOB ENGINE UPGRADE
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -523,7 +522,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app); 
-const storage = getStorage(app); // Initialized cloud storage engine environment context
+const storage = getStorage(app); 
 const provider = new GoogleAuthProvider();
 
 let activeWorkflowMode = "";
@@ -532,7 +531,6 @@ let registrationPassword = "";
 let isRegistrationProcess = false;
 let chosenUsername = "";
 
-// Holds raw blob Files or previous network links securely
 let selectedScreenshotsStorageArray = []; 
 let targetScreenshotReplaceIndex = null;
 
@@ -833,7 +831,6 @@ window.handleScreenshotsSelection = function(input) {
     return;
   }
 
-  // Push raw File object directly into array memory state buffer maps
   for (let i = 0; i < input.files.length; i++) {
     selectedScreenshotsStorageArray.push(input.files[i]);
   }
@@ -842,12 +839,11 @@ window.handleScreenshotsSelection = function(input) {
   input.value = ""; 
 };
 
-// HELPER FUNCTION TO FETCH LIVE BLOB LOCAL URL STRING ON DEMAND DURING RENDERING CYCLES
 function getDisplayUrl(item) {
   if (item instanceof File) {
     return URL.createObjectURL(item);
   }
-  return item; // Absolute Network storage HTTP URL string string fallback
+  return item; 
 }
 
 function renderScreenshotsVerticalList() {
@@ -871,8 +867,9 @@ function renderScreenshotsVerticalList() {
   });
 
   if(countAlert) {
+    const isEdit = document.getElementById("editGameId").value !== "";
     countAlert.innerText = `Selected: ${selectedScreenshotsStorageArray.length}`;
-    if (selectedScreenshotsStorageArray.length < 2) {
+    if (!isEdit && selectedScreenshotsStorageArray.length < 2) {
       countAlert.style.color = "#ffcc00";
       countAlert.innerText += " (Minimum 2 required)";
     } else {
@@ -888,7 +885,6 @@ window.triggerIndividualScreenshotSwap = function(index) {
 
 window.processSingleScreenshotReplacement = function(input) {
   if (input.files.length === 0 || targetScreenshotReplaceIndex === null) return;
-  // Replace direct with fresh file buffer item
   selectedScreenshotsStorageArray[targetScreenshotReplaceIndex] = input.files[0];
   renderScreenshotsVerticalList();
   input.value = "";
@@ -924,13 +920,16 @@ window.openSteamCreationEngine = function() {
   document.getElementById("editGameId").value = "";
   document.getElementById("creationFormTitle").innerText = "NetNo works page";
   document.getElementById("submitFormBtn").innerText = "Create page";
+  
+  // Set required flags explicitly for fresh page
   document.getElementById("steamGameThumb").required = true;
   document.getElementById("steamGameScreenshots").required = true;
-  document.getElementById("steamGameZip").required = true; // Added zip validation requirement
+  document.getElementById("steamGameZip").required = true; 
+  
   document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Image Asset File)";
   document.getElementById("zipInputLabel").innerText = "Game ZIP File (Upload Asset)";
-  document.getElementById("screenshotCountAlert").innerText = "Selected: 0";
-  document.getElementById("screenshotCountAlert").style.color = "#66c0f4";
+  document.getElementById("screenshotCountAlert").innerText = "Selected: 0 (Minimum 2 required)";
+  document.getElementById("screenshotCountAlert").style.color = "#ffcc00";
   document.getElementById("paidAmountContainer").style.display = "none";
   document.getElementById("priceValidationAlert").style.display = "none";
   
@@ -949,14 +948,12 @@ window.openSteamLibraryEngine = function() {
 };
 window.closeSteamLibraryEngine = function() { document.getElementById("steamLibraryPanel").style.display = "none"; };
 
-// CORE CLOUD STORAGE HELPER INTERACTION LOGIC PIPELINE
 async function uploadFileToFirebaseStorage(fileObject, destinationPath) {
   const fileRef = storageRef(storage, destinationPath);
   await uploadBytes(fileRef, fileObject);
   return await getDownloadURL(fileRef);
 }
 
-// SECURELY UPGRADED SAVE FUNCTION INTEGRATED DIRECTLY WITH FIREBASE BLOB STORAGE BUCKETS
 window.saveSteamGamePage = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
@@ -981,15 +978,15 @@ window.saveSteamGamePage = async function(e) {
   const link = document.getElementById("steamGameUrl").value.trim();
   const trailerLink = document.getElementById("steamGameTrailer").value.trim();
 
-  if (!editId && selectedScreenshotsStorageArray.length < 2) {
-    alert("Please select at least 2 screenshots minimum.");
+  // Unified Validation System across edit/create modes
+  if (selectedScreenshotsStorageArray.length < 2) {
+    alert("Please add at least 2 screenshots minimum before submitting.");
     return;
   }
 
   const gameId = editId ? editId : "game_" + Date.now();
   const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
 
-  // Change UI button text to show active upload transmission state progress
   const submitBtn = document.getElementById("submitFormBtn");
   const initialBtnText = submitBtn.innerText;
   submitBtn.innerText = "Uploading Assets to Cloud... 🚀";
@@ -999,7 +996,6 @@ window.saveSteamGamePage = async function(e) {
     let finalThumbnailUrl = "";
     let finalZipUrl = "";
     
-    // 1. Process Thumbnail File upload operation securely if specified
     if (fileInput.files.length > 0) {
       const thumbFile = fileInput.files[0];
       finalThumbnailUrl = await uploadFileToFirebaseStorage(
@@ -1008,7 +1004,6 @@ window.saveSteamGamePage = async function(e) {
       );
     }
 
-    // 2. Process ZIP File upload operation securely if specified
     if (zipFileInput.files.length > 0) {
       const zipFile = zipFileInput.files[0];
       finalZipUrl = await uploadFileToFirebaseStorage(
@@ -1017,19 +1012,16 @@ window.saveSteamGamePage = async function(e) {
       );
     }
 
-    // 3. Transmit screenshots arrays conversion mapping sequential stack loops
     let compiledScreenshotsUrls = [];
     for (let i = 0; i < selectedScreenshotsStorageArray.length; i++) {
       const item = selectedScreenshotsStorageArray[i];
       if (item instanceof File) {
-        // Freshly added file item node stream
         const urlResult = await uploadFileToFirebaseStorage(
           item, 
           `users/${user.uid}/games/${gameId}/ss_${Date.now()}_${i}_${item.name}`
         );
         compiledScreenshotsUrls.push(urlResult);
       } else {
-        // Keep existing image URL reference string intact
         compiledScreenshotsUrls.push(item);
       }
     }
@@ -1045,7 +1037,7 @@ window.saveSteamGamePage = async function(e) {
       link,
       trailer: trailerLink,
       createdBy: user.email,
-      screenshots: compiledScreenshotsUrls // Saved as a lightweight array list of clean download link URLs
+      screenshots: compiledScreenshotsUrls 
     };
 
     if (finalThumbnailUrl !== "") {
@@ -1066,7 +1058,6 @@ window.saveSteamGamePage = async function(e) {
       }
     }
 
-    // Write final structured optimization package map context direct to tree logs node
     await set(dbLocationRef, gamePayload);
     alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
     
@@ -1171,15 +1162,15 @@ window.editSteamGamePage = async function(gameId) {
     document.getElementById("steamGameDesc").value = targetGame.desc;
     document.getElementById("steamGameUrl").value = targetGame.link || "";
     
+    // REMOVED required validations for edit flow dynamically
     document.getElementById("steamGameThumb").required = false;
     document.getElementById("steamGameScreenshots").required = false;
-    document.getElementById("steamGameZip").required = false; // Optional during edits
+    document.getElementById("steamGameZip").required = false; 
+    
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
     document.getElementById("zipInputLabel").innerText = "Game ZIP File (Leave blank to keep current build)";
-    document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
     if (targetGame.screenshots) {
-      // Direct deep clone injection to global tracking array variables
       selectedScreenshotsStorageArray = [...targetGame.screenshots];
       renderScreenshotsVerticalList();
     } else {
@@ -1248,3 +1239,9 @@ window.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
+
+
+
+
+Isme game zip file add kanr ek liye ais ekr ki user file slect kare thne ek blue color ki line comllet ehoho tba jake file page me add ho aur ye file add karna optiona
