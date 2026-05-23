@@ -137,6 +137,8 @@ body {
 .steam-game-card:hover { transform: translateY(-4px); border-color: #66c0f4; }
 .steam-game-thumb { width: 100%; height: 110px; object-fit: cover; background: #000; }
 .steam-game-details { padding: 10px; }
+.steam-game-title { font-weight: bold; color: #fff; font-size: 14px; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.steam-game-meta { font-size: 11px; color: #66c0f4; background: rgba(102,192,244,0.1); padding: 2px 6px; border-radius: 3px; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
 .steam-game-price { font-size: 13px; color: #b8b6b4; font-weight: bold; margin-top: 8px; }
 
 /* NEW STYLES FOR EDIT & REMOVE BUTTONS IN CARD */
@@ -423,6 +425,11 @@ body {
           <label>Official Landing Website Domain Link</label>
           <input type="url" id="steamGameUrl" class="steam-input">
         </div>
+
+        <div class="steam-input-group">
+          <label id="zipInputLabel">Game ZIP File (Upload Asset)</label>
+          <input type="file" id="steamGameZip" class="steam-input" accept=".zip" required>
+        </div>
         
         <div style="text-align: right; margin-top:20px;">
           <button type="submit" id="submitFormBtn" class="steam-btn-blueprint">Create page</button>
@@ -500,23 +507,23 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, updateProfile, linkWithCredential, EmailAuthProvider, signOut, onAuthStateChanged, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref as dbRef, set, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+// IMPORTING CRITICAL FIREBASE STORAGE MODULES FOR BLOB ENGINE UPGRADE
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-// Updated Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBoM6X--8Hhl9imrtYtgNeyomHLwk1RO6w",
   authDomain: "netno-games-d8580.firebaseapp.com",
-  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com",
   projectId: "netno-games-d8580",
   storageBucket: "netno-games-d8580.firebasestorage.app",
   messagingSenderId: "571332011408",
-  appId: "1:571332011408:web:b40acafe4f258e4183bf15"
+  appId: "1:571332011408:web:b40acafe4f258e4183bf15",
+  databaseURL: "https://netno-games-d8580-default-rtdb.firebaseio.com/"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app); 
-const storage = getStorage(app); 
+const storage = getStorage(app); // Initialized cloud storage engine environment context
 const provider = new GoogleAuthProvider();
 
 let activeWorkflowMode = "";
@@ -525,17 +532,9 @@ let registrationPassword = "";
 let isRegistrationProcess = false;
 let chosenUsername = "";
 
+// Holds raw blob Files or previous network links securely
 let selectedScreenshotsStorageArray = []; 
 let targetScreenshotReplaceIndex = null;
-
-let sidebar = document.getElementById("sidebar");
-let userSidebar = document.getElementById("userSidebar");
-let panel = document.getElementById("panel");
-let panelImg = document.getElementById("panelImg");
-let downloadBtn = document.getElementById("downloadBtn");
-let portalBtn = document.getElementById("portalBtn");
-let communityLinks = document.getElementById("communityLinks");
-let userProfileHeader = document.getElementById("userProfileHeader");
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -554,22 +553,16 @@ onAuthStateChanged(auth, (user) => {
 
 window.openLoginPanel = function() {
   const user = auth.currentUser;
+  document.getElementById("loginOverlay").style.display = "flex";
   if (user) {
     const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
     if(pendingCheck === "true") {
-      document.getElementById("loginOverlay").style.display = "flex";
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("approvalPendingStep").style.display = "block";
       return;
     }
-    if(user.displayName && !isRegistrationProcess) { 
-      // If user is already authenticated, close panel overlay and pop open profile menu
-      window.closePanelGrid();
-      window.toggleUserMenu();
-      return; 
-    }
+    if(user.displayName && !isRegistrationProcess) { executeLoginSuccess(); return; }
   }
-  document.getElementById("loginOverlay").style.display = "flex";
   restoreInitialAuthView();
 };
 
@@ -717,8 +710,7 @@ function executeLoginSuccess() {
   const user = auth.currentUser;
   if (user) {
     applyUserUIData(user);
-    window.closePanelGrid();
-    window.toggleUserMenu();
+    if (typeof window.openPanel === "function") { window.openPanel('developerportal.png', false); }
   }
 }
 
@@ -837,6 +829,7 @@ window.handleScreenshotsSelection = function(input) {
   const totalCombinedCount = selectedScreenshotsStorageArray.length + newFilesCount;
   if (totalCombinedCount > 10) {
     alert(`Maximum 10 screenshots allowed! You currently have ${selectedScreenshotsStorageArray.length}, and you tried to add ${newFilesCount}.`);
+    input.value = "";
     return;
   }
 
@@ -846,6 +839,7 @@ window.handleScreenshotsSelection = function(input) {
   }
 
   renderScreenshotsVerticalList();
+  input.value = ""; 
 };
 
 // HELPER FUNCTION TO FETCH LIVE BLOB LOCAL URL STRING ON DEMAND DURING RENDERING CYCLES
@@ -853,7 +847,7 @@ function getDisplayUrl(item) {
   if (item instanceof File) {
     return URL.createObjectURL(item);
   }
-  return item; 
+  return item; // Absolute Network storage HTTP URL string string fallback
 }
 
 function renderScreenshotsVerticalList() {
@@ -932,7 +926,9 @@ window.openSteamCreationEngine = function() {
   document.getElementById("submitFormBtn").innerText = "Create page";
   document.getElementById("steamGameThumb").required = true;
   document.getElementById("steamGameScreenshots").required = true;
+  document.getElementById("steamGameZip").required = true; // Added zip validation requirement
   document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Image Asset File)";
+  document.getElementById("zipInputLabel").innerText = "Game ZIP File (Upload Asset)";
   document.getElementById("screenshotCountAlert").innerText = "Selected: 0";
   document.getElementById("screenshotCountAlert").style.color = "#66c0f4";
   document.getElementById("paidAmountContainer").style.display = "none";
@@ -972,6 +968,7 @@ window.saveSteamGamePage = async function(e) {
   const editId = document.getElementById("editGameId").value;
   const title = document.getElementById("steamGameTitle").value.trim();
   const fileInput = document.getElementById("steamGameThumb");
+  const zipFileInput = document.getElementById("steamGameZip");
   const genre = document.getElementById("steamGameGenre").value;
   const visibility = document.getElementById("steamGameVisibility").value;
   const theme = document.getElementById("steamGameTheme").value;
@@ -992,6 +989,7 @@ window.saveSteamGamePage = async function(e) {
   const gameId = editId ? editId : "game_" + Date.now();
   const dbLocationRef = dbRef(database, `users_games/${user.uid}/${gameId}`);
 
+  // Change UI button text to show active upload transmission state progress
   const submitBtn = document.getElementById("submitFormBtn");
   const initialBtnText = submitBtn.innerText;
   submitBtn.innerText = "Uploading Assets to Cloud... 🚀";
@@ -999,7 +997,9 @@ window.saveSteamGamePage = async function(e) {
 
   try {
     let finalThumbnailUrl = "";
+    let finalZipUrl = "";
     
+    // 1. Process Thumbnail File upload operation securely if specified
     if (fileInput.files.length > 0) {
       const thumbFile = fileInput.files[0];
       finalThumbnailUrl = await uploadFileToFirebaseStorage(
@@ -1008,16 +1008,28 @@ window.saveSteamGamePage = async function(e) {
       );
     }
 
+    // 2. Process ZIP File upload operation securely if specified
+    if (zipFileInput.files.length > 0) {
+      const zipFile = zipFileInput.files[0];
+      finalZipUrl = await uploadFileToFirebaseStorage(
+        zipFile,
+        `users/${user.uid}/games/${gameId}/build_${Date.now()}_${zipFile.name}`
+      );
+    }
+
+    // 3. Transmit screenshots arrays conversion mapping sequential stack loops
     let compiledScreenshotsUrls = [];
     for (let i = 0; i < selectedScreenshotsStorageArray.length; i++) {
       const item = selectedScreenshotsStorageArray[i];
       if (item instanceof File) {
+        // Freshly added file item node stream
         const urlResult = await uploadFileToFirebaseStorage(
           item, 
           `users/${user.uid}/games/${gameId}/ss_${Date.now()}_${i}_${item.name}`
         );
         compiledScreenshotsUrls.push(urlResult);
       } else {
+        // Keep existing image URL reference string intact
         compiledScreenshotsUrls.push(item);
       }
     }
@@ -1033,7 +1045,7 @@ window.saveSteamGamePage = async function(e) {
       link,
       trailer: trailerLink,
       createdBy: user.email,
-      screenshots: compiledScreenshotsUrls 
+      screenshots: compiledScreenshotsUrls // Saved as a lightweight array list of clean download link URLs
     };
 
     if (finalThumbnailUrl !== "") {
@@ -1045,6 +1057,16 @@ window.saveSteamGamePage = async function(e) {
       }
     }
 
+    if (finalZipUrl !== "") {
+      gamePayload.gameZipUrl = finalZipUrl;
+    } else if (editId) {
+      const currentSnapshot = await get(dbRef(database, `users_games/${user.uid}/${gameId}`));
+      if(currentSnapshot.exists() && currentSnapshot.val().gameZipUrl) {
+        gamePayload.gameZipUrl = currentSnapshot.val().gameZipUrl;
+      }
+    }
+
+    // Write final structured optimization package map context direct to tree logs node
     await set(dbLocationRef, gamePayload);
     alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
     
@@ -1087,6 +1109,7 @@ async function renderSteamGamesDeck() {
           <span class="steam-game-meta" style="color: #a9a9b3; background: rgba(169,169,179,0.1);">${g.visibility || 'Public'}</span>
           <div class="steam-game-price">${g.price}</div>
           ${g.link ? `<a href="${g.link}" target="_blank" style="color:#66c0f4; font-size:12px; text-decoration:none; display:block; margin-top:8px;">Open Web ↗</a>` : ''}
+          ${g.gameZipUrl ? `<a href="${g.gameZipUrl}" target="_blank" style="color:#00aaff; font-size:12px; text-decoration:none; display:block; margin-top:4px; font-weight:bold;">Download ZIP 📥</a>` : ''}
           
           <div class="card-action-bar">
             <button class="card-btn card-edit-btn" onclick="editSteamGamePage('${g.uniqueId}')">Edit</button>
@@ -1150,10 +1173,13 @@ window.editSteamGamePage = async function(gameId) {
     
     document.getElementById("steamGameThumb").required = false;
     document.getElementById("steamGameScreenshots").required = false;
+    document.getElementById("steamGameZip").required = false; // Optional during edits
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
+    document.getElementById("zipInputLabel").innerText = "Game ZIP File (Leave blank to keep current build)";
     document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
     if (targetGame.screenshots) {
+      // Direct deep clone injection to global tracking array variables
       selectedScreenshotsStorageArray = [...targetGame.screenshots];
       renderScreenshotsVerticalList();
     } else {
@@ -1168,6 +1194,15 @@ window.editSteamGamePage = async function(gameId) {
     alert("Fetch error: " + e.message);
   }
 };
+
+let sidebar = document.getElementById("sidebar");
+let userSidebar = document.getElementById("userSidebar");
+let panel = document.getElementById("panel");
+let panelImg = document.getElementById("panelImg");
+let downloadBtn = document.getElementById("downloadBtn");
+let portalBtn = document.getElementById("portalBtn");
+let communityLinks = document.getElementById("communityLinks");
+let userProfileHeader = document.getElementById("userProfileHeader");
 
 window.toggleMenu = function() {
   userSidebar.style.left = "-260px";
