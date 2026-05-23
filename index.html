@@ -338,7 +338,7 @@ body {
 
         <div class="steam-input-group">
           <label id="screenshotsInputLabel">Game Screenshots (Min 2, Max 10)</label>
-          <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="handleScreenshotsSelection(this)">
+          <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple onchange="handleScreenshotsSelection(this)">
           <span id="screenshotCountAlert" style="font-size: 12px; color: #66c0f4; display: block; margin-top: 5px;">Selected: 0</span>
           
           <div id="screenshotPreviewListContainer" class="screenshot-preview-list-wrapper"></div>
@@ -920,10 +920,9 @@ window.openSteamCreationEngine = function() {
   document.getElementById("creationFormTitle").innerText = "NetNo works page";
   document.getElementById("submitFormBtn").innerText = "Create page";
   document.getElementById("steamGameThumb").required = true;
-  document.getElementById("steamGameScreenshots").required = true;
   document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Image Asset File)";
-  document.getElementById("screenshotCountAlert").innerText = "Selected: 0";
-  document.getElementById("screenshotCountAlert").style.color = "#66c0f4";
+  document.getElementById("screenshotCountAlert").innerText = "Selected: 0 (Minimum 2 required)";
+  document.getElementById("screenshotCountAlert").style.color = "#ffcc00";
   document.getElementById("paidAmountContainer").style.display = "none";
   document.getElementById("priceValidationAlert").style.display = "none";
   
@@ -1045,6 +1044,8 @@ window.saveSteamGamePage = async function(e) {
     alert(editId ? `"${title}" Settings Updated on Firebase Cloud!` : `"${title}" Asset Created Successfully under your Account Node!`);
     
     document.getElementById("steamGameForm").reset();
+    // Reset internal dynamic files tracker structure completely to avoid residual data leaks
+    selectedScreenshotsStorageArray = [];
     closeSteamCreationEngine();
     openSteamLibraryEngine();
   } catch (err) {
@@ -1145,9 +1146,7 @@ window.editSteamGamePage = async function(gameId) {
     document.getElementById("steamGameUrl").value = targetGame.link || "";
     
     document.getElementById("steamGameThumb").required = false;
-    document.getElementById("steamGameScreenshots").required = false;
     document.getElementById("thumbInputLabel").innerText = "Game Thumbnail (Leave blank to keep current image)";
-    document.getElementById("screenshotCountAlert").innerText = "Optional during edit flow";
     
     if (targetGame.screenshots) {
       // Direct deep clone injection to global tracking array variables
