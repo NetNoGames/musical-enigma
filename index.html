@@ -49,7 +49,7 @@ body {
 /* DEVELOPER SIDEBAR OVERLAY */
 #userSidebar {
   position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #060609;
-  border-right: 2px solid #00aaff; transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); z-index: 1002;
+  border-right: 2px solid #00aaff; transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); z-index: 102;
   box-shadow: 8px 0 25px rgba(0,0,0,0.6); display: flex; flex-direction: column;
 }
 .user-sidebar-profile { padding: 25px 15px; text-align: center; background: #0d0d12; border-bottom: 1px solid #1a1a26; }
@@ -973,7 +973,8 @@ window.saveSteamGamePage = async function(e) {
   const link = document.getElementById("steamGameUrl").value.trim();
   const trailerLink = document.getElementById("steamGameTrailer").value.trim();
 
-  if (!editId && selectedScreenshotsStorageArray.length < 2) {
+  // FIX: Form validation bypass logic for dynamic screenshot array cache
+  if (selectedScreenshotsStorageArray.length < 2) {
     alert("Please select at least 2 screenshots minimum.");
     return;
   }
