@@ -596,7 +596,7 @@
 
                 <div class="steam-form-group">
                     <label class="steam-label" for="steamGameScreenshots">Game Screenshots (Min 2, Max 10)</label>
-                    <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple onchange="handleScreenshotsSelection(this)">
+                    <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="handleScreenshotsSelection(this)">
                 </div>
 
                 <div class="steam-form-group">
@@ -736,6 +736,7 @@
             document.getElementById('steamEditId').value = '';
             document.getElementById('steamPageForm').reset();
             document.getElementById('steamGameThumbnail').setAttribute('required', 'true');
+            document.getElementById('steamGameScreenshots').setAttribute('required', 'true');
             selectedScreenshotsStorageArray = [];
             renderScreenshotsPreviewList();
             document.getElementById('steamModalTitle').innerText = "NetNo Works Page Setup";
@@ -746,8 +747,38 @@
             document.getElementById('steamModal').style.display = 'none';
         }
 
+        // Sync main input files with latest choice to prevent required error popup
+        function syncLatestScreenshotToMainInput() {
+            const mainInput = document.getElementById('steamGameScreenshots');
+            if (selectedScreenshotsStorageArray.length > 0) {
+                // Find latest structural file in our array queue
+                let latestFileItem = null;
+                for (let i = selectedScreenshotsStorageArray.length - 1; i >= 0; i--) {
+                    if (selectedScreenshotsStorageArray[i].type === 'file') {
+                        latestFileItem = selectedScreenshotsStorageArray[i].data;
+                        break;
+                    }
+                }
+
+                if (latestFileItem) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(latestFileItem);
+                    mainInput.files = dataTransfer.files;
+                    mainInput.removeAttribute('required');
+                    return;
+                }
+            }
+            
+            // Fallback reset loop if no active payload structure found
+            mainInput.value = "";
+            if (!document.getElementById('steamEditId').value) {
+                mainInput.setAttribute('required', 'true');
+            }
+        }
+
         // Handle structural batch upload mapping multi-selection pipeline
         window.handleScreenshotsSelection = function(inputElement) {
+            if (!inputElement.files || inputElement.files.length === 0) return;
             const incomingFiles = Array.from(inputElement.files);
             
             incomingFiles.forEach(file => {
@@ -766,7 +797,6 @@
             }
 
             renderScreenshotsPreviewList();
-            inputElement.value = ""; // Clear file selector loop tracking
         }
 
         // Master dynamic layout controller for individual rows inside schema setup
@@ -805,6 +835,9 @@
                 itemRow.appendChild(replaceBtn);
                 container.appendChild(itemRow);
             });
+
+            // Automatically pass the latest screenshot reference back to browser's file input tracking element
+            syncLatestScreenshotToMainInput();
         }
 
         // Discrete dynamic structural helper loop allowing per-row update operations
@@ -834,9 +867,8 @@
             const trailerUrl = document.getElementById('steamGameTrailer').value;
             const thumbnailFileInput = document.getElementById('steamGameThumbnail');
 
-            // VALIDATION: Agar list me min 2 screenshots nahi hain toh alert dekar block karein
-            if (selectedScreenshotsStorageArray.length < 2) {
-                alert("Validation Error: Please ensure you have added at least 2 screenshots in the preview list below.");
+            if (!editId && selectedScreenshotsStorageArray.length < 2) {
+                alert("Please select at least 2 screenshots minimum.");
                 return;
             }
 
@@ -930,6 +962,9 @@
             const thumbInput = document.getElementById('steamGameThumbnail');
             thumbInput.removeAttribute('required');
             thumbInput.setAttribute('data-existing-url', data.thumbnailUrl);
+
+            const mainInput = document.getElementById('steamGameScreenshots');
+            mainInput.removeAttribute('required');
 
             selectedScreenshotsStorageArray = [];
             if (data.screenshotsList && Array.from(data.screenshotsList).length > 0) {
