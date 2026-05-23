@@ -23,13 +23,6 @@ let chosenUsername = "";
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
-    if (pendingCheck === "true") {
-      isRegistrationProcess = true;
-      document.getElementById("authGateways").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
     if(!isRegistrationProcess) {
       applyUserUIData(user);
     }
@@ -42,21 +35,13 @@ window.openLoginPanel = function() {
   const user = auth.currentUser;
   document.getElementById("loginOverlay").style.display = "flex";
   
-  // Force clean view layout directly upon opening to flush any old HTML buttons
-  restoreInitialAuthView();
-
   if (user) {
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
-    if(pendingCheck === "true") {
-      document.getElementById("authGateways").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
     if(user.displayName && !isRegistrationProcess) {
       executeLoginSuccess();
       return;
     }
   }
+  restoreInitialAuthView();
 };
 
 window.closeLoginPanel = function() {
@@ -70,36 +55,9 @@ function restoreInitialAuthView() {
   document.getElementById("avatarStep").style.display = "none";
   document.getElementById("orgAvatarStep").style.display = "none";
   document.getElementById("approvalPendingStep").style.display = "none";
-  
-  const loginErrorElement = document.getElementById("loginError");
-  if (loginErrorElement) loginErrorElement.innerText = "";
-  
-  const usernameInputEl = document.getElementById("usernameInput");
-  if (usernameInputEl) usernameInputEl.value = "";
-  
-  const setupPasswordInputEl = document.getElementById("setupPasswordInput");
-  if (setupPasswordInputEl) setupPasswordInputEl.value = "";
-  
-  // CRITICAL FIX: Overwriting the container HTML to completely destroy old Individual/Organization buttons instantly
-  const gatewayDiv = document.getElementById("authGateways");
-  if (gatewayDiv) {
-    gatewayDiv.innerHTML = `
-      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')" style="width:100%; padding:12px; background:#4285F4; color:white; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px; font-family:inherit;">Continue with Google</button>
-      <div class="divider" style="text-align:center; margin:15px 0; color:#666;"><span>OR DIRECT LOGIN</span></div>
-      <form id="authForm" onsubmit="event.preventDefault(); handleDirectLogin(event)">
-        <div class="terminal-input-row" style="margin-bottom:12px;">
-          <label style="display:block; margin-bottom:5px; color:#aaa;">Email Address</label>
-          <input type="email" id="authEmail" required style="width:100%; padding:8px; background:#111; border:1px solid #333; color:white; border-radius:4px;">
-        </div>
-        <div class="terminal-input-row" style="margin-bottom:15px;">
-          <label style="display:block; margin-bottom:5px; color:#aaa;">Password</label>
-          <input type="password" id="authPassword" required style="width:100%; padding:8px; background:#111; border:1px solid #333; color:white; border-radius:4px;">
-        </div>
-        <button type="submit" class="terminal-submit-btn" style="width:100%; padding:10px; background:#222; border:1px solid #444; color:white; cursor:pointer; border-radius:4px;">Login</button>
-      </form>
-    `;
-  }
-
+  document.getElementById("loginError").innerText = "";
+  document.getElementById("usernameInput").value = "";
+  document.getElementById("setupPasswordInput").value = "";
   isRegistrationProcess = false;
   activeWorkflowMode = "";
 }
@@ -109,27 +67,21 @@ window.handleDirectLogin = async function(e) {
   const email = document.getElementById("authEmail").value.trim();
   const password = document.getElementById("authPassword").value;
   const errorDiv = document.getElementById("loginError");
-  if (errorDiv) errorDiv.innerText = "";
+  errorDiv.innerText = "";
   try {
     isRegistrationProcess = false;
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    const pendingCheck = localStorage.getItem("netno_org_pending_" + result.user.email);
-    if(pendingCheck === "true") {
-      isRegistrationProcess = true;
-      document.getElementById("authGateways").style.display = "none";
-      document.getElementById("approvalPendingStep").style.display = "block";
-      return;
-    }
+    await signInWithEmailAndPassword(auth, email, password);
     executeLoginSuccess();
   } catch (err) {
-    if (errorDiv) errorDiv.innerText = "Incorrect account details or invalid password specified.";
+    errorDiv.innerText = "Incorrect account details or invalid password specified.";
   }
 };
 
+// MULTI-SSO INTERFACES ENFORCER (Ab yeh direct check karega)
 window.triggerRouteAuth = async function(selectedMode) {
   activeWorkflowMode = "individual"; 
   const errorDiv = document.getElementById("loginError");
-  if (errorDiv) errorDiv.innerText = "";
+  errorDiv.innerText = "";
   try {
     provider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, provider);
@@ -138,52 +90,55 @@ window.triggerRouteAuth = async function(selectedMode) {
     
     const accountFinishedBefore = localStorage.getItem("netno_setup_done_" + user.email);
     
+    // CHECK: Agar user ka profile complete hai ya local me record hai toh bina step dikhaye login karein
     if ((user.displayName && !user.displayName.includes("@") && user.displayName.trim() !== "") || accountFinishedBefore) {
       isRegistrationProcess = false;
       executeLoginSuccess();
     } else {
-      // Transitioning directly to Username/Password box setup view if it is a new email setup instance
+      // Naya user hai toh automatic username/password step par le jayein
       isRegistrationProcess = true;
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("credentialsStep").style.display = "block";
     }
   } catch (error) {
     isRegistrationProcess = false;
-    if (errorDiv) errorDiv.innerText = "Authentication Protocol Failure: " + error.message;
+    errorDiv.innerText = "Authentication Protocol Failure: " + error.message;
   }
 };
 
+// INDIVIDUAL PIPELINE DATA SUBMISSION
 window.submitCredentialsStep = function() {
   const username = document.getElementById("usernameInput").value.trim();
   const chosenPassword = document.getElementById("setupPasswordInput").value;
   const errorDiv = document.getElementById("loginError");
   if (!username) {
-    if (errorDiv) errorDiv.innerText = "Please specify a unique username.";
+    errorDiv.innerText = "Please specify a unique username.";
     return;
   }
   if (username.length > 15) {
-    if (errorDiv) errorDiv.innerText = "Username strictly limited to 15 characters.";
+    errorDiv.innerText = "Username strictly limited to 15 characters.";
     return;
   }
   if (!chosenPassword || chosenPassword.length < 6) {
-    if (errorDiv) errorDiv.innerText = "Password initialization requires at least 6 characters.";
+    errorDiv.innerText = "Password initialization requires at least 6 characters.";
     return;
   }
   chosenUsername = username;
   registrationPassword = chosenPassword;
-  if (errorDiv) errorDiv.innerText = "";
+  errorDiv.innerText = "";
   document.getElementById("credentialsStep").style.display = "none";
   document.getElementById("avatarStep").style.display = "block";
 };
 
-window.submitOrgCredentialsStep = function() {
-  // Structure pipeline safety retention
-};
+// Blank functions to prevent errors if elements call them
+window.submitOrgCredentialsStep = function() {};
+window.finalizeOrgAccountRegistration = function() {};
 
+// FINALIZE REGISTRATION MAP
 window.finalizeAccountRegistration = async function() {
   const fileInput = document.getElementById("avatarFileInput");
   const errorDiv = document.getElementById("loginError");
-  if (errorDiv) errorDiv.innerText = "";
+  errorDiv.innerText = "";
   try {
     let user = auth.currentUser;
     let finalBase64Url = "https://www.w3schools.com/howto/img_avatar.png";
@@ -203,18 +158,14 @@ window.finalizeAccountRegistration = async function() {
         const passwordCredential = EmailAuthProvider.credential(registrationEmail, registrationPassword);
         await linkWithCredential(user, passwordCredential);
       } catch (linkErr) {
-        console.warn("Link operation handling fallthrough.");
+        console.warn("Bypass link constraint safely.");
       }
       isRegistrationProcess = false;
       executeLoginSuccess();
     }
   } catch (err) {
-    if (errorDiv) errorDiv.innerText = "Registration Processing Error: " + err.message;
+    errorDiv.innerText = "Registration Processing Error: " + err.message;
   }
-};
-
-window.finalizeOrgAccountRegistration = async function() {
-  // Structure pipeline safety retention
 };
 
 function executeLoginSuccess() {
@@ -382,7 +333,6 @@ window.applySettingsAccountTermination = async function() {
       await deleteUser(user);
       localStorage.removeItem("netno_setup_done_" + user.email);
       localStorage.removeItem("netno_user_avatar_" + user.email);
-      localStorage.removeItem("netno_org_pending_" + user.email);
       alert("Node successfully terminated from NetNo Database Registry.");
       document.getElementById("deleteSubPanel").style.display = "none";
       window.location.reload();
@@ -493,10 +443,7 @@ window.addEventListener('keydown', function(e) {
   }
 });
 
-/* ==========================================================================
-   NETNO WORKS & LIBRARIES CORE INTEGRATION ENGINE (DATABASE SYNCHRONIZATION)
-   ========================================================================== */
-
+// STEAM DASHBOARD GAME CREATION LOGIC 
 function getCleanEmailKey(email) {
   return email.replace(/\./g, ',');
 }
@@ -550,7 +497,7 @@ window.validateScreenshots = function(input) {
   const count = input.files.length;
   label.innerText = `Selected: ${count}`;
   if(count > 0 && (count < 2 || count > 10)) {
-    alert("Network Protocol Rule: System demands a minimum of 2 and maximum of 10 screenshot files.");
+    alert("System demands a minimum of 2 and maximum of 10 screenshot files.");
     input.value = "";
     label.innerText = "Selected: 0";
   }
@@ -570,7 +517,7 @@ window.saveSteamGamePage = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
   if(!user) {
-    alert("Authorization Failure: Active developer terminal state missing.");
+    alert("Authorization Failure.");
     return;
   }
 
@@ -601,12 +548,8 @@ window.saveSteamGamePage = async function(e) {
     let trailerBase64 = null;
     let screenshotsArray = [];
 
-    if(thumbFile) {
-      thumbBase64 = await convertFileToBase64(thumbFile);
-    }
-    if(trailerFile) {
-      trailerBase64 = await convertFileToBase64(trailerFile);
-    }
+    if(thumbFile) thumbBase64 = await convertFileToBase64(thumbFile);
+    if(trailerFile) trailerBase64 = await convertFileToBase64(trailerFile);
     if(screenshotFiles.length > 0) {
       for(let i=0; i<screenshotFiles.length; i++) {
         const base64Str = await convertFileToBase64(screenshotFiles[i]);
@@ -650,16 +593,16 @@ window.saveSteamGamePage = async function(e) {
     });
 
     if(response.ok) {
-      alert(editId ? "Game ecosystem asset values updated." : "New data structure written inside NetNo Central Matrix.");
+      alert(editId ? "Game ecosystem asset values updated." : "New data structure written inside Matrix.");
       window.closeSteamCreationEngine();
       if(document.getElementById("steamLibraryPanel").style.display === "flex") {
         window.loadDeveloperLibrary();
       }
     } else {
-      alert("Transmission Failure: Realtime cloud server rejected payload.");
+      alert("Transmission Failure.");
     }
   } catch(err) {
-    alert("Exception standard error catch sequence: " + err.message);
+    alert("Error trace: " + err.message);
   }
 };
 
@@ -677,7 +620,7 @@ window.loadDeveloperLibrary = async function() {
   const user = auth.currentUser;
   const container = document.getElementById("steamGamesContainer");
   if(!user) {
-    container.innerHTML = "<p style='color:red;'>Access Denied: Terminal session isolated.</p>";
+    container.innerHTML = "<p style='color:red;'>Access Denied.</p>";
     return;
   }
   container.innerHTML = "<p style='color:#66c0f4;'>Syncing Ecosystem Matrix Stream...</p>";
@@ -688,7 +631,7 @@ window.loadDeveloperLibrary = async function() {
     container.innerHTML = "";
 
     if(!allGames) {
-      container.innerHTML = "<p style='color:#555;'>No pipeline nodes found in ecosystem mapping.</p>";
+      container.innerHTML = "<p style='color:#555;'>No pipelines found.</p>";
       return;
     }
 
@@ -718,10 +661,10 @@ window.loadDeveloperLibrary = async function() {
     }
 
     if(devCount === 0) {
-      container.innerHTML = "<p style='color:#71767b;'>You haven't initialized any workspace pages inside the pipeline yet.</p>";
+      container.innerHTML = "<p style='color:#71767b;'>You haven't initialized any workspace pages yet.</p>";
     }
   } catch(err) {
-    container.innerHTML = `<p style='color:red;'>Stream Connection Drop Trace: ${err.message}</p>`;
+    container.innerHTML = `<p style='color:red;'>Trace Error: ${err.message}</p>`;
   }
 };
 
@@ -761,24 +704,24 @@ window.editSteamGamePage = async function(gameId) {
       document.getElementById("screenshotCountAlert").innerText = `Saved in Matrix: ${g.screenshots.length} (Upload new files to overwrite)`;
     }
   } catch(err) {
-    alert("Modification setup failed: " + err.message);
+    alert("Modification failed: " + err.message);
   }
 };
 
 window.deleteSteamGamePage = async function(gameId) {
-  if(confirm("CRITICAL WARNING ARCHIVE: Are you absolutely sure you want to completely wipe this software asset entry out of existence?")) {
+  if(confirm("Are you absolutely sure you want to delete this game page?")) {
     try {
       const response = await fetch(`${DATABASE_URL}games/${gameId}.json`, {
         method: "DELETE"
       });
       if(response.ok) {
-        alert("Software payload entity safely discarded from the grid database.");
+        alert("Ecosystem data purged.");
         window.loadDeveloperLibrary();
       } else {
-        alert("Ecosystem deletion execution drop error.");
+        alert("Purge error.");
       }
     } catch(err) {
-      alert("Network transmission system block: " + err.message);
+      alert("Network block: " + err.message);
     }
   }
 };
