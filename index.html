@@ -528,6 +528,15 @@ let chosenUsername = "";
 let selectedScreenshotsStorageArray = []; 
 let targetScreenshotReplaceIndex = null;
 
+let sidebar = document.getElementById("sidebar");
+let userSidebar = document.getElementById("userSidebar");
+let panel = document.getElementById("panel");
+let panelImg = document.getElementById("panelImg");
+let downloadBtn = document.getElementById("downloadBtn");
+let portalBtn = document.getElementById("portalBtn");
+let communityLinks = document.getElementById("communityLinks");
+let userProfileHeader = document.getElementById("userProfileHeader");
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
@@ -545,16 +554,22 @@ onAuthStateChanged(auth, (user) => {
 
 window.openLoginPanel = function() {
   const user = auth.currentUser;
-  document.getElementById("loginOverlay").style.display = "flex";
   if (user) {
     const pendingCheck = localStorage.getItem("netno_org_pending_" + user.email);
     if(pendingCheck === "true") {
+      document.getElementById("loginOverlay").style.display = "flex";
       document.getElementById("authGateways").style.display = "none";
       document.getElementById("approvalPendingStep").style.display = "block";
       return;
     }
-    if(user.displayName && !isRegistrationProcess) { executeLoginSuccess(); return; }
+    if(user.displayName && !isRegistrationProcess) { 
+      // If user is already authenticated, close panel overlay and pop open profile menu
+      window.closePanelGrid();
+      window.toggleUserMenu();
+      return; 
+    }
   }
+  document.getElementById("loginOverlay").style.display = "flex";
   restoreInitialAuthView();
 };
 
@@ -702,7 +717,8 @@ function executeLoginSuccess() {
   const user = auth.currentUser;
   if (user) {
     applyUserUIData(user);
-    if (typeof window.openPanel === "function") { window.openPanel('developerportal.png', false); }
+    window.closePanelGrid();
+    window.toggleUserMenu();
   }
 }
 
@@ -1152,15 +1168,6 @@ window.editSteamGamePage = async function(gameId) {
     alert("Fetch error: " + e.message);
   }
 };
-
-let sidebar = document.getElementById("sidebar");
-let userSidebar = document.getElementById("userSidebar");
-let panel = document.getElementById("panel");
-let panelImg = document.getElementById("panelImg");
-let downloadBtn = document.getElementById("downloadBtn");
-let portalBtn = document.getElementById("portalBtn");
-let communityLinks = document.getElementById("communityLinks");
-let userProfileHeader = document.getElementById("userProfileHeader");
 
 window.toggleMenu = function() {
   userSidebar.style.left = "-260px";
