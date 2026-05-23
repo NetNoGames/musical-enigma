@@ -239,6 +239,7 @@ body {
 
 <div class="hero">
   <button class="btn download" id="downloadBtn" onclick="downloadLauncher()">Download Launcher</button>
+  <button class="btn portal" id="portalBtn" onclick="openLoginPanel()">Developer Portal</button>
 </div>
 
 <div class="panel" id="panel">
@@ -259,27 +260,27 @@ body {
     <h3>NETWORK GATEWAY</h3>
     
     <div id="authGateways">
-      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')" style="width:100%; padding:12px; background:#4285F4; color:white; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:10px; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px;">
+      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')">
         Individual Gateway
       </button>
-      <button class="individual-sso-btn" onclick="triggerRouteAuth('organization')" style="width:100%; padding:12px; background:#ffc82c; color:black; font-weight:bold; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px;">
+      <button class="individual-sso-btn" onclick="triggerRouteAuth('organization')" style="background:#ffc82c; color:black;">
         Organization Gateway
       </button>
       
-      <div class="divider" style="text-align:center; margin:15px 0; color:#666; font-size:12px;">
+      <div class="divider">
         <span>OR DIRECT LOGIN</span>
       </div>
       
       <form id="authForm" onsubmit="event.preventDefault(); handleDirectLogin(event)">
-        <div class="terminal-input-row" style="margin-bottom:12px;">
-          <label style="display:block; margin-bottom:5px; color:#aaa; font-size:13px;">Email Address</label>
-          <input type="email" id="authEmail" required style="width:100%; padding:8px; background:#111; border:1px solid #333; color:white; border-radius:4px; box-sizing:border-box;">
+        <div class="terminal-input-row">
+          <label>Email Address</label>
+          <input type="email" id="authEmail" required>
         </div>
-        <div class="terminal-input-row" style="margin-bottom:15px;">
-          <label style="display:block; margin-bottom:5px; color:#aaa; font-size:13px;">Password</label>
-          <input type="password" id="authPassword" required style="width:100%; padding:8px; background:#111; border:1px solid #333; color:white; border-radius:4px; box-sizing:border-box;">
+        <div class="terminal-input-row">
+          <label>Password</label>
+          <input type="password" id="authPassword" required>
         </div>
-        <button type="submit" class="terminal-submit-btn" style="width:100%; padding:10px; background:#222; border:1px solid #444; color:white; cursor:pointer; border-radius:4px; font-weight:bold;">
+        <button type="submit" class="terminal-submit-btn">
           Login
         </button>
       </form>
@@ -495,7 +496,7 @@ body {
           </div>
           <div class="steam-field-block">
             <label>Ecosystem Pricing Structure</label>
-            <select id="steamPriceType" id="steamPriceType" onchange="handlePriceTypeChange(this.value)" required>
+            <select id="steamPriceType" onchange="handlePriceTypeChange(this.value)" required>
               <option value="Free">Free Transmission Access</option>
               <option value="Paid">Commercial Transaction Protocol</option>
             </select>
@@ -550,7 +551,7 @@ body {
     </div>
     <div class="steam-panel-body">
       <div class="steam-library-container" id="steamGamesContainer">
-         </div>
+      </div>
     </div>
     <div class="steam-action-footer">
        <button class="steam-btn-blueprint discard" onclick="closeSteamLibraryEngine()">Close Matrix Window</button>
