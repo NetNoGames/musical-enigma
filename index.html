@@ -1,997 +1,715 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetNo Game & Developer Portals</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* ==========================================
-           RESET & BASE STYLES
-           ========================================== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0b0e14;
-            color: #c5cdd8;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetNo Games</title>
+<style>
+body {
+  margin: 0; background: black; font-family: Arial, sans-serif; overflow-x: hidden;
+}
+/* HERO */
+.hero {
+  width: 100%; height: 100vh; background: url('mainmenu.png') no-repeat center 10%; background-size: 135% 100%;
+}
+/* BUTTONS */
+.btn {
+  position: absolute; left: 8%; padding: 12px 25px; background: #00aaff; color: white; cursor: pointer;
+  border-radius: 5px; font-weight: bold; text-decoration: none; border: none; z-index: 10;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4); transition: 0.2s ease;
+}
+.btn:hover { background: #0088cc; transform: scale(1.05); }
+.download { top: 60%; }
+.portal { top: 70%; }
+/* MENU */
+#menuBtn {
+  position: fixed; top: 15px; right: 15px; font-size: 28px; color: white; cursor: pointer;
+  z-index: 1000; background: rgba(0, 0, 0, 0.5); padding: 5px 12px; border-radius: 5px;
+}
+/* SIDEBAR */
+#sidebar {
+  position: fixed; left: -220px; top: 0; width: 220px; height: 100%; background: #111; transition: 0.3s ease;
+  z-index: 999; box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+}
+#sidebar button {
+  width: 100%; padding: 18px 20px; background: none; border: none; color: #ccc; text-align: left;
+  font-size: 16px; cursor: pointer; border-bottom: 1px solid #222; transition: 0.2s;
+}
+#sidebar button:hover { background: #00aaff; color: white; }
 
-        /* ==========================================
-           PORTAL LAYOUT & NAVIGATION
-           ========================================== */
-        .portal-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        /* Sidebar Navigation */
-        .portal-sidebar {
-            width: 260px;
-            background: #111622;
-            border-right: 1px solid #1f293d;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
-        .portal-brand {
-            padding: 0 24px 20px 24px;
-            border-bottom: 1px solid #1f293d;
-            margin-bottom: 20px;
-        }
-        .portal-brand h2 {
-            color: #00bcd4;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 0 12px;
-        }
-        .nav-item a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: #8a99ad;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .nav-item a:hover {
-            background: rgba(0, 188, 212, 0.05);
-            color: #00bcd4;
-        }
-        .nav-item.active a {
-            background: #00bcd4;
-            color: #0b0e14;
-            font-weight: 600;
-        }
+/* TOP LEFT CIRCULAR IMAGE WINDOW HEADER */
+#userProfileHeader {
+  position: fixed; top: 15px; left: 15px; width: 46px; height: 46px; border-radius: 50%;
+  border: 2px solid #00aaff; cursor: pointer; z-index: 1000; overflow: hidden;
+  box-shadow: 0 0 12px rgba(0, 170, 255, 0.4); transition: 0.2s ease;
+}
+#userProfileHeader:hover { transform: scale(1.08); border-color: white; }
+#headerProfilePic { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Main Content Area */
-        .portal-main {
-            margin-left: 260px;
-            flex: 1;
-            padding: 40px;
-            background: #0b0e14;
-            min-height: 100vh;
-        }
-        .portal-section {
-            display: none;
-        }
-        .portal-section.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
+/* DEVELOPER SIDEBAR OVERLAY */
+#userSidebar {
+  position: fixed; left: -260px; top: 0; width: 260px; height: 100%; background: #060609;
+  border-right: 2px solid #00aaff; transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); z-index: 1002;
+  box-shadow: 8px 0 25px rgba(0,0,0,0.6); display: flex; flex-direction: column;
+}
+.user-sidebar-profile { padding: 25px 15px; text-align: center; background: #0d0d12; border-bottom: 1px solid #1a1a26; }
+#userSidebarPic { width: 75px; height: 75px; border-radius: 50%; border: 2px solid #00aaff; object-fit: cover; margin-bottom: 8px; }
+#userSidebarName { color: white; margin: 0; font-size: 16px; letter-spacing: 0.5px; }
+#userSidebar button {
+  width: 100%; padding: 15px 20px; background: none; border: none; color: #aaa; text-align: left;
+  font-size: 14px; cursor: pointer; border-bottom: 1px solid #14141f; transition: 0.2s ease;
+}
+#userSidebar button:hover { background: rgba(0, 170, 255, 0.1); color: #00aaff; padding-left: 25px; }
+#userSidebar .logout-btn { margin-top: auto; border-top: 1px solid #1a1a26; color: #ff4444; }
+#userSidebar .logout-btn:hover { background: rgba(255, 68, 68, 0.12); color: red; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+/* PANEL & LOGIN SYSTEM STYLES */
+#panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 998; overflow-y: auto; }
+.panel-content-wrapper { position: relative; width: 100%; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; }
+#panel img { width: 100%; max-width: 100%; height: auto; display: block; }
+.community-overlay { display: none; position: absolute; top: 65%; left: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 20px; width: 90%; max-width: 280px; text-align: center; z-index: 1001; }
+.action-btn { display: block; padding: 14px 25px; background: #00aaff; color: white; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4); transition: 0.2s ease; }
+.action-btn:hover { background: #0088cc; transform: scale(1.05); }
 
-        /* ==========================================
-           TYPOGRAPHY & UTILITIES
-           ========================================== */
-        h1 {
-            font-size: 28px;
-            color: #ffffff;
-            margin-bottom: 8px;
-        }
-        .section-desc {
-            color: #8a99ad;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
-        .btn-primary {
-            background: #00bcd4;
-            color: #0b0e14;
-            border: none;
-            padding: 12px 24px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover {
-            background: #0097a7;
-        }
+.login-frame-mask, .settings-overlay, .sub-panel-overlay, .steam-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+  background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 3000;
+}
+.login-terminal-box, .sub-panel-box {
+  width: 90%; max-width: 360px; background: #08080c; border: 2px solid #00aaff; border-radius: 10px; padding: 30px 25px; box-sizing: border-box; position: relative; box-shadow: 0 0 35px rgba(0, 170, 255, 0.3); color: white;
+}
+.settings-box {
+  width: 90%; max-width: 450px; background: #000000; border: 1px solid #2f3336; border-radius: 16px; display: flex; flex-direction: column; height: 75vh; overflow: hidden;
+}
+.settings-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #2f3336; color: #fff; font-weight: bold; font-size: 18px; }
+.settings-body-vertical { display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 10px 0; }
+.x-menu-btn { background: none; border: none; color: #e7e9ea; padding: 16px 20px; text-align: left; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; border-bottom: 1px solid #16181c; }
+.x-menu-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.x-menu-btn-danger { color: #f4212e; }
+.x-menu-btn-danger:hover { background: rgba(244, 33, 46, 0.1); }
+.char-counter { font-size: 12px; color: #71767b; text-align: right; margin-top: 4px; display: block; }
 
-        /* ==========================================
-           DASHBOARD CARDS & TABLES
-           ========================================== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        .stat-card {
-            background: #111622;
-            border: 1px solid #1f293d;
-            border-radius: 8px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            background: rgba(0, 188, 212, 0.1);
-            color: #00bcd4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        .stat-info h3 {
-            font-size: 13px;
-            color: #8a99ad;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-        .stat-info .value {
-            font-size: 24px;
-            color: #ffffff;
-            font-weight: 700;
-        }
+.individual-sso-btn { width: 100%; padding: 12px; background: #00aaff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; margin-bottom: 12px; transition: 0.2s ease; text-align: center; }
+.individual-sso-btn:hover { background: #0088cc; transform: scale(1.02); }
+.organization-sso-btn { width: 100%; padding: 12px; background: #191923; color: #00aaff; border: 1px solid #00aaff; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; margin-bottom: 20px; transition: 0.2s ease; text-align: center; }
+.organization-sso-btn:hover { background: rgba(0, 170, 255, 0.1); transform: scale(1.02); }
+.approval-status-box { text-align: center; padding: 20px; color: white; }
+.approval-status-box h3 { color: #ffcc00; font-size: 22px; margin-bottom: 15px; }
+.approval-status-box p { color: #888; font-size: 14px; line-height: 1.6; }
 
-        /* Table Design */
-        .data-table-container {
-            background: #111622;
-            border: 1px solid #1f293d;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .table-header-actions {
-            padding: 20px 24px;
-            border-bottom: 1px solid #1f293d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .table-header-actions h3 {
-            color: #ffffff;
-            font-size: 18px;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        .data-table th, .data-table td {
-            padding: 16px 24px;
-        }
-        .data-table th {
-            background: #161d2f;
-            color: #8a99ad;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .data-table td {
-            border-bottom: 1px solid #1f293d;
-            color: #c5cdd8;
-            font-size: 15px;
-        }
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-        .game-th-cell {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .game-th-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
-            object-fit: cover;
-            background: #1f293d;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .status-badge.approved { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
-        .status-badge.pending { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
-        .status-badge.rejected { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+.close-terminal-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; color: #666; cursor: pointer; }
+.close-terminal-btn:hover { color: red; }
+.login-title { color: #00aaff; text-align: center; margin-bottom: 25px; }
+.divider { text-align: center; color: #666; margin-bottom: 20px; }
+.terminal-input-row { margin-bottom: 15px; }
+.terminal-input-row label { display: block; color: #888; margin-bottom: 6px; font-size: 13px; }
+.terminal-input-row input { width: 100%; padding: 12px; box-sizing: border-box; background: #111; border: 1px solid #333; border-radius: 5px; color: white; font-size: 14px; }
+.terminal-input-row input:focus { outline: none; border-color: #00aaff; box-shadow: 0 0 10px rgba(0, 170, 255, 0.3); }
+.terminal-submit-btn { width: 100%; padding: 12px; border: none; border-radius: 5px; background: #00aaff; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s ease; }
+.terminal-submit-btn:hover { background: #0088cc; transform: scale(1.02); }
+.terminal-alert-msg { color: red; margin-top: 15px; text-align: center; font-size: 13px; }
 
-        /* Actions Column */
-        .actions-cell {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-icon {
-            background: none;
-            border: 1px solid #1f293d;
-            color: #8a99ad;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .btn-icon:hover {
-            border-color: #00bcd4;
-            color: #00bcd4;
-        }
-        .btn-icon.delete:hover {
-            border-color: #f44336;
-            color: #f44336;
-        }
+/* NETNOWORK CONSOLE LAYOUT DESIGN ENGINE */
+.steam-box {
+  width: 95%; max-width: 650px; height: 85vh; background: #1b2838; border: 1px solid #417a9b;
+  border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+.steam-header {
+  background: #171a21; padding: 15px 20px; display: flex; justify-content: space-between;
+  align-items: center; color: #dcdedf; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2a475e;
+}
+.steam-body { flex: 1; overflow-y: auto; padding: 25px; color: #c6d4df; font-size: 14px; }
+.steam-input-group { margin-bottom: 18px; }
+.steam-input-group label { display: block; color: #66c0f4; margin-bottom: 6px; font-weight: bold; }
+.steam-input { width: 100%; padding: 10px; background: #101822; border: 1px solid #2a475e; color: #fff; border-radius: 3px; box-sizing: border-box; }
+.steam-input:focus { outline: none; border-color: #66c0f4; }
 
-        /* ==========================================
-           STEAM-STYLE MODAL FORM
-           ========================================== */
-        .steam-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .steam-modal-content {
-            background: #171a21;
-            border: 1px solid #323e4c;
-            border-radius: 4px;
-            width: 100%;
-            max-width: 650px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-        }
-        .steam-modal-header {
-            background: #1b2838;
-            padding: 20px 24px;
-            border-bottom: 1px solid #2a3f5a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .steam-modal-header h2 {
-            color: #dcdedf;
-            font-size: 18px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .steam-close {
-            color: #66c0f4;
-            font-size: 24px;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-        .steam-close:hover { color: #ffffff; }
+/* BLUE BUTTON BLUEPRINT IMPLEMENTATION */
+.steam-btn-blueprint {
+  background: linear-gradient(to right, #00aaff 0%, #0077cc 100%); padding: 12px 30px;
+  color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 2px; display: inline-block;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.3); transition: 0.2s ease;
+}
+.steam-btn-blueprint:hover { background: linear-gradient(to right, #33bbff 0%, #0088cc 100%); transform: scale(1.02); }
 
-        .steam-form {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .steam-form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .steam-label {
-            color: #66c0f4;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .steam-input {
-            background: #2a3f5a;
-            border: 1px solid #1b2838;
-            color: #dcdedf;
-            padding: 10px 12px;
-            border-radius: 3px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .steam-input:focus {
-            border-color: #66c0f4;
-        }
-        textarea.steam-input {
-            resize: vertical;
-            min-height: 100px;
-        }
+.steam-game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
+.steam-game-card { background: #171a21; border: 1px solid #2a475e; border-radius: 4px; overflow: hidden; transition: transform 0.2s; position: relative; }
+.steam-game-card:hover { transform: translateY(-4px); border-color: #66c0f4; }
+.steam-game-thumb { width: 100%; height: 110px; object-fit: cover; background: #000; }
+.steam-game-details { padding: 10px; }
+.steam-game-title { font-weight: bold; color: #fff; font-size: 14px; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.steam-game-meta { font-size: 11px; color: #66c0f4; background: rgba(102,192,244,0.1); padding: 2px 6px; border-radius: 3px; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
+.steam-game-price { font-size: 13px; color: #b8b6b4; font-weight: bold; margin-top: 8px; }
 
-        /* File inputs customization */
-        input[type="file"].steam-input {
-            padding: 6px;
-            background: #1b2838;
-            border: 1px dashed #2a3f5a;
-            cursor: pointer;
-        }
+/* NEW STYLES FOR EDIT & REMOVE BUTTONS IN CARD */
+.card-action-bar {
+  display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #2a475e;
+}
+.card-btn {
+  flex: 1; padding: 6px 10px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; border-radius: 3px; transition: 0.2s;
+}
+.card-edit-btn { background: #00aaff; color: white; }
+.card-edit-btn:hover { background: #0088cc; }
+.card-remove-btn { background: #2a1418; color: #ff4444; border: 1px solid #541d24; }
+.card-remove-btn:hover { background: #ff4444; color: white; }
 
-        /* Form Footer Actions */
-        .steam-form-actions {
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-        .btn-steam-primary {
-            background: linear-gradient( to right, #47b28f 0%, #277e5d 100%);
-            color: #ffffff;
-            border: none;
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 2px;
-            cursor: pointer;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        }
-        .btn-steam-primary:hover {
-            background: linear-gradient( to right, #4fd3a8 0%, #2d946e 100%);
-        }
-        .btn-steam-secondary {
-            background: #232d3b;
-            color: #a3a8ae;
-            border: 1px solid #323e4c;
-            padding: 10px 24px;
-            font-size: 14px;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-        .btn-steam-secondary:hover {
-            color: #ffffff;
-            background: #2d3b4f;
-        }
+/* SCREENSHOT PREVIEW DYNAMIC STYLING (ONE BELOW ANOTHER) */
+.screenshot-preview-list-wrapper {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
+}
+.screenshot-preview-item {
+  display: flex; align-items: center; gap: 15px; background: #101822; border: 1px solid #2a475e; padding: 8px; border-radius: 3px;
+}
+.screenshot-preview-item img {
+  width: 100px; height: 60px; object-fit: cover; border-radius: 2px; border: 1px solid #417a9b;
+}
+.screenshot-preview-item button {
+  background: #2a475e; color: #66c0f4; border: 1px solid #417a9b; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px;
+}
+.screenshot-preview-item button:hover { background: #417a9b; color: white; }
 
-        /* Custom Dynamic Preview Design for Screenshots List */
-        .steam-screenshot-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 12px;
-            border-radius: 4px;
-            border: 1px solid #2a3f5a;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .steam-screenshot-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            background: #1b2838;
-            border: 1px solid #2a3f5a;
-            padding: 8px 12px;
-            border-radius: 3px;
-        }
-        .steam-screenshot-preview {
-            width: 100px;
-            height: 56px;
-            object-fit: cover;
-            border-radius: 2px;
-            background: #0b0e14;
-            border: 1px solid #323e4c;
-        }
-        .steam-screenshot-info {
-            flex: 1;
-            font-size: 13px;
-            color: #a3a8ae;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .btn-steam-action {
-            background: #2a3f5a;
-            color: #66c0f4;
-            border: 1px solid #323e4c;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            border-radius: 2px;
-        }
-        .btn-steam-action:hover {
-            background: #3d5a80;
-            color: #ffffff;
-        }
-
-        /* Counter indicator styling */
-        .steam-counter-indicator {
-            font-size: 13px;
-            font-weight: bold;
-            color: #66c0f4;
-            margin-bottom: 4px;
-        }
-    </style>
+@media (max-width: 768px) {
+  .hero { background-position: center center; background-size: cover; }
+  .btn { left: 5%; font-size: 14px; }
+  .download { top: 60%; }
+  .portal { top: 72%; }
+  #panel img { width: 100%; height: 100vh; object-fit: cover; }
+  .login-terminal-box { width: 92%; padding: 25px 20px; }
+}
+</style>
 </head>
 <body>
 
-    <div class="portal-container">
-        <aside class="portal-sidebar">
-            <div class="portal-brand">
-                <h2>NetNo Panel</h2>
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item active" data-target="developer-portal">
-                    <a href="#"><i class="fa-solid fa-code"></i> Developer Portal</a>
-                </li>
-                <li class="nav-item" data-target="works-page-portal">
-                    <a href="#"><i class="fa-solid fa-layer-group"></i> NetNo Works Page</a>
-                </li>
-            </ul>
-        </aside>
+<div id="userProfileHeader" onclick="toggleUserMenu()" style="display: none;">
+  <img id="headerProfilePic" src="" alt="Profile">
+</div>
 
-        <main class="portal-main">
-            
-            <section id="developer-portal" class="portal-section active">
-                <h1>Developer Portal</h1>
-                <p class="section-desc">Manage submitted developer configurations, verify status logs, and configure active titles.</p>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fa-solid fa-gamepad"></i></div>
-                        <div class="stat-info">
-                            <h3>Total submissions</h3>
-                            <div class="value" id="dev-total-count">0</div>
-                        </div>
-                    </div>
-                </div>
+<div id="menuBtn" onclick="toggleMenu()">☰</div>
 
-                <div class="data-table-container">
-                    <div class="table-header-actions">
-                        <h3>Registered Developer Configs</h3>
-                        <button class="btn-primary" onclick="openDevModal()"><i class="fa-solid fa-plus"></i> Add New Config</button>
-                    </div>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Game / Title</th>
-                                <th>Developer Identifier</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="developer-configs-table-body">
-                            </tbody>
-                    </table>
-                </div>
-            </section>
+<div id="sidebar">
+  <button onclick="openPanel('overviewinfo.png', false)">Overview</button>
+  <button onclick="openLoginPanel()">Portal</button>
+  <button onclick="openPanel('supportpanel.png', false)">Support</button>
+  <button onclick="openPanel('communitypanels.png', true)">Community</button> <button onclick="openPanel('games.png', false)">Games</button>
+</div>
 
-            <section id="works-page-portal" class="portal-section">
-                <h1>NetNo Works Page Setup</h1>
-                <p class="section-desc">Configure customer-facing storefront listings, upload media assets, hero banners, and setup game trailers.</p>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
-                        <div class="stat-info">
-                            <h3>Live Showcase Listings</h3>
-                            <div class="value" id="steam-total-count">0</div>
-                        </div>
-                    </div>
-                </div>
+<div id="userSidebar">
+  <div class="user-sidebar-profile">
+    <img id="userSidebarPic" src="" alt="Profile">
+    <h3 id="userSidebarName">Developer</h3>
+  </div>
+  <button onclick="openSteamCreationEngine()">Create Game ID</button>
+  <button onclick="openSteamLibraryEngine()">Your Games</button>
+  <button onclick="openSettingsModal()">Settings</button>
+  <button onclick="handleLogout()" class="logout-btn">Logout</button>
+</div>
 
-                <div class="data-table-container">
-                    <div class="table-header-actions">
-                        <h3>Active Storefront Pages</h3>
-                        <button class="btn-primary" onclick="openSteamModal()"><i class="fa-solid fa-plus"></i> Create Works Page</button>
-                    </div>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Showcase Thumbnail & Title</th>
-                                <th>Trailer URL Mapping</th>
-                                <th>Screenshots Count</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="steam-pages-table-body">
-                            </tbody>
-                    </table>
-                </div>
-            </section>
+<div class="hero"></div>
 
-        </main>
+<div class="btn download" id="downloadBtn" onclick="downloadLauncher()">Download Game</div>
+<div class="btn portal" id="portalBtn" onclick="openLoginPanel()">Developer Portal</div>
+
+<div id="panel" onclick="closePanelOnOverlay(event)">
+  <div class="panel-content-wrapper">
+    <img id="panelImg" alt="Panel Content">
+    <div id="communityLinks" class="community-overlay">
+      <a href="https://discord.gg/PTbxu9nPZq" target="_blank" class="action-btn">Discord Server</a>
+      <a href="https://www.reddit.com/r/NetNoGamesCommunity/s/VMGdDDwaQU" target="_blank" class="action-btn">Subreddit</a>
     </div>
+  </div>
+</div>
 
-    <div id="devModal" class="steam-modal">
-        <div class="steam-modal-content">
-            <div class="steam-modal-header">
-                <h2 id="devModalTitle">Add Developer Configuration</h2>
-                <button class="steam-close" onclick="closeDevModal()">&times;</button>
-            </div>
-            <form id="devPortalForm" class="steam-form" onsubmit="saveDeveloperConfig(event)">
-                <input type="hidden" id="devEditId">
-                <div class="steam-form-group">
-                    <label class="steam-label" for="devGameTitle">Game Application Title</label>
-                    <input type="text" id="devGameTitle" class="steam-input" placeholder="e.g., Cyberpunk Odyssey" required>
-                </div>
-                <div class="steam-form-group">
-                    <label class="steam-label" for="devUID">Developer UID / Identifier Key</label>
-                    <input type="text" id="devUID" class="steam-input" placeholder="Paste Developer Firebase/System UID" required>
-                </div>
-                <div class="steam-form-actions">
-                    <button type="button" class="btn-steam-secondary" onclick="closeDevModal()">Cancel</button>
-                    <button type="submit" class="btn-steam-primary">Save Configuration</button>
-                </div>
-            </form>
+<div id="loginOverlay" class="login-frame-mask">
+  <div class="login-terminal-box" style="max-height: 90vh; overflow-y: auto;">
+    <div class="close-terminal-btn" onclick="closeLoginPanel()">×</div>
+    <h2 class="login-title">Developer Portal</h2>
+    
+    <div id="authGateways">
+      <button class="individual-sso-btn" onclick="triggerRouteAuth('individual')">Individual</button>
+      <button class="organization-sso-btn" onclick="triggerRouteAuth('organization')">Organization</button>
+      <div class="divider"><span>OR DIRECT LOGIN</span></div>
+      <form id="authForm" onsubmit="handleDirectLogin(event)">
+        <div class="terminal-input-row">
+          <label>Email Address</label>
+          <input type="email" id="authEmail" required>
         </div>
-    </div>
-
-    <div id="steamModal" class="steam-modal">
-        <div class="steam-modal-content">
-            <div class="steam-modal-header">
-                <h2 id="steamModalTitle">NetNo Works Page</h2>
-                <button class="steam-close" onclick="closeSteamModal()">&times;</button>
-            </div>
-            <form id="steamPageForm" class="steam-form" onsubmit="saveSteamGamePage(event)">
-                <input type="hidden" id="steamEditId">
-                
-                <div class="steam-form-group">
-                    <label class="steam-label" for="steamGameTitle">Game Application Title</label>
-                    <input type="text" id="steamGameTitle" class="steam-input" placeholder="e.g., Haveli" required>
-                </div>
-
-                <div class="steam-form-group">
-                    <label class="steam-label" for="steamGameThumbnail">Game Thumbnail (Image Asset File)</label>
-                    <input type="file" id="steamGameThumbnail" class="steam-input" accept="image/*">
-                </div>
-
-                <div class="steam-form-group">
-                    <label class="steam-label" for="steamGameTrailer">Game Trailer (Video Link Url)</label>
-                    <input type="url" id="steamGameTrailer" class="steam-input" placeholder="e.g., https://www.youtube.com/watch?v=..." required>
-                </div>
-
-                <div class="steam-form-group">
-                    <label class="steam-label" for="steamGameScreenshots">Game Screenshots (Min 2, Max 10)</label>
-                    <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="handleScreenshotsSelection(this)">
-                </div>
-
-                <div class="steam-form-group">
-                    <div id="screenshotsCounter" class="steam-counter-indicator">Selected: 0 / 10</div>
-                    <div id="screenshotsPreviewContainer" class="steam-screenshot-list">
-                        </div>
-                </div>
-
-                <div class="steam-form-actions">
-                    <button type="button" class="btn-steam-secondary" onclick="closeSteamModal()">Cancel</button>
-                    <button type="submit" class="btn-steam-primary">Enter</button>
-                </div>
-            </form>
+        <div class="terminal-input-row">
+          <label>Password</label>
+          <input type="password" id="authPassword" required>
         </div>
+        <button type="submit" class="terminal-submit-btn">Login</button>
+      </form>
     </div>
 
+    <div id="credentialsStep" style="display: none;">
+      <h4>Individual Profile Configuration</h4>
+      <div class="terminal-input-row">
+        <label>Choose Username (Max 15 Characters)</label>
+        <input type="text" id="usernameInput" maxlength="15">
+      </div>
+      <div class="terminal-input-row">
+        <label>Set Account Password</label>
+        <input type="password" id="setupPasswordInput">
+      </div>
+      <button type="button" class="terminal-submit-btn" onclick="submitCredentialsStep()">Continue</button>
+    </div>
 
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-storage.js";
+    <div id="orgCredentialsStep" style="display: none;">
+      <h4>Organization Cluster Configuration</h4>
+      <div class="terminal-input-row"><label>Company Name</label><input type="text" id="orgCompanyName"></div>
+      <div class="terminal-input-row"><label>Owner Name</label><input type="text" id="orgOwnerName"></div>
+      <div class="terminal-input-row"><label>Tax ID</label><input type="text" id="orgTaxId"></div>
+      <div class="terminal-input-row"><label>Phone Number</label><input type="text" id="orgPhone"></div>
+      <div class="terminal-input-row"><label>Email Address</label><input type="email" id="orgEmail"></div>
+      <button type="button" class="terminal-submit-btn" onclick="submitOrgCredentialsStep()">Continue</button>
+    </div>
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAs8_MvL_Z3yXJ2BvA4h9N9pC5K6m9E8rI",
-            authDomain: "netno-b12a5.firebaseapp.com",
-            databaseURL: "https://netno-b12a5-default-rtdb.firebaseio.com",
-            projectId: "netno-b12a5",
-            storageBucket: "netno-b12a5.firebasestorage.app",
-            messagingSenderId: "599522197669",
-            appId: "1:599522197669:web:9c10c14c5b3648467ff354",
-            measurementId: "G-K5K5YRF6QL"
-        };
+    <div id="avatarStep" style="display: none;">
+      <h4>Asset Profile Mapping</h4>
+      <div class="terminal-input-row">
+        <input type="file" id="avatarFileInput" accept="image/*" class="file-input">
+      </div>
+      <button type="button" class="terminal-submit-btn" onclick="finalizeAccountRegistration()">Complete Registration</button>
+    </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+    <div id="orgAvatarStep" style="display: none;">
+      <h4>Corporate Customization</h4>
+      <div class="terminal-input-row">
+        <input type="file" id="orgAvatarFileInput" accept="image/*" class="file-input">
+      </div>
+      <div class="terminal-input-row">
+        <label>Set Account Password</label>
+        <input type="password" id="orgPasswordInput">
+      </div>
+      <button type="button" class="terminal-submit-btn" onclick="finalizeOrgAccountRegistration()">Submit for Approval</button>
+    </div>
 
-        // Track local operational structural arrays
-        let selectedScreenshotsStorageArray = []; 
+    <div id="approvalPendingStep" style="display: none;">
+      <div class="approval-status-box">
+        <h3>⚠️ Pending for Approval</h3>
+        <p>Aapka registration logs transmit ho gaya hai. System Admin checks ke baad profile status update ho jayega.</p>
+        <button type="button" class="terminal-submit-btn" style="background:#222;" onclick="closeLoginPanel()">Close</button>
+      </div>
+    </div>
+    <div id="loginError" class="terminal-alert-msg"></div>
+  </div>
+</div>
 
-        // ==========================================
-        // SIDEBAR TAB SWITCHING NAVIGATION ARCHITECTURE
-        // ==========================================
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                document.querySelectorAll('.portal-section').forEach(s => s.classList.remove('active'));
-                
-                this.classList.add('active');
-                const targetSection = this.getAttribute('data-target');
-                document.getElementById(targetSection).classList.add('active');
-            });
-        });
+<div id="settingsOverlay" class="settings-overlay" onclick="if(event.target.id==='settingsOverlay')closeSettingsModal();">
+  <div class="settings-box">
+    <div class="settings-header">
+      <span>Settings</span>
+      <span style="cursor:pointer; font-size:22px; color:#71767b;" onclick="closeSettingsModal()">×</span>
+    </div>
+    <div class="settings-body-vertical">
+      <button class="x-menu-btn" onclick="openSubPanel('username')">Account Username</button>
+      <button class="x-menu-btn" onclick="openSubPanel('avatar')">Profile Picture</button>
+      <button class="x-menu-btn" onclick="openSubPanel('bio')">Bio</button>
+      <button class="x-menu-btn" onclick="openSubPanel('socials')">Your Socials</button>
+      <button class="x-menu-btn x-menu-btn-danger" onclick="openSubPanel('delete')">Delete Account</button>
+    </div>
+  </div>
+</div>
 
-        // ==========================================
-        // MAIN DATABASE ROUTINES: DEVELOPER CONFIGS
-        // ==========================================
-        window.openDevModal = function() {
-            document.getElementById('devEditId').value = '';
-            document.getElementById('devPortalForm').reset();
-            document.getElementById('devModalTitle').innerText = "Add Developer Configuration";
-            document.getElementById('devModal').style.display = 'flex';
-        }
+<div id="steamCreationPanel" class="steam-overlay" onclick="if(event.target.id==='steamCreationPanel') closeSteamCreationEngine();">
+  <div class="steam-box">
+    <div class="steam-header">
+      <span id="creationFormTitle">NetNo works page</span>
+      <span style="cursor:pointer; font-size:24px; color:#66c0f4;" onclick="closeSteamCreationEngine()">×</span>
+    </div>
+    <div class="steam-body">
+      <form id="steamGameForm" onsubmit="saveSteamGamePage(event)">
+        <input type="hidden" id="editGameId" value="">
 
-        window.closeDevModal = function() {
-            document.getElementById('devModal').style.display = 'none';
-        }
+        <div class="steam-input-group">
+          <label>Game Application Title</label>
+          <input type="text" id="steamGameTitle" class="steam-input" required>
+        </div>
+        <div class="steam-input-group">
+          <label id="thumbInputLabel">Game Thumbnail (Image Asset File)</label>
+          <input type="file" id="steamGameThumb" class="steam-input" accept="image/*" required>
+        </div>
 
-        window.saveDeveloperConfig = async function(e) {
-            e.preventDefault();
-            const editId = document.getElementById('devEditId').value;
-            const gameTitle = document.getElementById('devGameTitle').value;
-            const developerUID = document.getElementById('devUID').value;
+        <div class="steam-input-group">
+          <label id="trailerInputLabel">Game Trailer (Video Link Url)</label>
+          <input type="url" id="steamGameTrailer" class="steam-input" placeholder="e.g., https://www.youtube.com/watch?v=...">
+        </div>
 
-            try {
-                if(editId) {
-                    await updateDoc(doc(db, "developerConfigs", editId), { gameTitle, developerUID });
-                } else {
-                    await addDoc(collection(db, "developerConfigs"), { gameTitle, developerUID });
-                }
-                closeDevModal();
-                loadDeveloperConfigs();
-            } catch (error) {
-                console.error("Error writing configuration standard schema: ", error);
-            }
-        }
+        <div class="steam-input-group">
+          <label id="screenshotsInputLabel">Game Screenshots (Min 2, Max 10)</label>
+          <input type="file" id="steamGameScreenshots" class="steam-input" accept="image/*" multiple required onchange="handleScreenshotsSelection(this)">
+          <span id="screenshotCountAlert" style="font-size: 12px; color: #66c0f4; display: block; margin-top: 5px;">Selected: 0</span>
+          
+          <div id="screenshotPreviewListContainer" class="screenshot-preview-list-wrapper"></div>
+        </div>
+        
+        <div class="steam-input-group">
+          <label>Game Genre</label>
+          <select id="steamGameGenre" class="steam-input" style="background:#101822;">
+            <option value="Action">Action</option>
+            <option value="Action-Adventure">Action-Adventure</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Arcade">Arcade</option>
+            <option value="Battle Royale">Battle Royale</option>
+            <option value="Card & Board">Card & Board Games</option>
+            <option value="Casual">Casual</option>
+            <option value="Educational">Educational</option>
+            <option value="Fighting">Fighting</option>
+            <option value="FPS / Shooter">FPS / TPS Shooter</option>
+            <option value="Horror">Horror / Dark Thriller</option>
+            <option value="MMORPG">MMORPG</option>
+            <option value="Multiplayer / Co-op">Multiplayer / Co-op</option>
+            <option value="Open World">Open World</option>
+            <option value="Platformer">Platformer</option>
+            <option value="Puzzle">Puzzle</option>
+            <option value="Racing">Racing</option>
+            <option value="RPG">RPG (Role-Playing Game)</option>
+            <option value="RTS">RTS (Real-Time Strategy)</option>
+            <option value="Sandbox">Sandbox</option>
+            <option value="Simulation">Simulation (Life/Flight/Driving)</option>
+            <option value="Sports">Sports</option>
+            <option value="Strategy">Strategy (Turn-Based)</option>
+            <option value="Survival">Survival</option>
+            <option value="Survival Horror">Survival Horror</option>
+            <option value="Tactical">Tactical</option>
+          </select>
+        </div>
 
-        async function loadDeveloperConfigs() {
-            const querySnapshot = await getDocs(collection(db, "developerConfigs"));
-            const tbody = document.getElementById('developer-configs-table-body');
-            tbody.innerHTML = '';
-            let counter = 0;
-            querySnapshot.forEach((docSnap) => {
-                counter++;
-                const data = docSnap.data();
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${data.gameTitle}</strong></td>
-                        <td><code style="background:#161d2f; padding:4px 8px; border-radius:4px; font-size:13px; color:#00bcd4;">${data.developerUID}</code></td>
-                        <td>
-                            <div class="actions-cell">
-                                <button class="btn-icon" onclick="editDevConfig('${docSnap.id}', '${data.gameTitle}', '${data.developerUID}')"><i class="fa-solid fa-pen"></i></button>
-                                <button class="btn-icon delete" onclick="deleteDevConfig('${docSnap.id}')"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('dev-total-count').innerText = counter;
-        }
+        <div class="steam-input-group">
+          <label>Page Visibility / Distribution Status</label>
+          <select id="steamGameVisibility" class="steam-input" style="background:#101822;">
+            <option value="Public">Public (Everyone can see)</option>
+            <option value="Private">Private (Only you can see)</option>
+            <option value="Restricted">Restricted (Link sharing only)</option>
+          </select>
+        </div>
 
-        window.editDevConfig = function(id, title, uid) {
-            document.getElementById('devEditId').value = id;
-            document.getElementById('devGameTitle').value = title;
-            document.getElementById('devUID').value = uid;
-            document.getElementById('devModalTitle').innerText = "Edit Developer Configuration";
-            document.getElementById('devModal').style.display = 'flex';
-        }
+        <div class="steam-input-group">
+          <label>Game Theme</label>
+          <select id="steamGameTheme" class="steam-input" style="background:#101822;">
+            <option value="Abstract">Abstract / Minimalist</option>
+            <option value="Anime">Anime / Cartoon Style</option>
+            <option value="Cyberpunk">Cyberpunk</option>
+            <option value="Fantasy">Fantasy / Magical</option>
+            <option value="Horror">Horror / Psychological Dark</option>
+            <option value="Medieval">Medieval / Historical</option>
+            <option value="Military">Military / Realistic Warfare</option>
+            <option value="Modern">Modern / Urban</option>
+            <option value="Post-Apocalyptic">Post-Apocalyptic / Wasteland</option>
+            <option value="Retro">Retro / 8-Bit / Pixel Art</option>
+            <option value="Sci-Fi">Sci-Fi / Futuristic / Space</option>
+            <option value="Steampunk">Steampunk</option>
+            <option value="Supernatural">Supernatural / Mythological</option>
+          </select>
+        </div>
 
-        window.deleteDevConfig = async function(id) {
-            if(confirm("Confirm deletion process configuration record?")) {
-                await deleteDoc(doc(db, "developerConfigs", id));
-                loadDeveloperConfigs();
-            }
-        }
+        <div class="steam-input-group">
+          <label>Game Price</label>
+          <select id="steamPriceType" class="steam-input" style="background:#101822;" onchange="handlePriceTypeChange(this.value)">
+            <option value="Free">Free</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </div>
+        <div class="steam-input-group" id="paidAmountContainer" style="display: none;">
+          <label>Enter Amount (Max 10,000)</label>
+          <input type="number" id="steamGamePriceAmount" class="steam-input" min="1" max="10000" placeholder="e.g., 500" oninput="validatePriceLimit(this)">
+          <span id="priceValidationAlert" style="font-size: 12px; color: #ff4444; display: none; margin-top: 5px;">Price cannot exceed 10,000!</span>
+        </div>
 
-        // ==========================================
-        // MAIN DATABASE ROUTINES: STEAM COPIES SETUP
-        // ==========================================
-        window.openSteamModal = function() {
-            document.getElementById('steamEditId').value = '';
-            document.getElementById('steamPageForm').reset();
-            document.getElementById('steamGameThumbnail').setAttribute('required', 'true');
-            document.getElementById('steamGameScreenshots').setAttribute('required', 'true');
-            selectedScreenshotsStorageArray = [];
-            renderScreenshotsPreviewList();
-            document.getElementById('steamModalTitle').innerText = "NetNo Works Page Setup";
-            document.getElementById('steamModal').style.display = 'flex';
-        }
+        <div class="steam-input-group">
+          <label>About The Game (NetNo Page Description)</label>
+          <textarea id="steamGameDesc" class="steam-input" rows="4" style="resize:none;" required></textarea>
+        </div>
+        <div class="steam-input-group">
+          <label>Official Landing Website Domain Link</label>
+          <input type="url" id="steamGameUrl" class="steam-input">
+        </div>
+        
+        <div style="text-align: right; margin-top:20px;">
+          <button type="submit" id="submitFormBtn" class="steam-btn-blueprint">Create page</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-        window.closeSteamModal = function() {
-            document.getElementById('steamModal').style.display = 'none';
-        }
+<input type="file" id="individualScreenshotSwapper" accept="image/*" style="display: none;" onchange="processSingleScreenshotReplacement(this)">
 
-        // Sync main input files with latest choice to prevent required error popup
-        function syncLatestScreenshotToMainInput() {
-            const mainInput = document.getElementById('steamGameScreenshots');
-            if (selectedScreenshotsStorageArray.length > 0) {
-                // Find latest structural file in our array queue
-                let latestFileItem = null;
-                for (let i = selectedScreenshotsStorageArray.length - 1; i >= 0; i--) {
-                    if (selectedScreenshotsStorageArray[i].type === 'file') {
-                        latestFileItem = selectedScreenshotsStorageArray[i].data;
-                        break;
-                    }
-                }
+<div id="steamLibraryPanel" class="steam-overlay" onclick="if(event.target.id==='steamLibraryPanel') closeSteamLibraryEngine();">
+  <div class="steam-box" style="max-width:750px;">
+    <div class="steam-header">
+      <span>NetNo Hub // Your Published Ecosystem</span>
+      <span style="cursor:pointer; font-size:24px; color:#66c0f4;" onclick="closeSteamLibraryEngine()">×</span>
+    </div>
+    <div class="steam-body">
+      <div id="steamGamesContainer" class="steam-game-grid"></div>
+    </div>
+  </div>
+</div>
 
-                if (latestFileItem) {
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(latestFileItem);
-                    mainInput.files = dataTransfer.files;
-                    mainInput.removeAttribute('required');
-                    return;
-                }
-            }
-            
-            // Fallback reset loop if no active payload structure found
-            mainInput.value = "";
-            if (!document.getElementById('steamEditId').value) {
-                mainInput.setAttribute('required', 'true');
-            }
-        }
+<div id="usernameSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <h3>Change Username</h3>
+    <div class="terminal-input-row">
+      <input type="text" id="settingProfileName" maxlength="15" oninput="document.getElementById('userCount').innerText = this.value.length + '/15'">
+      <span class="char-counter" id="userCount">0/15</span>
+    </div>
+    <button class="terminal-submit-btn" onclick="applySettingsNameChange()">Continue</button>
+  </div>
+</div>
 
-        // Handle structural batch upload mapping multi-selection pipeline
-        window.handleScreenshotsSelection = function(inputElement) {
-            if (!inputElement.files || inputElement.files.length === 0) return;
-            const incomingFiles = Array.from(inputElement.files);
-            
-            incomingFiles.forEach(file => {
-                if (selectedScreenshotsStorageArray.length < 10) {
-                    selectedScreenshotsStorageArray.push({
-                        type: 'file',
-                        data: file,
-                        name: file.name
-                    });
-                }
-            });
+<div id="avatarSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <h3>Update Profile Picture</h3>
+    <div class="terminal-input-row"><input type="file" id="settingProfilePicInput" accept="image/*"></div>
+    <button class="terminal-submit-btn" onclick="applySettingsAvatarChange()">Continue</button>
+  </div>
+</div>
 
-            if (selectedScreenshotsStorageArray.length > 10) {
-                alert("Maximum limit configurations bound up to 10 screenshots allowed.");
-                selectedScreenshotsStorageArray = selectedScreenshotsStorageArray.slice(0, 10);
-            }
+<div id="bioSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <h3>Update Bio</h3>
+    <div class="terminal-input-row">
+      <textarea id="settingProfileDesc" maxlength="1000" rows="5" oninput="document.getElementById('bioCount').innerText = this.value.length + '/1000'" style="width:100%; background:#111; border:1px solid #333; border-radius:5px; color:white; padding:10px; box-sizing:border-box; resize:none;"></textarea>
+      <span class="char-counter" id="bioCount">0/1000</span>
+    </div>
+    <button class="terminal-submit-btn" onclick="applySettingsDescChange()">Continue</button>
+  </div>
+</div>
 
-            renderScreenshotsPreviewList();
-        }
+<div id="socialsSubPanel" class="sub-panel-overlay" onclick="if(event.target.classList.contains('sub-panel-overlay')) { this.style.display='none'; document.getElementById('settingsOverlay').style.display='flex'; }">
+  <div class="sub-panel-box">
+    <h3>Social Transmission Streams</h3>
+    <div class="terminal-input-row"><label>YouTube</label><input type="text" id="socialyt"></div>
+    <div class="terminal-input-row"><label>Subreddit</label><input type="text" id="socialreddit"></div>
+    <div class="terminal-input-row"><label>Discord</label><input type="text" id="socialdiscord"></div>
+    <div class="terminal-input-row"><label>Twitter X</label><input type="text" id="socialtwitter"></div>
+    <div class="terminal-input-row"><label>Website</label><input type="text" id="socialweb"></div>
+    <button class="terminal-submit-btn" onclick="applySettingsSocialsChange()">Continue</button>
+  </div>
+</div>
 
-        // Master dynamic layout controller for individual rows inside schema setup
-        function renderScreenshotsPreviewList() {
-            const container = document.getElementById('screenshotsPreviewContainer');
-            const counterIndicator = document.getElementById('screenshotsCounter');
-            container.innerHTML = "";
-            
-            counterIndicator.innerText = `Selected: ${selectedScreenshotsStorageArray.length} / 10`;
+<script>
+// Array global variable to store custom parsed base64 strings
+let loadedScreenshotsBase64 = [];
 
-            selectedScreenshotsStorageArray.forEach((item, index) => {
-                const itemRow = document.createElement('div');
-                itemRow.className = 'steam-screenshot-item';
+window.handleScreenshotsSelection = function(inputElement) {
+  const files = inputElement.files;
+  if (!files || files.length === 0) return;
 
-                const imgPreview = document.createElement('img');
-                imgPreview.className = 'steam-screenshot-preview';
-                
-                if (item.type === 'file') {
-                    imgPreview.src = URL.createObjectURL(item.data);
-                } else {
-                    imgPreview.src = item.data; // URL String
-                }
+  const validFiles = Array.from(files);
+  let processedCount = 0;
 
-                const labelSpan = document.createElement('span');
-                labelSpan.className = 'steam-screenshot-info';
-                labelSpan.innerText = item.type === 'file' ? item.name : `Screenshot #${index + 1}`;
+  validFiles.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      loadedScreenshotsBase64.push(e.target.result);
+      processedCount++;
+      if (processedCount === validFiles.length) {
+        refreshScreenshotsVisualList();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  
+  // Clear file input value to allow selecting same file again
+  inputElement.value = "";
+};
 
-                const replaceBtn = document.createElement('button');
-                replaceBtn.type = "button";
-                replaceBtn.className = "btn-steam-action";
-                replaceBtn.innerText = "Replace Screenshot";
-                replaceBtn.onclick = () => triggerIndividualRowReplacement(index);
+window.refreshScreenshotsVisualList = function() {
+  const container = document.getElementById("screenshotPreviewListContainer");
+  const counterAlert = document.getElementById("screenshotCountAlert");
+  if (!container) return;
 
-                itemRow.appendChild(imgPreview);
-                itemRow.appendChild(labelSpan);
-                itemRow.appendChild(replaceBtn);
-                container.appendChild(itemRow);
-            });
+  container.innerHTML = "";
+  counterAlert.innerText = `Selected: ${loadedScreenshotsBase64.length}`;
 
-            // Automatically pass the latest screenshot reference back to browser's file input tracking element
-            syncLatestScreenshotToMainInput();
-        }
+  loadedScreenshotsBase64.forEach((base64Data, index) => {
+    const item = document.createElement("div");
+    item.className = "screenshot-preview-item";
 
-        // Discrete dynamic structural helper loop allowing per-row update operations
-        function triggerIndividualRowReplacement(indexTarget) {
-            const hiddenSwapperInput = document.createElement('input');
-            hiddenSwapperInput.type = 'file';
-            hiddenSwapperInput.accept = 'image/*';
-            hiddenSwapperInput.onchange = (e) => {
-                if (e.target.files && e.target.files[0]) {
-                    const chosenFile = e.target.files[0];
-                    selectedScreenshotsStorageArray[indexTarget] = {
-                        type: 'file',
-                        data: chosenFile,
-                        name: chosenFile.name
-                    };
-                    renderScreenshotsPreviewList();
-                }
-            };
-            hiddenSwapperInput.click();
-        }
+    const img = document.createElement("img");
+    img.src = base64Data;
 
-        // MASTER SUBMIT: Form submission processing with direct array tracking
-        window.saveSteamGamePage = async function(e) {
-            e.preventDefault();
-            const editId = document.getElementById('steamEditId').value;
-            const gameTitle = document.getElementById('steamGameTitle').value;
-            const trailerUrl = document.getElementById('steamGameTrailer').value;
-            const thumbnailFileInput = document.getElementById('steamGameThumbnail');
+    const swapBtn = document.createElement("button");
+    swapBtn.type = "button";
+    swapBtn.innerText = "Replace Asset";
+    swapBtn.onclick = function() { triggerScreenshotIndividualSwap(index); };
 
-            if (!editId && selectedScreenshotsStorageArray.length < 2) {
-                alert("Please select at least 2 screenshots minimum.");
-                return;
-            }
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.innerText = "Remove";
+    deleteBtn.style.background = "#4a1c1c";
+    deleteBtn.style.color = "#ff6666";
+    deleteBtn.style.borderColor = "#6e2a2a";
+    deleteBtn.onclick = function() { removeIndividualScreenshotItem(index); };
 
-            try {
-                let thumbnailUrlString = "";
+    item.appendChild(img);
+    item.appendChild(swapBtn);
+    item.appendChild(deleteBtn);
+    container.appendChild(item);
+  });
+};
 
-                // Handle logic parsing for showcase cover thumbnail file
-                if (thumbnailFileInput.files && thumbnailFileInput.files[0]) {
-                    const thumbFile = thumbnailFileInput.files[0];
-                    const thumbRef = ref(storage, `works_thumbnails/${Date.now()}_${thumbFile.name}`);
-                    const uploadSnap = await uploadBytes(thumbRef, thumbFile);
-                    thumbnailUrlString = await getDownloadURL(uploadSnap.ref);
-                } else if (editId) {
-                    // Fallback retain old data if running updating logic sequence
-                    thumbnailUrlString = thumbnailFileInput.getAttribute('data-existing-url') || "";
-                }
+let targetedSwapIndex = null;
+window.triggerScreenshotIndividualSwap = function(index) {
+  targetedSwapIndex = index;
+  document.getElementById("individualScreenshotSwapper").click();
+};
 
-                // Process sequential loop execution over active selected screenshots configuration list
-                const outputUploadedScreenshotsUrls = [];
-                for (let item of selectedScreenshotsStorageArray) {
-                    if (item.type === 'url') {
-                        outputUploadedScreenshotsUrls.push(item.data);
-                    } else {
-                        const screenshotRef = ref(storage, `works_screenshots/${Date.now()}_${item.name}`);
-                        const snap = await uploadBytes(screenshotRef, item.data);
-                        const downloadUrl = await getDownloadURL(snap.ref);
-                        outputUploadedScreenshotsUrls.push(downloadUrl);
-                    }
-                }
+window.processSingleScreenshotReplacement = function(inputElement) {
+  const file = inputElement.files[0];
+  if (!file || targetedSwapIndex === null) return;
 
-                const finalPayloadDocSchema = {
-                    gameTitle: gameTitle,
-                    trailerUrl: trailerUrl,
-                    thumbnailUrl: thumbnailUrlString,
-                    screenshotsList: outputUploadedScreenshotsUrls
-                };
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    loadedScreenshotsBase64[targetedSwapIndex] = e.target.result;
+    refreshScreenshotsVisualList();
+    targetedSwapIndex = null;
+  };
+  reader.readAsDataURL(file);
+  inputElement.value = "";
+};
 
-                if (editId) {
-                    await updateDoc(doc(db, "steamPages", editId), finalPayloadDocSchema);
-                } else {
-                    await addDoc(collection(db, "steamPages"), finalPayloadDocSchema);
-                }
+window.removeIndividualScreenshotItem = function(index) {
+  loadedScreenshotsBase64.splice(index, 1);
+  refreshScreenshotsVisualList();
+};
 
-                closeSteamModal();
-                loadSteamPages();
+// Form validation check before submitting page data architecture
+document.getElementById("steamGameForm").addEventListener("submit", function(e) {
+  if (loadedScreenshotsBase64.length < 2 || loadedScreenshotsBase64.length > 10) {
+    e.preventDefault();
+    alert("Validation Error: Please upload between 2 and 10 screenshots for your game dynamic layout.");
+    return false;
+  }
+});
 
-            } catch (err) {
-                console.error("Critical error in system parsing execution routines: ", err);
-                alert("Failed saving configuration payload details. Review console trace.");
-            }
-        }
+// Mock functions to keep existing code functional
+window.toggleMenu = function() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.style.left = (sidebar.style.left === "0px") ? "-220px" : "0px";
+};
 
-        async function loadSteamPages() {
-            const querySnapshot = await getDocs(collection(db, "steamPages"));
-            const tbody = document.getElementById('steam-pages-table-body');
-            tbody.innerHTML = '';
-            let counter = 0;
-            
-            querySnapshot.forEach((docSnap) => {
-                counter++;
-                const data = docSnap.data();
-                const screenshotCount = data.screenshotsList ? data.screenshotsList.length : 0;
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="game-th-cell">
-                                <img src="${data.thumbnailUrl}" class="game-th-img" alt="thumb">
-                                <strong>${data.gameTitle}</strong>
-                            </div>
-                        </td>
-                        <td><a href="${data.trailerUrl}" target="_blank" style="color:#66c0f4; text-decoration:none;">${data.trailerUrl}</a></td>
-                        <td><span class="status-badge approved">${screenshotCount} Screenshots</span></td>
-                        <td>
-                            <div class="actions-cell">
-                                <button class="btn-icon" onclick="editSteamPage('${docSnap.id}', ${JSON.stringify(data).replace(/"/g, '&quot;')})"><i class="fa-solid fa-pen"></i></button>
-                                <button class="btn-icon delete" onclick="deleteSteamPage('${docSnap.id}')"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('steam-total-count').innerText = counter;
-        }
+window.toggleUserMenu = function() {
+  const userSidebar = document.getElementById("userSidebar");
+  userSidebar.style.left = (userSidebar.style.left === "0px") ? "-260px" : "0px";
+};
 
-        window.editSteamPage = function(id, data) {
-            document.getElementById('steamEditId').value = id;
-            document.getElementById('steamGameTitle').value = data.gameTitle;
-            document.getElementById('steamGameTrailer').value = data.trailerUrl;
-            
-            const thumbInput = document.getElementById('steamGameThumbnail');
-            thumbInput.removeAttribute('required');
-            thumbInput.setAttribute('data-existing-url', data.thumbnailUrl);
+window.openLoginPanel = function() {
+  document.getElementById("loginOverlay").style.display = "flex";
+};
 
-            const mainInput = document.getElementById('steamGameScreenshots');
-            mainInput.removeAttribute('required');
+window.closeLoginPanel = function() {
+  document.getElementById("loginOverlay").style.display = "none";
+};
 
-            selectedScreenshotsStorageArray = [];
-            if (data.screenshotsList && Array.from(data.screenshotsList).length > 0) {
-                data.screenshotsList.forEach(urlString => {
-                    selectedScreenshotsStorageArray.push({
-                        type: 'url',
-                        data: urlString,
-                        name: 'Remote Document Asset Link'
-                    });
-                });
-            }
+window.triggerRouteAuth = function(type) {
+  document.getElementById("authGateways").style.display = "none";
+  if (type === 'individual') {
+    document.getElementById("credentialsStep").style.display = "block";
+  } else {
+    document.getElementById("orgCredentialsStep").style.display = "block";
+  }
+};
 
-            renderScreenshotsPreviewList();
-            document.getElementById('steamModalTitle').innerText = "Edit Storefront Showcase";
-            document.getElementById('steamModal').style.display = 'flex';
-        }
+window.submitCredentialsStep = function() {
+  document.getElementById("credentialsStep").style.display = "none";
+  document.getElementById("avatarStep").style.display = "block";
+};
 
-        window.deleteSteamPage = async function(id) {
-            if(confirm("Permanently wipe this storefront representation entry point?")) {
-                await deleteDoc(doc(db, "steamPages", id));
-                loadSteamPages();
-            }
-        }
+window.submitOrgCredentialsStep = function() {
+  document.getElementById("orgCredentialsStep").style.display = "none";
+  document.getElementById("orgAvatarStep").style.display = "block";
+};
 
-        // Operational initial execution cycle on load lifecycle phase hooks
-        loadDeveloperConfigs();
-        loadSteamPages();
-    </script>
+window.finalizeAccountRegistration = function() {
+  document.getElementById("loginOverlay").style.display = "none";
+  document.getElementById("userProfileHeader").style.display = "block";
+  alert("Registration Successful!");
+};
+
+window.finalizeOrgAccountRegistration = function() {
+  document.getElementById("orgAvatarStep").style.display = "none";
+  document.getElementById("approvalPendingStep").style.display = "block";
+};
+
+window.openPanel = function(img, isCommunity) {
+  const panel = document.getElementById("panel");
+  const panelImg = document.getElementById("panelImg");
+  const communityLinks = document.getElementById("communityLinks");
+  panel.style.display = "block";
+  panelImg.src = img;
+  communityLinks.style.display = isCommunity ? "flex" : "none";
+};
+
+window.closePanelOnOverlay = function(e) {
+  if (e.target.id === "panel" || e.target.className === "panel-content-wrapper") {
+    document.getElementById("panel").style.display = "none";
+  }
+};
+
+window.openSteamCreationEngine = function() {
+  document.getElementById("steamCreationPanel").style.display = "flex";
+};
+
+window.closeSteamCreationEngine = function() {
+  document.getElementById("steamCreationPanel").style.display = "none";
+};
+
+window.handlePriceTypeChange = function(value) {
+  const paidAmountContainer = document.getElementById("paidAmountContainer");
+  paidAmountContainer.style.display = (value === "Paid") ? "block" : "none";
+};
+
+window.validatePriceLimit = function(input) {
+  const priceValidationAlert = document.getElementById("priceValidationAlert");
+  if (parseInt(input.value) > 10000) {
+    priceValidationAlert.style.display = "block";
+  } else {
+    priceValidationAlert.style.display = "none";
+  }
+};
+
+window.saveSteamGamePage = function(e) {
+  e.preventDefault();
+  if (loadedScreenshotsBase64.length < 2 || loadedScreenshotsBase64.length > 10) {
+    alert("Please upload between 2 and 10 screenshots.");
+    return;
+  }
+  alert("Game created successfully!");
+  closeSteamCreationEngine();
+};
+
+window.openSteamLibraryEngine = function() {
+  document.getElementById("steamLibraryPanel").style.display = "flex";
+};
+
+window.closeSteamLibraryEngine = function() {
+  document.getElementById("steamLibraryPanel").style.display = "none";
+};
+
+window.openSettingsModal = function() {
+  document.getElementById("settingsOverlay").style.display = "flex";
+};
+
+window.closeSettingsModal = function() {
+  document.getElementById("settingsOverlay").style.display = "none";
+};
+
+window.openSubPanel = function(panelId) {
+  document.getElementById("settingsOverlay").style.display = "none";
+  document.getElementById(panelId + "SubPanel").style.display = "flex";
+};
+
+window.handleLogout = function() {
+  alert("Logged out!");
+  location.reload();
+};
+
+window.downloadLauncher = function() {
+  alert("Download Start");
+};
+</script>
 </body>
 </html>
