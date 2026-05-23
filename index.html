@@ -190,7 +190,8 @@ body {
   <button onclick="openPanel('overviewinfo.png', false)">Overview</button>
   <button onclick="openLoginPanel()">Portal</button>
   <button onclick="openPanel('supportpanel.png', false)">Support</button>
-  <button onclick="openPanel('communitypanels.png', true)">Community</button> <button onclick="openPanel('games.png', false)">Games</button>
+  <button onclick="openPanel('communitypanels.png', true)">Community</button> 
+  <button onclick="openPanel('games.png', false)">Games</button>
 </div>
 
 <div id="userSidebar">
@@ -490,7 +491,6 @@ body {
 </div>
 
 <script>
-// Array global variable to store custom parsed base64 strings
 let loadedScreenshotsBase64 = [];
 
 window.handleScreenshotsSelection = function(inputElement) {
@@ -511,8 +511,6 @@ window.handleScreenshotsSelection = function(inputElement) {
     };
     reader.readAsDataURL(file);
   });
-  
-  // Clear file input value to allow selecting same file again
   inputElement.value = "";
 };
 
@@ -576,7 +574,6 @@ window.removeIndividualScreenshotItem = function(index) {
   refreshScreenshotsVisualList();
 };
 
-// Form validation check before submitting page data architecture
 document.getElementById("steamGameForm").addEventListener("submit", function(e) {
   if (loadedScreenshotsBase64.length < 2 || loadedScreenshotsBase64.length > 10) {
     e.preventDefault();
@@ -585,7 +582,6 @@ document.getElementById("steamGameForm").addEventListener("submit", function(e) 
   }
 });
 
-// Mock functions to keep existing code functional
 window.toggleMenu = function() {
   const sidebar = document.getElementById("sidebar");
   sidebar.style.left = (sidebar.style.left === "0px") ? "-220px" : "0px";
