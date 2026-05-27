@@ -1,26 +1,41 @@
-<!-- TOP LOGO -->
-<div class="top-logo">
-  NG
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetNo Games</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<!-- MAIN MENU PANEL -->
-<div class="main-menu-panel">
+<!-- HERO -->
+<div class="hero">
 
-  <img src="blackpanel.png" class="panel-bg">
+  <!-- MENU BUTTON -->
+  <div id="menuBtn" onclick="toggleMenu()">☰</div>
 
-  <div class="menu-content">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
 
-    <h1>NetNo Games Site</h1>
+    <button onclick="closeSidebar()">✕ Close</button>
 
-    <button class="menu-btn-main">
-      Download Game
-    </button>
+    <button>Overview</button>
+
+    <button>Support</button>
+
+    <button>Community</button>
+
+    <button>Games</button>
 
   </div>
 
-  <!-- BOTTOM LOGO -->
-  <div class="bottom-logo">
-    NG
-  </div>
+  <!-- DOWNLOAD BUTTON -->
+  <button class="btn download" onclick="downloadLauncher()">
+    Download Game
+  </button>
 
 </div>
+
+<script src="script.js"></script>
+</body>
+</html>
