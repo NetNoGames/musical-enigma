@@ -1,224 +1,106 @@
-/* style.css */
+/* TOP LOGO */
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, sans-serif;
-}
-
-body{
-  background:black;
-  color:white;
-  overflow-x:hidden;
-}
-
-/* Navbar */
-
-.navbar{
-  width:100%;
-  height:70px;
-  background:#000;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 20px;
-  position:fixed;
-  top:0;
-  z-index:1000;
-}
-
-.logo{
-  font-size:35px;
-  font-weight:bold;
-}
-
-.menu-btn{
-  font-size:35px;
-  cursor:pointer;
-}
-
-/* Sidebar */
-
-.sidebar{
-  position:fixed;
-  top:0;
-  left:-240px;
-  width:220px;
-  height:100vh;
-  background:#050505;
-  z-index:999;
-  transition:0.3s;
-  padding-top:90px;
-}
-
-.sidebar a{
-  display:block;
-  color:white;
-  text-decoration:none;
-  padding:18px;
-  border-bottom:1px solid #111;
-  font-size:20px;
-}
-
-.sidebar a:hover{
-  background:#111;
-}
-
-/* Hero */
-
-.hero{
-  width:100%;
-  height:100vh;
-  background:url('bg.jpg') center/cover no-repeat;
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
-
-.overlay{
+.top-logo{
   position:absolute;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:55px;
+  font-weight:bold;
+  color:white;
+  z-index:5;
+}
+
+/* MAIN MENU PANEL */
+
+.main-menu-panel{
+  position:relative;
+  width:90%;
+  max-width:900px;
+  height:600px;
+  margin:auto;
+  margin-top:120px;
+  border-radius:20px;
+  overflow:hidden;
+  background:black;
+  box-shadow:0 0 25px rgba(0,0,0,0.8);
+}
+
+/* BLACK PANEL IMAGE */
+
+.panel-bg{
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.6);
+  object-fit:cover;
+  filter:brightness(35%);
 }
 
-.hero-content{
-  position:relative;
+/* CONTENT */
+
+.menu-content{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
   z-index:2;
+  text-align:center;
+  width:100%;
   padding:20px;
 }
 
-.hero-content h1{
-  font-size:45px;
-  margin-bottom:20px;
+.menu-content h1{
+  font-size:55px;
+  color:white;
+  margin-bottom:40px;
 }
 
-.hero-content p{
-  color:#cfcfcf;
-  margin-bottom:30px;
-  font-size:18px;
-}
+/* BUTTON */
 
-.main-btn{
-  padding:15px 40px;
+.menu-btn-main{
+  padding:18px 50px;
   border:none;
+  border-radius:12px;
   background:#00aaff;
   color:white;
-  font-size:18px;
-  border-radius:8px;
+  font-size:24px;
   cursor:pointer;
+  transition:0.3s;
 }
 
-.main-btn:hover{
+.menu-btn-main:hover{
   background:#0088cc;
+  transform:scale(1.05);
 }
 
-/* Games */
+/* BOTTOM LOGO */
 
-.games-section{
-  padding:80px 20px;
-}
-
-.games-section h2{
-  text-align:center;
-  margin-bottom:40px;
-  font-size:40px;
-}
-
-.game-card{
-  width:100%;
-  max-width:900px;
-  margin:auto;
-  background:#0b0b0b;
-  border-radius:15px;
-  overflow:hidden;
-  box-shadow:0 0 20px rgba(255,255,255,0.1);
-}
-
-.game-card img{
-  width:100%;
-  display:block;
-}
-
-.game-info{
-  padding:25px;
-}
-
-.game-info h3{
-  font-size:35px;
-  margin-bottom:15px;
-}
-
-.game-info p{
-  color:#bbb;
-  margin-bottom:20px;
-  line-height:1.6;
-}
-
-.game-info button{
-  padding:12px 30px;
-  border:none;
-  background:red;
+.bottom-logo{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:45px;
+  font-weight:bold;
   color:white;
-  border-radius:8px;
-  cursor:pointer;
+  z-index:5;
 }
 
-/* Community */
-
-.community{
-  padding:80px 20px;
-  text-align:center;
-}
-
-.community h2{
-  font-size:40px;
-  margin-bottom:20px;
-}
-
-.community p{
-  color:#aaa;
-  margin-bottom:30px;
-}
-
-.socials{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  flex-wrap:wrap;
-}
-
-.socials a{
-  padding:12px 25px;
-  background:#111;
-  color:white;
-  text-decoration:none;
-  border-radius:8px;
-}
-
-/* Footer */
-
-footer{
-  padding:30px;
-  text-align:center;
-  background:#050505;
-  color:#777;
-}
-
-/* Mobile */
+/* MOBILE */
 
 @media(max-width:768px){
 
-.hero-content h1{
-  font-size:30px;
+.menu-content h1{
+  font-size:35px;
 }
 
-.games-section h2,
-.community h2{
-  font-size:30px;
+.menu-btn-main{
+  width:90%;
+  font-size:20px;
+}
+
+.top-logo,
+.bottom-logo{
+  font-size:40px;
 }
 
 }
