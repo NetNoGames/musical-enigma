@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <link rel="icon" type="image/webp" href="logo.webp"/>
+  <title>NetNo Games | Home</title>
+  <!-- Tailwind CSS CDN with forms/container plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Google Fonts & Icons -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+  <!-- Design System Variables & Core Styles -->
+  <link href="style.css" rel="stylesheet"/>
+  <!-- Tailwind configurations mapping to design system tokens -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "var(--bg-color)",
+            surface: "var(--surface-color)",
+            "surface-dim": "var(--surface-dim)",
+            "surface-bright": "var(--surface-bright)",
+            "surface-container": "var(--surface-high)",
+            "on-surface": "var(--on-surface)",
+            "on-surface-variant": "var(--on-surface-variant)",
+            "outline-variant": "var(--outline-variant)",
+            "primary-color": "var(--primary-color)",
+            "secondary-color": "var(--secondary-color)",
+          },
+          fontFamily: {
+            display: ["Syne", "sans-serif"],
+            body: ["Outfit", "sans-serif"],
+          },
+          spacing: {
+            "margin-mobile": "16px",
+            "margin-desktop": "64px",
+            gutter: "24px",
+            md: "24px",
+            lg: "48px",
+            xl: "80px",
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background text-on-surface flex flex-col font-body overflow-x-hidden min-h-screen">
+
+  <!-- Header injected here -->
+  <header id="global-header" class="h-20"></header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-grow flex flex-col items-center w-full fade-in">
+    
+    <!-- Hero Section — Asymmetric, left-aligned -->
+    <section class="relative w-full min-h-[60vh] flex items-center px-margin-mobile md:px-margin-desktop py-8 overflow-hidden" style="background-color: var(--surface-dim);">
+      <!-- Background image with heavy overlay -->
+      <div class="absolute inset-0 z-0">
+        <img alt="" class="w-full h-full object-cover opacity-15" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk8J14iBcY3E0xN5_xVxXdbmaVxmK27sHS5veeVa9dXn7Naq8SSH-q1rHFl9f2D14sADSKYOFY-wdQ0QQ1Cui7WlqhtnDKnuUg6N7AoVEtE0DzoRCB3NfraEAO3frAhE9MkzzM5likVw5Wj0NEGQzCcjcY8lnsoghXMAYbdwKlIHtrSGPKOzzu9KGd1bWIuVhgXpzqRaWZ5jtS9jfSGMn5jPUIuDqZK0QsQHlhoQef_1IeWlycZiqslG87mY_wB61SVu0AC6MyBF8"/>
+        <div class="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+      </div>
+
+      <!-- Diagonal accent line -->
+      <div class="absolute top-0 right-[15%] w-px h-full bg-gradient-to-b from-transparent via-primary-color/20 to-transparent transform rotate-12 pointer-events-none hidden lg:block"></div>
+      <div class="absolute top-0 right-[35%] w-px h-full bg-gradient-to-b from-transparent via-secondary-color/10 to-transparent transform -rotate-6 pointer-events-none hidden lg:block"></div>
+      
+      <div class="relative z-10 max-w-3xl fade-in">
+        <!-- Offset tag with bracket decoration -->
+        <div class="inline-flex items-center gap-3 mb-6">
+          <div class="w-10 h-px bg-primary-color"></div>
+          <span class="text-primary-color font-display font-semibold tracking-[0.2em] text-[10px] uppercase">NetNo Interactive</span>
+        </div>
+        
+        <h1 class="font-display text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold leading-[1.05] tracking-tight text-on-surface mb-5">
+          THE NEXT EVOLUTION<br/>
+          <span class="text-primary-color text-glow">OF INDIE HORROR</span>
+        </h1>
+        
+        <p class="font-body text-base md:text-lg text-on-surface-variant max-w-lg mb-6 leading-relaxed font-light">
+          Deep-sea anomalies. Synthetic threats. Forest-based psychological mysteries. Where organic terror meets digital precision.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a href="games.html" class="btn-glow-primary bg-primary-color text-blue-800 font-display font-bold uppercase tracking-wider text-xs px-8 py-4 rounded text-center inline-flex items-center justify-center gap-2">
+            Explore Games
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+          <a href="#studio-philosophy" class="btn-glow-outline text-primary-color font-display font-bold uppercase tracking-wider text-xs px-8 py-4 rounded text-center">
+            Our Philosophy
+          </a>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="flex gap-10 mt-8 pt-6 border-t border-outline-variant/20">
+          <div>
+            <span class="block font-display text-2xl font-bold text-primary-color">3</span>
+            <span class="text-[10px] text-on-surface-variant/60 uppercase tracking-widest font-display">Titles</span>
+          </div>
+          <div>
+            <span class="block font-display text-2xl font-bold text-secondary-color">100+</span>
+            <span class="text-[10px] text-on-surface-variant/60 uppercase tracking-widest font-display">Community</span>
+          </div>
+          <div>
+            <span class="block font-display text-2xl font-bold text-on-surface">2026</span>
+            <span class="text-[10px] text-on-surface-variant/60 uppercase tracking-widest font-display">Est.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ticker marquee -->
+    <div id="game-ticker" class="w-full overflow-hidden border-y border-outline-variant/15 py-3 hidden" style="background-color: var(--surface-color);">
+      <div id="ticker-track" class="marquee-track flex items-center gap-12 whitespace-nowrap"></div>
+    </div>
+
+    <!-- Featured Games — Non-uniform grid -->
+    <section class="w-full max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop py-20">
+      <div class="flex justify-between items-end mb-12">
+        <div>
+          <div class="inline-flex items-center gap-3 mb-3">
+            <div class="w-8 h-px bg-primary-color"></div>
+            <span class="text-primary-color font-display font-semibold tracking-[0.2em] text-[10px] uppercase">Curated Catalog</span>
+          </div>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-6xl font-bold text-primary-color text-glow">Featured Titles</h2>
+        </div>
+        <a class="font-display text-xs font-semibold text-on-surface-variant hover:text-primary-color transition-colors flex items-center gap-2 group" href="games.html">
+          VIEW ALL <span class="material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </a>
+      </div>
+      
+      <!-- Loaded dynamically via LocalStorage -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="featured-games-container">
+        <div class="h-[400px] rounded-lg border border-outline-variant/30 overflow-hidden bg-surface flex flex-col p-4 gap-4">
+          <div class="h-48 rounded skeleton"></div><div class="h-6 w-3/4 rounded skeleton"></div><div class="h-4 w-1/2 rounded skeleton"></div><div class="h-16 rounded skeleton mt-auto"></div>
+        </div>
+        <div class="h-[400px] rounded-lg border border-outline-variant/30 overflow-hidden bg-surface flex flex-col p-4 gap-4">
+          <div class="h-48 rounded skeleton"></div><div class="h-6 w-3/4 rounded skeleton"></div><div class="h-4 w-1/2 rounded skeleton"></div><div class="h-16 rounded skeleton mt-auto"></div>
+        </div>
+        <div class="h-[400px] rounded-lg border border-outline-variant/30 overflow-hidden bg-surface flex flex-col p-4 gap-4">
+          <div class="h-48 rounded skeleton"></div><div class="h-6 w-3/4 rounded skeleton"></div><div class="h-4 w-1/2 rounded skeleton"></div><div class="h-16 rounded skeleton mt-auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Studio Philosophy — Split with overlapping decoration -->
+    <section id="studio-philosophy" class="w-full py-24 relative overflow-hidden" style="background-color: var(--surface-color);">
+      <!-- Decorative elements -->
+      <div class="absolute -right-32 top-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-primary-color/5 rounded-full pointer-events-none hidden lg:block"></div>
+      <div class="absolute -right-16 top-1/2 -translate-y-1/2 w-[350px] h-[350px] border border-primary-color/8 rounded-full pointer-events-none hidden lg:block"></div>
+      <div class="absolute left-0 top-0 w-full h-px bg-gradient-to-r from-transparent via-outline-variant/20 to-transparent"></div>
+      
+      <div class="max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
+        <!-- Section header -->
+        <div class="mb-16">
+          <div class="inline-flex items-center gap-3 mb-3">
+            <div class="w-8 h-px bg-primary-color"></div>
+            <span class="text-primary-color font-display font-semibold tracking-[0.2em] text-[10px] uppercase">Architectural Ethos</span>
+          </div>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-6xl font-bold text-primary-color text-glow max-w-2xl leading-tight">
+            The Verdant Matrix Philosophy
+          </h2>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row gap-16 items-start">
+          <!-- Left: Text -->
+          <div class="lg:w-1/2 flex flex-col gap-6">
+            <p class="font-body text-lg text-on-surface-variant leading-relaxed font-light">
+              NetNo Games is pioneering a transition from primitive jumpscare frameworks to deeply atmospheric, high-fidelity psychological horror. We build systems situated at the collision interface of organic nature and digital decay.
+            </p>
+            <p class="font-body text-sm text-on-surface-variant/70 leading-relaxed">
+              By utilising negative whitespace, clean minimalist HUD screens, and dark terminal designs, we invite players to immerse themselves in deep-sea anomalies and overgrown machinery where calm focus is the only path to survival.
+            </p>
+          </div>
+          
+          <!-- Right: Bento grid with corner brackets -->
+          <div class="lg:w-1/2 w-full grid grid-cols-2 gap-4">
+            <div class="corner-bracket bg-surface-dim/50 border border-outline-variant/20 p-6 flex flex-col justify-between h-40 transition-all duration-300 group hover:border-primary-color/30">
+              <span class="material-symbols-outlined text-primary-color text-[28px]">psychology</span>
+              <span class="font-display text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Psychological Focus</span>
+            </div>
+            <div class="corner-bracket bg-surface-dim/50 border border-outline-variant/20 p-6 flex flex-col justify-between h-40 transition-all duration-300 group hover:border-secondary-color/30">
+              <span class="material-symbols-outlined text-secondary-color text-[28px]">forest</span>
+              <span class="font-display text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Organic Environments</span>
+            </div>
+            <div class="corner-bracket bg-surface-dim/50 border border-outline-variant/20 p-6 flex flex-col justify-between h-40 col-span-2 transition-all duration-300 group hover:border-primary-color/30">
+              <span class="material-symbols-outlined text-primary-color text-[28px]">memory</span>
+              <span class="font-display text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Digital Precision & HUD Screens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community Platforms -->
+    <section class="w-full py-16" style="background-color: var(--surface-color);">
+      <div class="max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="flex flex-col mb-10">
+          <div class="inline-flex items-center gap-3 mb-3">
+            <div class="w-8 h-px bg-primary-color"></div>
+            <span class="text-primary-color font-display font-semibold tracking-[0.2em] text-[10px] uppercase">Ecosystem Broadcast</span>
+          </div>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-6xl font-bold text-primary-color text-glow">The Nexus Grid</h2>
+          <p class="font-body text-sm text-on-surface-variant max-w-2xl mt-3 leading-relaxed font-light">
+            Connect with the community, share theories, and stay updated on everything NetNo Games.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          
+          <!-- Discord -->
+          <a href="https://discord.gg/PTbxu9nPZq" target="_blank" class="group relative overflow-hidden rounded-xl border border-[#5865F2]/20 bg-surface p-4 flex flex-col items-center text-center gap-3 transition-all duration-300 hover:border-[#5865F2]/50 hover:shadow-[0_0_20px_rgba(88,101,242,0.1)]" style="background-color: var(--surface-dim);">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#5865F2]/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-[#5865F2]/10 transition-all duration-500"></div>
+            <div class="relative z-10 w-12 h-12 rounded-xl bg-[#5865F2]/15 border border-[#5865F2]/25 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+              <svg class="w-6 h-6" viewBox="0 0 71 55" fill="none"><path d="M60.1045 4.8978C55.5792 2.8214 50.7265 1.2916 45.6527 0.41542C45.5604 0.39851 45.468 0.440769 45.4204 0.525289C44.7963 1.6353 44.105 3.0834 43.6209 4.2216C38.1637 3.4046 32.7345 3.4046 27.3892 4.2216C26.905 3.0581 26.1886 1.6353 25.5617 0.525289C25.5141 0.443589 25.4218 0.40133 25.3294 0.41542C20.2584 1.2888 15.4057 2.8186 10.8776 4.8978C10.8384 4.9147 10.8048 4.9429 10.7825 4.9795C1.57795 18.7309 -0.143566 32.1443 0.231857 45.3914C0.246925 45.4562 0.292297 45.5182 0.354067 45.5471C6.45801 50.0588 12.3413 52.7847 18.1147 54.6471C18.2071 54.6713 18.3023 54.6386 18.3633 54.5719C19.7743 52.6396 21.0358 50.6237 22.1337 48.4531C22.2145 48.2932 22.1488 48.1013 21.989 48.0211C19.6306 47.0811 17.3864 45.8386 15.3009 44.3281C15.1489 44.2172 15.1367 44.0089 15.2762 43.8752C15.7712 43.3929 16.2664 42.8731 16.7392 42.3347C16.8112 42.2503 16.9344 42.2159 17.0452 42.2438C29.1332 47.8478 41.8985 47.8478 53.8958 42.2438C54.0078 42.2131 54.1326 42.2475 54.2046 42.3319C54.6774 42.8703 55.1726 43.3929 55.6654 43.8752C55.8062 44.0089 55.7968 44.2172 55.6421 44.3281C53.5566 45.8358 51.3124 47.0811 48.9566 48.0183C48.7968 48.1013 48.7338 48.2932 48.8134 48.4531C49.9522 50.6209 51.2138 52.6368 52.6218 54.5691C52.6828 54.6358 52.7794 54.6685 52.8704 54.6443C58.6629 52.7819 64.5461 50.056 70.6421 45.5499C70.7065 45.521 70.7506 45.4562 70.7644 45.3914C71.2257 30.1757 68.9647 16.8151 60.1045 4.8978ZM23.7259 37.3253C20.2276 37.3253 17.3451 34.1136 17.3451 30.1693C17.3451 26.225 20.1717 23.0133 23.7259 23.0133C27.308 23.0133 30.1626 26.2532 30.1096 30.1693C30.1096 34.1136 27.28 37.3253 23.7259 37.3253ZM47.3178 37.3253C43.8196 37.3253 40.9371 34.1136 40.9371 30.1693C40.9371 26.225 43.7636 23.0133 47.3178 23.0133C50.9 23.0133 53.7545 26.2532 53.7015 30.1693C53.7015 34.1136 50.8973 37.3253 47.3178 37.3253Z" fill="#FFF"/></svg>
+            </div>
+            <h3 class="relative z-10 font-display text-xs font-bold text-on-surface">Discord</h3>
+            <button class="relative z-10 w-full py-2 bg-[#5865F2]/10 border border-[#5865F2]/20 text-[#5865F2] font-display text-[10px] font-bold uppercase tracking-wider rounded transition-all hover:bg-[#5865F2]/20 flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">open_in_new</span> Visit
+            </button>
+          </a>
+
+          <!-- Reddit -->
+          <a href="https://www.reddit.com/r/NetNoGamesCommunity/" target="_blank" class="group relative overflow-hidden rounded-xl border border-[#FF4500]/20 bg-surface p-4 flex flex-col items-center text-center gap-3 transition-all duration-300 hover:border-[#FF4500]/50 hover:shadow-[0_0_20px_rgba(255,69,0,0.1)]" style="background-color: var(--surface-dim);">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#FF4500]/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-[#FF4500]/10 transition-all duration-500"></div>
+            <div class="relative z-10 w-12 h-12 rounded-xl bg-[#FF4500]/15 border border-[#FF4500]/25 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#FF4500"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.82.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+            </div>
+            <h3 class="relative z-10 font-display text-xs font-bold text-on-surface">Reddit</h3>
+            <button class="relative z-10 w-full py-2 bg-[#FF4500]/10 border border-[#FF4500]/20 text-[#FF4500] font-display text-[10px] font-bold uppercase tracking-wider rounded transition-all hover:bg-[#FF4500]/20 flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">open_in_new</span> Visit
+            </button>
+          </a>
+
+          <!-- YouTube -->
+          <a href="https://youtube.com/@netnogames" target="_blank" class="group relative overflow-hidden rounded-xl border border-[#FF0000]/20 bg-surface p-4 flex flex-col items-center text-center gap-3 transition-all duration-300 hover:border-[#FF0000]/50 hover:shadow-[0_0_20px_rgba(255,0,0,0.1)]" style="background-color: var(--surface-dim);">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#FF0000]/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-[#FF0000]/10 transition-all duration-500"></div>
+            <div class="relative z-10 w-12 h-12 rounded-xl bg-[#FF0000]/15 border border-[#FF0000]/25 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </div>
+            <h3 class="relative z-10 font-display text-xs font-bold text-on-surface">YouTube</h3>
+            <button class="relative z-10 w-full py-2 bg-[#FF0000]/10 border border-[#FF0000]/20 text-[#FF0000] font-display text-[10px] font-bold uppercase tracking-wider rounded transition-all hover:bg-[#FF0000]/20 flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">open_in_new</span> Visit
+            </button>
+          </a>
+
+          <!-- Gmail -->
+          <div class="group relative overflow-hidden rounded-xl border border-[#EA4335]/20 bg-surface p-4 flex flex-col items-center text-center gap-3 transition-all duration-300 hover:border-[#EA4335]/50 hover:shadow-[0_0_20px_rgba(234,67,53,0.1)]" style="background-color: var(--surface-dim);">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#EA4335]/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-[#EA4335]/10 transition-all duration-500"></div>
+            <div class="relative z-10 w-12 h-12 rounded-xl bg-[#EA4335]/15 border border-[#EA4335]/25 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
+            </div>
+            <h3 class="relative z-10 font-display text-xs font-bold text-on-surface">Gmail</h3>
+            <button onclick="copyToClipboard('netnogames6@gmail.com', this)" class="relative z-10 w-full py-2 bg-[#EA4335]/10 border border-[#EA4335]/20 text-[#EA4335] font-display text-[10px] font-bold uppercase tracking-wider rounded transition-all hover:bg-[#EA4335]/20 flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">content_copy</span> Copy
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="w-full py-20 relative" style="background-color: var(--surface-dim);">
+      <div class="absolute left-0 top-0 w-full h-px bg-gradient-to-r from-transparent via-outline-variant/20 to-transparent"></div>
+      
+      <div class="max-w-screen-2xl mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="flex flex-col mb-12">
+          <div class="inline-flex items-center gap-3 mb-3">
+            <div class="w-8 h-px bg-primary-color"></div>
+            <span class="text-primary-color font-display font-semibold tracking-[0.2em] text-[10px] uppercase">The Architects</span>
+          </div>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-6xl font-bold text-primary-color text-glow">Meet the Team</h2>
+          <p class="font-body text-sm text-on-surface-variant max-w-2xl mt-3 leading-relaxed font-light">
+            The minds behind the Verdant Matrix. Each member shapes the digital ecosystems of NetNo Games.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
+          <div class="corner-bracket bg-surface border border-outline-variant/20 p-6 flex flex-col items-center text-center gap-4 transition-all duration-300 group hover:border-primary-color/30" style="background-color: var(--surface-color);">
+            <div class="w-20 h-20 rounded-full bg-surface-bright/40 border border-outline-variant/20 flex items-center justify-center overflow-hidden">
+              <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Khushal Singh" class="w-full h-full object-cover"/>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-display text-sm font-bold text-on-surface">Khushal Singh</h3>
+              <span class="text-[10px] text-primary-color font-display font-semibold uppercase tracking-wider">Main Dev (Owner)</span>
+            </div>
+            <p class="font-body text-xs text-on-surface-variant/70 leading-relaxed font-light">
+              Founder and lead developer steering the creative vision of NetNo Games.
+            </p>
+          </div>
+
+          <div class="corner-bracket bg-surface border border-outline-variant/20 p-6 flex flex-col items-center text-center gap-4 transition-all duration-300 group hover:border-primary-color/30" style="background-color: var(--surface-color);">
+            <div class="w-20 h-20 rounded-full bg-surface-bright/40 border border-outline-variant/20 flex items-center justify-center overflow-hidden">
+              <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Bhargava Bhat" class="w-full h-full object-cover"/>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-display text-sm font-bold text-on-surface">Bhargava Bhat</h3>
+              <span class="text-[10px] text-primary-color font-display font-semibold uppercase tracking-wider">Game Designer</span>
+            </div>
+            <p class="font-body text-xs text-on-surface-variant/70 leading-relaxed font-light">
+              Crafting immersive gameplay mechanics and atmospheric game worlds.
+            </p>
+          </div>
+
+          <div class="corner-bracket bg-surface border border-outline-variant/20 p-6 flex flex-col items-center text-center gap-4 transition-all duration-300 group hover:border-primary-color/30" style="background-color: var(--surface-color);">
+            <div class="w-20 h-20 rounded-full bg-surface-bright/40 border border-outline-variant/20 flex items-center justify-center overflow-hidden">
+              <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Ishu" class="w-full h-full object-cover"/>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-display text-sm font-bold text-on-surface">Ishu</h3>
+              <span class="text-[10px] text-primary-color font-display font-semibold uppercase tracking-wider">3D Artist</span>
+            </div>
+            <p class="font-body text-xs text-on-surface-variant/70 leading-relaxed font-light">
+              Building detailed 3D assets and environments that bring the vision to life.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer injected here -->
+  <footer id="global-footer"></footer>
+
+  <!-- Core Scripts -->
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script src="app.js"></script>
+  
+  <!-- Content Renderer Script -->
+  <script>
+    // Populate ticker with 3 random game names
+    (async function() {
+      await window.db._readyPromise;
+      const games = window.db.getGames().filter(g => g.visibility === 'Public');
+      const ticker = document.getElementById('game-ticker');
+      const track = document.getElementById('ticker-track');
+      if (!ticker || !track) return;
+      if (games.length === 0) return;
+      const selected = games.sort(() => Math.random() - 0.5).slice(0, 3);
+      const names = [...selected, ...selected];
+      const parts = [];
+      names.forEach(g => {
+        parts.push(`<span class="font-display text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/40">${g.title}</span>`);
+        parts.push(`<span class="text-primary-color/30">●</span>`);
+      });
+      track.innerHTML = parts.join('');
+      ticker.classList.remove('hidden');
+    })();
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      await window.db._readyPromise;
+      const container = document.getElementById("featured-games-container");
+      
+      // Let's retrieve games from database
+      const games = window.db.getGames().filter(g => g.visibility === 'Public');
+      
+      // Clean loading skeletons
+      container.innerHTML = "";
+      
+      if (games.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-3 text-center py-12 text-on-surface-variant">
+            No games found in the database. Head to the Developer Portal to publish a title!
+          </div>
+        `;
+        return;
+      }
+      
+      // Render first 3 games
+      games.slice(0, 3).forEach(g => {
+        const card = document.createElement("article");
+        card.className = "corner-bracket bg-surface border border-outline-variant/20 overflow-hidden group hover:border-primary-color/30 transition-all duration-500 relative flex flex-col h-full";
+        card.style.backgroundColor = "var(--surface-color)";
+        
+        // Dynamic price tag label
+        const priceLabel = g.priceType === 'Free' ? 'FREE' : `₹${g.price}`;
+        
+        card.innerHTML = `
+          <div class="absolute top-0 left-0 w-full h-px bg-primary-color scale-x-0 group-hover:scale-x-100 transition-transform origin-left z-10"></div>
+          <div class="h-56 overflow-hidden relative bg-black/40">
+            <img src="${g.thumbnail || 'https://via.placeholder.com/600x400'}" alt="${g.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-70 group-hover:opacity-100"/>
+            <div class="absolute top-3 right-3 bg-background/80 border border-outline-variant/50 text-primary-color font-display text-[10px] font-bold px-2.5 py-1 uppercase tracking-wider backdrop-blur-sm">
+              ${g.genre.split('/')[0].trim()}
+            </div>
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-secondary-color font-display text-[10px] font-bold uppercase tracking-[0.15em]">${g.theme.split('/')[0].trim()}</span>
+              <span class="text-primary-color font-display text-xs font-bold bg-primary-color/10 px-2 py-0.5">${priceLabel}</span>
+            </div>
+            <h3 class="font-display text-xl font-bold text-on-surface group-hover:text-primary-color transition-colors duration-300 mb-3">${g.title}</h3>
+            <p class="font-body text-sm text-on-surface-variant line-clamp-3 mb-6 flex-grow leading-relaxed font-light">${g.desc}</p>
+            <a href="game-detail.html?id=${g.id}" class="btn-glow-primary w-full py-3 bg-surface-bright/40 text-on-surface border border-outline-variant/30 font-display text-xs font-semibold uppercase text-center transition-all duration-300 group-hover:bg-primary-color group-hover:text-on-primary group-hover:border-primary-color">
+              View Details →
+            </a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    });
+  </script>
+</body>
+</html>
